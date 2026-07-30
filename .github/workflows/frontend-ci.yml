@@ -34,13 +34,17 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-          cache: pnpm
-          cache-dependency-path: frontend/pnpm-lock.yaml
 
-      - name: Display Versions
+      - name: Debug pnpm
         run: |
+          pwd
+          ls -la
+          ls -la frontend
           node -v
           pnpm -v
+          pnpm config list
+          test -f pnpm-workspace.yaml && cat pnpm-workspace.yaml || echo "No workspace file"
+          test -f .npmrc && cat .npmrc || echo "No .npmrc"
 
       - name: Install Dependencies
         run: pnpm install --no-frozen-lockfile

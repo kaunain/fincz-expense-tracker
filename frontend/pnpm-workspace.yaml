@@ -1,3 +1,0 @@
-minimumReleaseAgeExclude:
-  - '@angular/cdk@22.1.0'
-  - '@angular/material@22.1.0'
