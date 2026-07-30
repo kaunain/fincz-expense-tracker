@@ -1,0 +1,11 @@
+{
+  "name": "fincz-expense-tracker-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "start": "pnpm --filter frontend start",
+    "build": "pnpm --filter frontend build",
+    "test": "pnpm --filter frontend test",
+    "lint": "pnpm --filter frontend lint"
+  }
+}
