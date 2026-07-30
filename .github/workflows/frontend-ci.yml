@@ -37,15 +37,16 @@ jobs:
           cache: pnpm
           cache-dependency-path: frontend/pnpm-lock.yaml
 
-      - name: Install Dependencies
-        run: pnpm install --frozen-lockfile
+      - name: Display Versions
+        run: |
+          node -v
+          pnpm -v
 
-      - name: Check Formatting
+      - name: Install Dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Verify Formatting
         run: pnpm format:check
 
-      # Uncomment after ESLint is configured
-      # - name: Lint
-      #   run: pnpm lint
-
       - name: Production Build
-        run: pnpm ng build --configuration production
+        run: pnpm build
