@@ -1,0 +1,9 @@
+{
+  "recommendations": [
+    "Angular.ng-template",
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "eamodio.gitlens",
+    "usernamehw.errorlens"
+  ]
+}
