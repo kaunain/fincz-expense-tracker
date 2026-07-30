@@ -8,9 +8,12 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+
 jobs:
   build:
-
+    name: Build Angular App
     runs-on: ubuntu-latest
 
     defaults:
@@ -18,9 +21,14 @@ jobs:
         working-directory: frontend
 
     steps:
-
       - name: Checkout Repository
         uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+          run_install: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -29,13 +37,15 @@ jobs:
           cache: pnpm
           cache-dependency-path: frontend/pnpm-lock.yaml
 
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 9
-
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run Production Build
+      - name: Check Formatting
+        run: pnpm format:check
+
+      # Uncomment after ESLint is configured
+      # - name: Lint
+      #   run: pnpm lint
+
+      - name: Production Build
         run: pnpm ng build --configuration production
