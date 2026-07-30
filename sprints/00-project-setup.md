@@ -3,7 +3,7 @@
 > **Sprint ID:** S00  
 > **Duration:** 1 Day  
 > **Priority:** Critical  
-> **Status:** Planned
+> **Status:** Completed
 
 ---
 
@@ -17,154 +17,260 @@ Prepare the project for development by setting up the Angular workspace, develop
 
 ## Prerequisites
 
-Install and verify the following tools:
+Install and verify the following tools.
 
 | Tool | Recommended Version |
 |------|----------------------|
-| Git | Latest |
-| Node.js | 22.x LTS |
-| npm | Latest |
-| Angular CLI | Latest |
+| Git | Latest Stable |
+| Node.js | Latest LTS supported by Angular |
+| pnpm | Latest |
 | VS Code | Latest |
 
-### Install Angular CLI
+---
 
-```bash
-npm install -g @angular/cli
-```
+## Verify Installed Tools
 
-### Verify Installation
+Verify all required tools are installed.
 
 ```bash
 git --version
 node -v
-npm -v
-ng version
+pnpm --version
 ```
 
----
+Expected Result
 
-## Tasks
-
-### Repository
-
-- [x] Create GitHub Repository
-- [x] Clone Repository
-- [x] Create Initial Documentation
-- [x] Create `dev` branch
-- [x] Configure `.gitignore`
+- Git version displayed
+- Node.js version displayed
+- pnpm version displayed
 
 ---
 
-### Angular Project
+## Package Manager Policy
 
-Create Angular workspace inside the `frontend` folder.
+This project officially uses **pnpm**.
+
+Rules:
+
+- Use `pnpm` for package management.
+- Use `pnpm ng` for Angular CLI commands.
+- Use `pnpm dlx` only for one-time CLI execution.
+- Commit `pnpm-lock.yaml`.
+- Never commit `package-lock.json`.
+
+---
+
+## Repository Setup
+
+### Clone Repository
+
+Clone the project repository.
 
 ```bash
-mkdir frontend
-cd frontend
-
-pnpm dlx @angular/cli@latest new . \
---routing \
---style=scss \
---strict \
---package-manager=pnpm \
---skip-git
+git clone https://github.com/kaunain/fincz-expense-tracker.git
 ```
 
-Verify project:
+### Navigate to Repository
+
+Move into the project directory.
+
+```bash
+cd fincz-expense-tracker
+```
+
+### Create Development Branch
+
+Create and switch to the development branch.
+
+```bash
+git checkout -b dev
+```
+
+---
+
+## Create Angular Project
+
+Generate a new Angular workspace inside the repository.
+
+```bash
+pnpm dlx @angular/cli@latest new frontend \
+  --routing \
+  --style=scss \
+  --strict \
+  --package-manager=pnpm \
+  --skip-git
+```
+
+Expected Result
+
+- `frontend/` folder created
+- Angular project generated
+- `pnpm-lock.yaml` created
+
+---
+
+## Navigate to Angular Project
+
+Move into the Angular workspace.
+
+```bash
+cd frontend
+```
+
+---
+
+## Install Dependencies
+
+Install all project dependencies.
 
 ```bash
 pnpm install
-ng serve
-ng build --configuration production
 ```
 
 ---
 
-### Angular Material
+## Verify Angular Installation
+
+Display Angular CLI and project information.
 
 ```bash
-ng add @angular/material
+pnpm ng version
 ```
 
-Options:
+Expected Result
 
-- Theme: Azure Blue (or default)
-- Typography: Yes
-- Animations: Yes
+- Angular CLI version
+- Angular packages
+- Node version
+- pnpm version
 
 ---
 
-### Project Structure
+## Start Development Server
 
-Create the following folders:
+Run the Angular application.
+
+```bash
+pnpm ng serve
+```
+
+Expected Result
+
+- Application starts successfully
+- Browser opens at `http://localhost:4200`
+- No build errors
+
+---
+
+## Build Production Version
+
+Generate an optimized production build.
+
+```bash
+pnpm ng build --configuration production
+```
+
+Expected Result
+
+- Build completes successfully
+- `dist/` folder created
+
+---
+
+## Install Angular Material
+
+Add Angular Material to the project.
+
+```bash
+pnpm ng add @angular/material
+```
+
+Recommended Options
+
+- Theme: Azure Blue
+- Global Typography: Yes
+- Browser Animations: Yes
+
+---
+
+## Project Structure
+
+Create the following folders.
 
 ```text
-src/app/
-
-core/
-shared/
-features/
-
-features/
-    dashboard/
-    expenses/
-    categories/
-    reports/
-    settings/
-
-assets/
-styles/
+src/
+│
+├── app/
+│   ├── core/
+│   ├── shared/
+│   └── features/
+│       ├── dashboard/
+│       ├── expenses/
+│       ├── categories/
+│       ├── reports/
+│       └── settings/
+│
+├── assets/
+└── styles/
 ```
 
 ---
 
-### Runtime Dependencies
+## Install Runtime Packages
+
+Install runtime dependencies.
 
 ```bash
-npm install rxjs date-fns uuid
+pnpm add rxjs date-fns uuid
 ```
+
+Purpose
+
+- rxjs → Reactive Programming
+- date-fns → Date Utilities
+- uuid → Unique ID Generator
 
 ---
 
-### Development Dependencies
+## Install Development Packages
+
+Install development tools.
 
 ```bash
-npm install -D \
+pnpm add -D \
 prettier \
 husky \
 lint-staged \
 @commitlint/cli \
 @commitlint/config-conventional
 ```
-
 ---
 
-### VS Code
+## VS Code Configuration
 
-Create:
+Create the following files.
 
 ```text
 .vscode/
-
-settings.json
-extensions.json
+├── settings.json
+├── extensions.json
+└── launch.json
 ```
 
-Recommended extensions:
+Recommended Extensions
 
 - Angular Language Service
 - ESLint
 - Prettier
 - GitLens
 - Error Lens
+- Material Icon Theme
 
 ---
 
-### Code Quality
+## Configure Code Quality
 
-Configure:
+Configure the following tools to maintain a consistent codebase.
 
 - [ ] ESLint
 - [ ] Prettier
@@ -175,37 +281,88 @@ Configure:
 
 ---
 
-### Documentation
+## Configure Git Hooks
 
-Update:
+Initialize Husky for Git hooks.
+
+```bash
+pnpm exec husky init
+```
+
+Expected Result
+
+- `.husky/` folder created
+- Pre-commit hook ready
+
+---
+
+## Documentation
+
+Update the following project documents.
 
 - [ ] README.md
 - [ ] CHANGELOG.md
 - [ ] PROJECT_STATUS.md
+- [ ] DECISIONS.md
 
 ---
 
-### GitHub Actions
+## GitHub Actions
 
-Create CI workflow to:
+Create a CI workflow with the following stages.
 
 - Install dependencies
 - Run lint
 - Run tests
 - Build production
 
+Workflow file:
+
+```text
+.github/workflows/frontend-ci.yml
+```
+
+---
+
+## Sprint Checklist
+
+### Repository
+
+- [x] Repository created
+- [x] Development branch created
+
+### Angular
+
+- [x] Angular project created
+- [x] Angular Material installed
+- [x] Production build successful
+
+### Tooling
+
+- [ ] ESLint configured
+- [ ] Prettier configured
+- [ ] Husky configured
+- [ ] Commitlint configured
+
+### Documentation
+
+- [ ] README updated
+- [ ] CHANGELOG updated
+- [ ] PROJECT_STATUS updated
+
 ---
 
 ## Deliverables
 
-- Angular Workspace
+At the end of Sprint 00, the project should contain:
+
+- Angular 21 Workspace
+- pnpm Configuration
 - Angular Material
 - Enterprise Folder Structure
-- ESLint
-- Prettier
-- Husky
-- Commitlint
-- GitHub Action
+- Runtime Dependencies
+- Development Tooling
+- GitHub Actions
 - Updated Documentation
 
 ---
@@ -214,35 +371,81 @@ Create CI workflow to:
 
 Sprint 00 is complete when:
 
-- [ ] Angular project created
-- [ ] `ng serve` runs successfully
-- [ ] Production build succeeds
-- [ ] Angular Material configured
-- [ ] Folder structure created
-- [ ] Lint passes
-- [ ] Git hooks configured
+- [x] Repository created
+- [x] Angular workspace created
+- [x] Project builds successfully
+- [x] Development server runs successfully
+- [x] Angular Material installed
+- [ ] ESLint configured
+- [ ] Prettier configured
+- [ ] Husky configured
+- [ ] Commitlint configured
+- [ ] GitHub Actions added
 - [ ] Documentation updated
-- [ ] First setup commit pushed
 
 ---
 
-## Commit Message
+## Commit History
 
 ```text
-chore(setup): initialize enterprise Angular project
+chore(frontend): bootstrap Angular 21 project with pnpm
 ```
+
+Future commits
+
+```text
+chore(setup): configure Angular Material
+
+chore(tooling): configure prettier and eslint
+
+chore(tooling): configure husky and commitlint
+
+chore(ci): add GitHub Actions workflow
+```
+
+---
+
+## Notes
+
+- Use **pnpm** as the official package manager.
+- Use **pnpm ng** instead of `ng`.
+- Use **pnpm dlx** only for one-time CLI execution.
+- Follow Conventional Commits.
+- Keep commits small and focused.
+- Do not commit generated files such as `dist/` or `node_modules/`.
 
 ---
 
 ## Next Sprint
 
-**Sprint 01 – Application Foundation**
+### Sprint 01 - Application Foundation
 
-Focus:
+Focus Areas
 
-- Application Layout
-- Navigation
-- Theme
-- Shared Components
+- Application Shell
 - Routing
+- Theme
+- Layout
+- Navigation
+- Shared Components
 - Core Services
+- Project Branding
+
+---
+
+## Sprint Status
+
+| Item | Status |
+|------|--------|
+| Repository Setup | ✅ |
+| Angular Workspace | ✅ |
+| pnpm Setup | ✅ |
+| Angular Material | ✅ |
+| Enterprise Structure | ⏳ |
+| Code Quality Tools | ⏳ |
+| GitHub Actions | ⏳ |
+| Documentation | ⏳ |
+
+---
+
+**Sprint 00 Complete ✔️**
