@@ -51,8 +51,8 @@ ng version
 - [x] Create GitHub Repository
 - [x] Clone Repository
 - [x] Create Initial Documentation
-- [ ] Create `dev` branch
-- [ ] Configure `.gitignore`
+- [x] Create `dev` branch
+- [x] Configure `.gitignore`
 
 ---
 
@@ -64,18 +64,18 @@ Create Angular workspace inside the `frontend` folder.
 mkdir frontend
 cd frontend
 
-ng new . \
+pnpm dlx @angular/cli@latest new . \
 --routing \
 --style=scss \
 --strict \
---package-manager=npm \
+--package-manager=pnpm \
 --skip-git
 ```
 
 Verify project:
 
 ```bash
-npm install
+pnpm install
 ng serve
 ng build --configuration production
 ```
