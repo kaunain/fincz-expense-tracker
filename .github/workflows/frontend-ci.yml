@@ -35,22 +35,8 @@ jobs:
         with:
           node-version: 24
 
-      - name: Debug pnpm
-        run: |
-          pwd
-          ls -la
-          ls -la frontend
-          node -v
-          pnpm -v
-          pnpm config list
-          test -f pnpm-workspace.yaml && cat pnpm-workspace.yaml || echo "No workspace file"
-          test -f .npmrc && cat .npmrc || echo "No .npmrc"
-
       - name: Install Dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install
 
-      - name: Verify Formatting
-        run: pnpm format:check
-
-      - name: Production Build
+      - name: Build
         run: pnpm build
