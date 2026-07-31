@@ -1,384 +1,103 @@
 # Database Design
 
-**Project Name:** Fincz Expense Tracker
-
-**Version:** 0.1.0
-
-**Status:** Draft
-
-**Author:** Kaunain Ahmad
+**Project Name:** Fincz Expense Tracker  
+**Version:** 0.2.0  
+**Status:** Active  
+**Author:** Kaunain Ahmad  
 
 ---
 
 # Overview
 
-Version 0.1 stores data in browser Local Storage.
+Fincz Expense Tracker utilizes a **Local-First Storage Engine** powered by **IndexedDB via Dexie.js** for Phase 1 (v1.0).
 
-However, the application is designed so that it can later migrate to PostgreSQL without changing the frontend architecture.
-
-This document defines the future database structure.
+All data is stored directly in the user's browser database with index-optimized querying. Custom PostgreSQL server database schemas are documented for Phase 2 expansion.
 
 ---
 
-# Database
+# Client-Side Database Schema (IndexedDB via Dexie.js)
 
-PostgreSQL
-
----
-
-# Design Principles
-
-- Keep tables normalized.
-- Use UUID as the primary key.
-- Track creation and update timestamps.
-- Use soft delete where applicable.
-- Avoid duplicate data.
-- Design for future scalability.
+### Database Name
+`FinczExpenseTrackerDB`
 
 ---
 
-# Entity Relationship Diagram
+## 1. Table: `expenses`
 
-```
+**Purpose:** Stores user financial transaction records.
 
-User
-│
-├──────────────┐
-│              │
-│              │
-Expense     Budget
-│
-│
-Category
-│
-│
-Account
+| Attribute | TypeScript Type | Indexed Key | Description |
+|-----------|-----------------|-------------|-------------|
+| `id` | `number` | Primary Key (`++id`) | Auto-incremented unique ID |
+| `title` | `string` | Indexed | Short transaction title/description |
+| `amount` | `number` | Indexed | Transaction monetary value |
+| `category` | `string` | Indexed | Associated category name |
+| `date` | `string` | Indexed | ISO Date string (`YYYY-MM-DD`) |
+| `paymentMethod` | `PaymentMethod` | Indexed | Cash, Credit Card, Debit Card, UPI, etc. |
+| `notes` | `string` | Optional | Additional notes or tags |
+| `createdAt` | `string` | Indexed | ISO Timestamp of creation |
+| `updatedAt` | `string` | Metadata | ISO Timestamp of last modification |
 
+```typescript
+// Dexie Store Definition
+expenses: '++id, title, amount, category, date, paymentMethod, createdAt'
 ```
 
 ---
 
-# Table: users
-
-Purpose
-
-Stores application users.
-
-| Column | Type | Description |
-|----------|----------|----------------|
-| id | UUID | Primary Key |
-| name | VARCHAR(100) | Full Name |
-| email | VARCHAR(150) | Email Address |
-| password | VARCHAR | Encrypted Password |
-| created_at | TIMESTAMP | Created Time |
-| updated_at | TIMESTAMP | Updated Time |
-
----
-
-# Table: categories
-
-Purpose
-
-Stores expense categories.
-
-| Column | Type | Description |
-|----------|----------|----------------|
-| id | UUID | Primary Key |
-| name | VARCHAR(50) | Category Name |
-| icon | VARCHAR(50) | Material Icon |
-| color | VARCHAR(20) | Display Color |
-| is_default | BOOLEAN | Default Category |
-| created_at | TIMESTAMP | Created Time |
-
----
-
-# Table: accounts
-
-Purpose
-
-Stores payment accounts.
-
-Examples
-
-- Cash
-- Bank
-- Credit Card
-- Wallet
-- UPI
-
-| Column | Type | Description |
-|----------|----------|----------------|
-| id | UUID | Primary Key |
-| name | VARCHAR(50) | Account Name |
-| type | VARCHAR(30) | Account Type |
-| balance | DECIMAL(15,2) | Current Balance |
-| created_at | TIMESTAMP | Created Time |
-
----
-
-# Table: expenses
-
-Purpose
-
-Stores all expense records.
-
-| Column | Type | Description |
-|----------|----------|----------------|
-| id | UUID | Primary Key |
-| category_id | UUID | Category |
-| account_id | UUID | Payment Account |
-| amount | DECIMAL(15,2) | Expense Amount |
-| expense_date | DATE | Expense Date |
-| note | TEXT | Notes |
-| created_at | TIMESTAMP | Created Time |
-| updated_at | TIMESTAMP | Updated Time |
-
----
-
-# Table: budgets
-
-Purpose
-
-Stores monthly budgets.
-
-| Column | Type | Description |
-|----------|----------|----------------|
-| id | UUID | Primary Key |
-| category_id | UUID | Category |
-| amount | DECIMAL(15,2) | Budget Amount |
-| month | INTEGER | Month |
-| year | INTEGER | Year |
-
----
-
-# Relationships
-
-```
-
-Category
-
-1
-
-|
-
-|
-
-*
-
-Expense
-
-```
-
-One category can have many expenses.
-
----
-
-```
-
-Account
-
-1
-
-|
-
-|
-
-*
-
-Expense
-
-```
-
-One account can have many expenses.
-
----
-
-```
-
-Category
-
-1
-
-|
-
-|
-
-*
-
-Budget
-
-```
-
-One category can have multiple monthly budgets.
-
----
-
-# Indexes
-
-Expense Table
-
-- expense_date
-- category_id
-- account_id
-
-Category Table
-
-- name
-
-Account Table
-
-- name
-
----
-
-# Naming Convention
-
-Tables
-
-- lowercase
-- plural
-
-Examples
-
-- users
-- expenses
-- categories
-
-Columns
-
-- snake_case
-
-Examples
-
-- created_at
-- updated_at
-- category_id
-
----
-
-# Audit Columns
-
-Every table should contain:
-
-- created_at
-- updated_at
-
-Future
-
-- created_by
-- updated_by
-
----
-
-# Data Validation
-
-Expense
-
-- Amount must be greater than zero.
-- Category is required.
-- Account is required.
-- Expense date is required.
-
-Category
-
-- Name cannot be empty.
-- Name must be unique.
-
-Account
-
-- Name cannot be empty.
-
----
-
-# Future Tables
-
-The following tables will be added in future releases.
-
-- incomes
-- investments
-- savings_goals
-- subscriptions
-- reminders
-- notifications
-- recurring_expenses
-- user_settings
-
----
-
-# Sample Data
-
-Category
-
-```
-Food
-Travel
-Medical
-Shopping
-Bills
-Education
-Entertainment
+## 2. Table: `categories`
+
+**Purpose:** Stores spending categories and visual badges.
+
+| Attribute | TypeScript Type | Indexed Key | Description |
+|-----------|-----------------|-------------|-------------|
+| `id` | `number` | Primary Key (`++id`) | Auto-incremented unique ID |
+| `name` | `string` | Unique Index (`&name`) | Category display name |
+| `icon` | `string` | Property | Material design icon key |
+| `color` | `string` | Property | HEX color badge string |
+| `isDefault` | `boolean` | Indexed | `true` for system defaults |
+| `budgetLimit` | `number` | Optional | Optional monthly spending limit |
+
+```typescript
+// Dexie Store Definition
+categories: '++id, &name, isDefault'
 ```
 
 ---
 
-Account
+# Seed Data (Default Categories)
 
-```
-Cash
-Bank
-UPI
-Credit Card
-Wallet
-```
-
----
-
-Expense
-
-```
-Amount: 25.50
-Category: Food
-Account: Cash
-Date: 2026-08-01
-Note: Lunch
-```
+Upon first launch, `AppDatabase` automatically populates the `categories` table with system presets:
+- Food & Dining (`#ff6b6b`)
+- Housing & Rent (`#4ecdc4`)
+- Transportation (`#ffe66d`)
+- Utilities & Bills (`#1a535c`)
+- Entertainment (`#9b5de5`)
+- Shopping (`#f15bb5`)
+- Health & Fitness (`#00bbf9`)
+- Salary & Income (`#00f5d4`)
+- Miscellaneous (`#6c757d`)
 
 ---
 
-# Migration Plan
+# Backup & Restore Payload Format (JSON)
 
-Version 0.1
-
-Local Storage
-
-↓
-
-Version 0.7
-
-Spring Boot REST APIs
-
-↓
-
-PostgreSQL
-
-↓
-
-Cloud Database
-
----
-
-# Future Improvements
-
-- Multi-user support
-- Shared family accounts
-- Multi-currency
-- Data encryption
-- Automatic backup
-- Cloud synchronization
-- Financial analytics
-
----
-
-# Summary
-
-The database design is intentionally simple for the initial version while providing a solid foundation for future growth.
+```json
+{
+  "app": "Fincz Expense Tracker",
+  "version": "0.2.0",
+  "exportedAt": "2026-07-31T12:00:00.000Z",
+  "expenses": [
+    {
+      "title": "Grocery Shopping",
+      "amount": 85.50,
+      "category": "Food & Dining",
+      "date": "2026-07-31",
+      "paymentMethod": "Credit Card",
+      "createdAt": "2026-07-31T10:00:00.000Z",
+      "updatedAt": "2026-07-31T10:00:00.000Z"
+    }
+  ],
+  "categories": [...]
+}
+```

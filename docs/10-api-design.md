@@ -1,519 +1,67 @@
-# API Design
+# API & Service Design Specifications
 
-**Project Name:** Fincz Expense Tracker
-
-**Version:** 0.1.0
-
-**Status:** Draft
-
-**Author:** Kaunain Ahmad
+**Project Name:** Fincz Expense Tracker  
+**Version:** 0.2.0  
+**Status:** Active  
+**Author:** Kaunain Ahmad  
 
 ---
 
 # Overview
 
-This document defines the REST APIs for the backend.
-
-The APIs follow RESTful design principles and use JSON for request and response payloads.
+In Phase 1 (Local-First Architecture), application logic operates via **Angular Service Contracts** interacting with browser **IndexedDB (Dexie.js)**. Phase 2 deferred Spring Boot REST endpoints are also defined for cloud synchronization.
 
 ---
 
-# API Standards
+# Client-Side Service Contracts (Phase 1)
 
-Base URL
+## 1. `ExpenseService`
 
-```
-/api/v1
-```
+Provides transaction management with Angular Reactive Signals state.
 
-Content Type
+| Method | Parameters | Return Type | Description |
+|--------|------------|-------------|-------------|
+| `refreshExpenses()` | None | `Promise<void>` | Fetches all items from Dexie IndexedDB into Signals |
+| `addExpense(data)` | `Omit<Expense, 'id' \| 'createdAt' \| 'updatedAt'>` | `Promise<number>` | Creates new transaction record |
+| `updateExpense(id, data)` | `number, Partial<Expense>` | `Promise<void>` | Updates existing transaction by primary key |
+| `deleteExpense(id)` | `number` | `Promise<void>` | Deletes transaction record |
+| `setFilter(filter)` | `Partial<ExpenseFilter>` | `void` | Applies search, category, or date range filter |
+| `clearAllExpenses()` | None | `Promise<void>` | Wipes all transactions from local database |
 
-```
-application/json
-```
-
-Authentication
-
-Version 0.1
-
-- No Authentication
-
-Future
-
-- JWT Bearer Token
+### Signals Exposed
+- `expenses`: `Signal<Expense[]>` (Read-only raw list)
+- `filteredExpenses`: `Signal<Expense[]>` (Computed reactive filtered & sorted list)
+- `financialSummary`: `Signal<FinancialSummary>` (Computed metrics: totalSpent, monthlySpent, categoryBreakdown)
 
 ---
 
-# Standard Response
+## 2. `CategoryService`
 
-Success
+Manages spending category store.
 
-```json
-{
-  "success": true,
-  "message": "Expense created successfully.",
-  "data": {}
-}
-```
-
-Error
-
-```json
-{
-  "success": false,
-  "message": "Validation failed.",
-  "errors": []
-}
-```
+| Method | Parameters | Return Type | Description |
+|--------|------------|-------------|-------------|
+| `initCategories()` | None | `Promise<void>` | Initializes category table and seeds defaults |
+| `addCategory(data)` | `Omit<Category, 'id'>` | `Promise<number>` | Adds custom spending category |
+| `deleteCategory(id)` | `number` | `Promise<void>` | Removes custom category (System defaults protected) |
 
 ---
 
-# Expense APIs
+## 3. `ImportExportService`
 
-## Create Expense
+Handles local data portability.
 
-POST
-
-```
-/api/v1/expenses
-```
-
-Request
-
-```json
-{
-  "amount": 25.50,
-  "categoryId": "uuid",
-  "accountId": "uuid",
-  "expenseDate": "2026-08-01",
-  "note": "Lunch"
-}
-```
-
-Response
-
-```json
-{
-  "success": true,
-  "message": "Expense created successfully."
-}
-```
+| Method | Parameters | Return Type | Description |
+|--------|------------|-------------|-------------|
+| `exportData()` | None | `Promise<void>` | Serializes database to downloadable JSON file |
+| `importData(file)` | `File` | `Promise<ImportResult>` | Validates JSON backup file & populates IndexedDB |
 
 ---
 
-## Get All Expenses
-
-GET
-
-```
-/api/v1/expenses
-```
-
-Optional Query Parameters
-
-```
-?page=1
-&size=20
-&sort=expenseDate,desc
-```
-
----
-
-## Get Expense By Id
-
-GET
-
-```
-/api/v1/expenses/{id}
-```
-
----
-
-## Update Expense
-
-PUT
-
-```
-/api/v1/expenses/{id}
-```
-
----
-
-## Delete Expense
-
-DELETE
-
-```
-/api/v1/expenses/{id}
-```
-
----
-
-## Search Expenses
-
-GET
-
-```
-/api/v1/expenses/search
-```
-
-Query Parameters
-
-```
-category
-
-account
-
-fromDate
-
-toDate
-
-keyword
-```
-
----
-
-# Category APIs
-
-## Get Categories
-
-GET
-
-```
-/api/v1/categories
-```
-
----
-
-## Create Category
-
-POST
-
-```
-/api/v1/categories
-```
-
----
-
-## Update Category
-
-PUT
-
-```
-/api/v1/categories/{id}
-```
-
----
-
-## Delete Category
-
-DELETE
-
-```
-/api/v1/categories/{id}
-```
-
----
-
-# Account APIs
-
-## Get Accounts
-
-GET
-
-```
-/api/v1/accounts
-```
-
----
-
-## Create Account
-
-POST
-
-```
-/api/v1/accounts
-```
-
----
-
-## Update Account
-
-PUT
-
-```
-/api/v1/accounts/{id}
-```
-
----
-
-## Delete Account
-
-DELETE
-
-```
-/api/v1/accounts/{id}
-```
-
----
-
-# Dashboard APIs
-
-## Dashboard Summary
-
-GET
-
-```
-/api/v1/dashboard
-```
-
-Example Response
-
-```json
-{
-  "todayExpense": 35.25,
-  "monthExpense": 540.80,
-  "totalExpense": 1280.40,
-  "remainingBudget": 219.60
-}
-```
-
----
-
-## Recent Expenses
-
-GET
-
-```
-/api/v1/dashboard/recent-expenses
-```
-
----
-
-# Report APIs
-
-## Monthly Report
-
-GET
-
-```
-/api/v1/reports/monthly
-```
-
-Parameters
-
-```
-month
-
-year
-```
-
----
-
-## Yearly Report
-
-GET
-
-```
-/api/v1/reports/yearly
-```
-
----
-
-## Category Report
-
-GET
-
-```
-/api/v1/reports/categories
-```
-
----
-
-# Budget APIs (Future)
-
-GET
-
-```
-/api/v1/budgets
-```
-
-POST
-
-```
-/api/v1/budgets
-```
-
-PUT
-
-```
-/api/v1/budgets/{id}
-```
-
-DELETE
-
-```
-/api/v1/budgets/{id}
-```
-
----
-
-# Authentication APIs (Future)
-
-POST
-
-```
-/api/v1/auth/register
-```
-
-POST
-
-```
-/api/v1/auth/login
-```
-
-POST
-
-```
-/api/v1/auth/logout
-```
-
-GET
-
-```
-/api/v1/auth/profile
-```
-
----
-
-# HTTP Status Codes
-
-| Status | Meaning |
-|----------|---------------------------|
-| 200 | OK |
-| 201 | Created |
-| 204 | No Content |
-| 400 | Bad Request |
-| 401 | Unauthorized |
-| 403 | Forbidden |
-| 404 | Not Found |
-| 409 | Conflict |
-| 500 | Internal Server Error |
-
----
-
-# Validation Rules
-
-Expense
-
-- Amount > 0
-- Category is required
-- Account is required
-- Expense Date is required
-
-Category
-
-- Name is required
-- Name must be unique
-
-Account
-
-- Name is required
-
----
-
-# Pagination
-
-Request
-
-```
-GET /expenses?page=1&size=20
-```
-
-Response
-
-```json
-{
-  "content": [],
-  "page": 1,
-  "size": 20,
-  "totalElements": 120,
-  "totalPages": 6
-}
-```
-
----
-
-# Sorting
-
-Example
-
-```
-GET /expenses?sort=expenseDate,desc
-```
-
-```
-GET /expenses?sort=amount,asc
-```
-
----
-
-# Filtering
-
-Examples
-
-```
-GET /expenses?category=Food
-```
-
-```
-GET /expenses?account=Cash
-```
-
-```
-GET /expenses?fromDate=2026-08-01&toDate=2026-08-31
-```
-
----
-
-# Versioning Strategy
-
-Current Version
-
-```
-v1
-```
-
-Future
-
-```
-/api/v2
-```
-
-Only introduce a new API version when there are breaking changes.
-
----
-
-# Future APIs
-
-- Income
-- Investments
-- Savings Goals
-- Net Worth
-- Financial Calendar
-- Notifications
-- Recurring Expenses
-- AI Insights
-
----
-
-# API Design Principles
-
-- RESTful URLs
-- Use HTTP methods correctly
-- Consistent naming
-- Stateless APIs
-- JSON only
-- Pagination for large data
-- Proper validation
-- Meaningful error messages
+# Deferred Backend REST API Endpoints (Phase 2 Expansion)
+
+- `GET /api/v1/expenses`: Fetch user cloud expenses
+- `POST /api/v1/expenses`: Sync new transaction
+- `PUT /api/v1/expenses/{id}`: Update synced transaction
+- `DELETE /api/v1/expenses/{id}`: Delete synced transaction
+- `POST /api/v1/sync`: Batch upload/download offline IndexedDB transactions
