@@ -1,9 +1,10 @@
 /**
  * @file add-expense-dialog.component.ts
- * @description Material 3 Dialog for adding or editing expenses with rich touch controls and category icons.
+ * @description Material 3 Dialog for adding/editing expenses with Indian Rupees (₹),
+ * native MatDatepicker calendar picker, and auto-complete title suggestions after typing 3+ chars.
  */
 
-import { Component, Inject, inject } from '@angular/core';
+import { Component, Inject, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
@@ -12,7 +13,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { CategoryService } from '../../../core/services/category.service';
+import { ExpenseService } from '../../../core/services/expense.service';
 import { Expense, PaymentMethod } from '../../../core/models/expense.model';
 
 export interface ExpenseDialogData {
@@ -22,6 +27,7 @@ export interface ExpenseDialogData {
 @Component({
   selector: 'app-add-expense-dialog',
   standalone: true,
+  providers: [provideNativeDateAdapter()],
   imports: [
     CommonModule,
     FormsModule,
@@ -31,7 +37,9 @@ export interface ExpenseDialogData {
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
-    MatIconModule
+    MatIconModule,
+    MatAutocompleteModule,
+    MatDatepickerModule
   ],
   template: `
     <div class="dialog-container">
@@ -43,9 +51,9 @@ export interface ExpenseDialogData {
       </div>
 
       <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="dialog-form">
-        <!-- Amount Input Field (Hero focus) -->
+        <!-- Hero Amount Input Field (Indian Rupees ₹) -->
         <div class="amount-field-wrapper">
-          <span class="currency-symbol">$</span>
+          <span class="currency-symbol">₹</span>
           <input
             type="number"
             step="0.01"
@@ -56,14 +64,29 @@ export interface ExpenseDialogData {
           />
         </div>
         <div *ngIf="expenseForm.get('amount')?.invalid && expenseForm.get('amount')?.touched" class="error-msg">
-          Valid amount is required.
+          Please enter a valid amount.
         </div>
 
-        <!-- Title / Description -->
+        <!-- Description / Title with Auto-suggest (min 3 chars) -->
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Description / Merchant</mat-label>
-          <input matInput formControlName="title" placeholder="e.g. Grocery Store, Coffee" />
+          <mat-label>Description / Item Name</mat-label>
+          <input
+            type="text"
+            matInput
+            formControlName="title"
+            [matAutocomplete]="auto"
+            placeholder="e.g. Grocery, Milk, Petrol"
+          />
           <mat-icon matPrefix>edit_note</mat-icon>
+
+          <mat-autocomplete #auto="matAutocomplete">
+            <mat-option *ngFor="let suggestion of filteredTitleSuggestions()" [value]="suggestion">
+              <span class="suggestion-item">
+                <span class="material-symbols-outlined sugg-icon">history</span>
+                {{ suggestion }}
+              </span>
+            </mat-option>
+          </mat-autocomplete>
         </mat-form-field>
 
         <div class="form-row">
@@ -84,26 +107,28 @@ export interface ExpenseDialogData {
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>Payment Method</mat-label>
             <mat-select formControlName="paymentMethod">
+              <mat-option value="UPI">📱 UPI / GPay</mat-option>
               <mat-option value="Cash">💵 Cash</mat-option>
               <mat-option value="Credit Card">💳 Credit Card</mat-option>
               <mat-option value="Debit Card">💳 Debit Card</mat-option>
-              <mat-option value="UPI">📱 UPI / Mobile</mat-option>
               <mat-option value="Bank Transfer">🏦 Bank Transfer</mat-option>
             </mat-select>
           </mat-form-field>
         </div>
 
         <div class="form-row">
-          <!-- Transaction Date -->
+          <!-- Calendar Date Picker (Clickable Native Calendar) -->
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>Date</mat-label>
-            <input matInput type="date" formControlName="date" />
+            <input matInput [matDatepicker]="picker" formControlName="date" />
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
           </mat-form-field>
 
-          <!-- Optional Notes -->
+          <!-- Notes (Optional) -->
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>Notes (Optional)</mat-label>
-            <input matInput formControlName="notes" placeholder="Tags or notes" />
+            <input matInput formControlName="notes" placeholder="Additional notes" />
           </mat-form-field>
         </div>
 
@@ -141,16 +166,17 @@ export interface ExpenseDialogData {
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #f1f5f9;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
       border-radius: 16px;
       padding: 0.75rem 1rem;
       margin-bottom: 0.5rem;
     }
     .currency-symbol {
-      font-size: 2rem;
+      font-size: 2.2rem;
       font-weight: 800;
-      color: #64748b;
-      margin-right: 0.25rem;
+      color: #2563eb;
+      margin-right: 0.35rem;
     }
     .amount-input {
       font-size: 2.25rem;
@@ -182,6 +208,16 @@ export interface ExpenseDialogData {
       height: 10px;
       border-radius: 50%;
     }
+    .suggestion-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+    .sugg-icon {
+      font-size: 18px;
+      color: #94a3b8;
+    }
     .dialog-actions {
       display: flex;
       justify-content: flex-end;
@@ -192,7 +228,7 @@ export interface ExpenseDialogData {
       border-radius: 12px;
       padding: 0 1.5rem;
     }
-    .error-text {
+    .error-msg {
       color: #ef4444;
       font-size: 0.75rem;
       text-align: center;
@@ -201,18 +237,20 @@ export interface ExpenseDialogData {
 })
 export class AddExpenseDialogComponent {
   private categoryService = inject(CategoryService);
+  private expenseService = inject(ExpenseService);
   private fb = inject(FormBuilder);
   public dialogRef = inject(MatDialogRef<AddExpenseDialogComponent>);
 
   public categories = this.categoryService.categories;
+  public pastExpenses = this.expenseService.expenses;
   public isEdit = false;
 
   public expenseForm = this.fb.group({
     title: ['', Validators.required],
     amount: [null as number | null, [Validators.required, Validators.min(0.01)]],
-    date: [new Date().toISOString().slice(0, 10), Validators.required],
+    date: [new Date(), Validators.required],
     category: ['Food & Dining', Validators.required],
-    paymentMethod: ['Cash' as PaymentMethod, Validators.required],
+    paymentMethod: ['UPI' as PaymentMethod, Validators.required],
     notes: ['']
   });
 
@@ -222,7 +260,7 @@ export class AddExpenseDialogComponent {
       this.expenseForm.patchValue({
         title: data.expense.title,
         amount: data.expense.amount,
-        date: data.expense.date,
+        date: new Date(data.expense.date),
         category: data.expense.category,
         paymentMethod: data.expense.paymentMethod,
         notes: data.expense.notes || ''
@@ -230,12 +268,43 @@ export class AddExpenseDialogComponent {
     }
   }
 
+  /**
+   * Auto-suggest title list when user types 3 or more characters
+   */
+  public filteredTitleSuggestions = computed(() => {
+    const rawTitle = (this.expenseForm.get('title')?.value || '').trim().toLowerCase();
+    if (rawTitle.length < 3) return [];
+
+    const uniqueTitles = new Set<string>();
+    for (const exp of this.pastExpenses()) {
+      if (exp.title && exp.title.toLowerCase().includes(rawTitle)) {
+        uniqueTitles.add(exp.title);
+      }
+    }
+    return Array.from(uniqueTitles).slice(0, 5);
+  });
+
   onCancel(): void {
     this.dialogRef.close();
   }
 
   onSubmit(): void {
     if (this.expenseForm.invalid) return;
-    this.dialogRef.close(this.expenseForm.value);
+
+    const val = this.expenseForm.value;
+    let formattedDateStr = new Date().toISOString().slice(0, 10);
+    if (val.date) {
+      const d = new Date(val.date);
+      formattedDateStr = d.toISOString().slice(0, 10);
+    }
+
+    this.dialogRef.close({
+      title: val.title,
+      amount: val.amount,
+      date: formattedDateStr,
+      category: val.category,
+      paymentMethod: val.paymentMethod,
+      notes: val.notes
+    });
   }
 }

@@ -1,6 +1,6 @@
 /**
  * @file reports.component.ts
- * @description Mobile-First Analytics & Spending Reports View with category distribution progress bars.
+ * @description Mobile-First Analytics & Spending Reports View displaying amounts in Indian Rupees (₹).
  */
 
 import { Component, inject } from '@angular/core';
@@ -22,11 +22,11 @@ import { ExpenseService } from '../../core/services/expense.service';
       <div class="stats-grid">
         <div class="m3-card stat-card primary">
           <span class="stat-label">Total Spent</span>
-          <span class="stat-value">\${{ summary().totalSpent | number:'1.2-2' }}</span>
+          <span class="stat-value">₹{{ summary().totalSpent | number:'1.2-2' }}</span>
         </div>
         <div class="m3-card stat-card info">
           <span class="stat-label">This Month</span>
-          <span class="stat-value">\${{ summary().monthlySpent | number:'1.2-2' }}</span>
+          <span class="stat-value">₹{{ summary().monthlySpent | number:'1.2-2' }}</span>
         </div>
         <div class="m3-card stat-card success">
           <span class="stat-label">Transactions</span>
@@ -47,7 +47,7 @@ import { ExpenseService } from '../../core/services/expense.service';
           <div *ngFor="let item of summary().categoryBreakdown" class="breakdown-item">
             <div class="item-header">
               <span class="cat-name">{{ item.category }}</span>
-              <span class="cat-val">\${{ item.amount | number:'1.2-2' }} ({{ item.percentage }}%)</span>
+              <span class="cat-val">₹{{ item.amount | number:'1.2-2' }} ({{ item.percentage }}%)</span>
             </div>
             <div class="bar-bg">
               <div 

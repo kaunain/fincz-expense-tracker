@@ -53,7 +53,7 @@ export class ImportExportService {
   }
 
   /**
-   * Import backup JSON file, validate structure, and populate IndexedDB
+   * Import backup JSON file, validate structure, and populate IndexedDB without ConstraintErrors
    */
   async importData(file: File): Promise<{ success: boolean; importedCount: number; message: string }> {
     return new Promise((resolve, reject) => {
@@ -72,26 +72,39 @@ export class ImportExportService {
             });
           }
 
-          // Clear existing data and import backup
-          await db.expenses.clear();
-          
-          // Strip auto-generated primary key IDs for clean re-insertion if needed
-          const sanitizedExpenses = payload.expenses.map(({ id, ...rest }) => rest as Expense);
-          await db.expenses.bulkAdd(sanitizedExpenses);
+          // Clear existing expenses and categories to prevent unique index ConstraintError
+          await db.transaction('rw', [db.expenses, db.categories], async () => {
+            await db.expenses.clear();
+            await db.categories.clear();
 
-          if (payload.categories && Array.isArray(payload.categories)) {
-            const sanitizedCategories = payload.categories.map(({ id, ...rest }) => rest as Category);
-            // Ignore duplicate names during category import
-            await db.categories.bulkPut(sanitizedCategories);
-          }
+            // Import expenses
+            const sanitizedExpenses = payload.expenses.map(({ id, ...rest }) => rest as Expense);
+            if (sanitizedExpenses.length > 0) {
+              await db.expenses.bulkAdd(sanitizedExpenses);
+            }
 
-          await this.expenseService.refreshExpenses();
+            // Deduplicate categories by name
+            if (payload.categories && Array.isArray(payload.categories) && payload.categories.length > 0) {
+              const uniqueCategoriesMap = new Map<string, Category>();
+              for (const cat of payload.categories) {
+                if (cat.name && !uniqueCategoriesMap.has(cat.name)) {
+                  const { id, ...rest } = cat;
+                  uniqueCategoriesMap.set(cat.name, rest as Category);
+                }
+              }
+              const sanitizedCategories = Array.from(uniqueCategoriesMap.values());
+              await db.categories.bulkAdd(sanitizedCategories);
+            }
+          });
+
           await this.categoryService.initCategories();
+          await this.expenseService.refreshExpenses();
 
+          const count = payload.expenses.length;
           resolve({
             success: true,
-            importedCount: sanitizedExpenses.length,
-            message: `Successfully imported ${sanitizedExpenses.length} transactions!`
+            importedCount: count,
+            message: `Successfully imported ${count} transactions!`
           });
         } catch (error) {
           resolve({

@@ -1,6 +1,6 @@
 /**
  * @file header.component.ts
- * @description Material 3 Glassmorphic Top Bar with app branding, sync status, and responsive controls.
+ * @description Material 3 Top Header bar using direct fincz.com brand logo assets.
  */
 
 import { Component, EventEmitter, Output } from '@angular/core';
@@ -21,11 +21,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
           <span class="material-symbols-outlined">menu</span>
         </button>
         <div class="brand">
-          <span class="brand-logo">💰</span>
-          <div class="brand-text">
-            <span class="brand-name">Fincz</span>
-            <span class="brand-subtitle">Expense Tracker</span>
-          </div>
+          <img src="https://fincz.com/images/fincz-logo-black.png" alt="Fincz Logo" class="brand-logo-img" />
+          <span class="app-subtitle">Expense Tracker</span>
         </div>
       </div>
 
@@ -46,7 +43,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
       z-index: 900;
       height: 60px;
       padding: 0 1.25rem;
-      background: rgba(255, 255, 255, 0.88);
+      background: rgba(255, 255, 255, 0.92);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border-bottom: 1px solid #e2e8f0;
@@ -70,24 +67,18 @@ import { MatTooltipModule } from '@angular/material/tooltip';
       align-items: center;
       gap: 0.5rem;
     }
-    .brand-logo {
-      font-size: 1.5rem;
+    .brand-logo-img {
+      height: 28px;
+      width: auto;
+      object-fit: contain;
     }
-    .brand-text {
-      display: flex;
-      flex-direction: column;
-    }
-    .brand-name {
-      font-weight: 800;
-      font-size: 1.15rem;
-      color: #0f172a;
-      line-height: 1.1;
-      letter-spacing: -0.5px;
-    }
-    .brand-subtitle {
-      font-size: 0.7rem;
+    .app-subtitle {
+      font-size: 0.75rem;
       color: #64748b;
-      font-weight: 600;
+      font-weight: 700;
+      background: #f1f5f9;
+      padding: 0.15rem 0.5rem;
+      border-radius: 6px;
     }
     .header-right {
       display: flex;

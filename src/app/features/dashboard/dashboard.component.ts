@@ -1,10 +1,10 @@
 /**
  * @file dashboard.component.ts
- * @description Premium Mobile-First Financial Dashboard displaying Net Balance, Today's Spend,
- * Monthly Budget Progress, Category Breakdown, and Recent Activity Feed.
+ * @description Premium Mobile-First Financial Dashboard displaying Net Balance in Indian Rupees (₹),
+ * Today's Spend, Monthly Budget Progress, Category Breakdown, and Recent Activity Feed.
  */
 
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { MatRippleModule } from '@angular/material/core';
@@ -18,44 +18,47 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
   imports: [CommonModule, RouterLink, MatRippleModule],
   template: `
     <div class="dashboard-page">
-      <!-- Premium Hero Financial Balance Card -->
+      <!-- Premium Hero Financial Balance Card (Indian Rupees ₹) -->
       <div class="hero-balance-card">
         <div class="card-header-row">
           <span class="card-label">Total Spent</span>
-          <span class="currency-badge">USD ($)</span>
+          <span class="currency-badge">INR (₹)</span>
         </div>
-        <div class="hero-amount">\${{ summary().totalSpent | number:'1.2-2' }}</div>
+        <div class="hero-amount">₹{{ summary().totalSpent | number:'1.2-2' }}</div>
 
         <div class="metrics-row">
           <div class="sub-metric">
             <span class="sub-label">Today's Spend</span>
-            <span class="sub-value">\${{ todaySpent() | number:'1.2-2' }}</span>
+            <span class="sub-value">₹{{ todaySpent() | number:'1.2-2' }}</span>
           </div>
           <div class="divider"></div>
           <div class="sub-metric">
             <span class="sub-label">This Month</span>
-            <span class="sub-value">\${{ summary().monthlySpent | number:'1.2-2' }}</span>
+            <span class="sub-value">₹{{ summary().monthlySpent | number:'1.2-2' }}</span>
           </div>
         </div>
       </div>
 
-      <!-- Quick Action Buttons -->
-      <div class="quick-actions">
-        <button class="action-btn primary-action" (click)="openAddModal()" matRipple>
-          <span class="material-symbols-outlined">add_circle</span>
-          <span>Add Expense</span>
+      <!-- Quick Action Buttons (No Overlap Fix) -->
+      <div class="quick-actions-bar">
+        <button class="action-card primary-card" (click)="openAddModal()" matRipple>
+          <span class="material-symbols-outlined action-icon">add_circle</span>
+          <span class="action-label">Add Expense</span>
         </button>
-        <a routerLink="/expenses" class="action-btn" matRipple>
-          <span class="material-symbols-outlined">search</span>
-          <span>Filter & Find</span>
+
+        <a routerLink="/expenses" class="action-card" matRipple>
+          <span class="material-symbols-outlined action-icon">search</span>
+          <span class="action-label">Filter & Find</span>
         </a>
-        <a routerLink="/categories" class="action-btn" matRipple>
-          <span class="material-symbols-outlined">category</span>
-          <span>Categories</span>
+
+        <a routerLink="/categories" class="action-card" matRipple>
+          <span class="material-symbols-outlined action-icon">category</span>
+          <span class="action-label">Categories</span>
         </a>
-        <a routerLink="/settings" class="action-btn" matRipple>
-          <span class="material-symbols-outlined">download</span>
-          <span>Backup</span>
+
+        <a routerLink="/settings" class="action-card" matRipple>
+          <span class="material-symbols-outlined action-icon">download</span>
+          <span class="action-label">Backup</span>
         </a>
       </div>
 
@@ -77,7 +80,7 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
             <div *ngFor="let item of summary().categoryBreakdown | slice:0:5" class="category-row">
               <div class="category-header">
                 <span class="category-name">{{ item.category }}</span>
-                <span class="category-amount">\${{ item.amount | number:'1.2-2' }} ({{ item.percentage }}%)</span>
+                <span class="category-amount">₹{{ item.amount | number:'1.2-2' }} ({{ item.percentage }}%)</span>
               </div>
               <div class="progress-bar-bg">
                 <div 
@@ -111,7 +114,7 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
                 <span class="tx-title">{{ item.title }}</span>
                 <span class="tx-meta">{{ item.date }} • {{ item.category }} • {{ item.paymentMethod }}</span>
               </div>
-              <span class="tx-amount">-\${{ item.amount | number:'1.2-2' }}</span>
+              <span class="tx-amount">-₹{{ item.amount | number:'1.2-2' }}</span>
             </div>
           </div>
         </div>
@@ -147,10 +150,10 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
       letter-spacing: 0.5px;
     }
     .currency-badge {
-      background: rgba(255, 255, 255, 0.15);
-      padding: 0.2rem 0.6rem;
+      background: rgba(255, 255, 255, 0.18);
+      padding: 0.2rem 0.65rem;
       border-radius: 9999px;
-      font-size: 0.7rem;
+      font-size: 0.75rem;
       font-weight: 700;
     }
     .hero-amount {
@@ -184,33 +187,45 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
       height: 28px;
       background: rgba(255, 255, 255, 0.2);
     }
-    .quick-actions {
-      display: flex;
-      gap: 0.75rem;
-      overflow-x: auto;
-      padding-bottom: 0.25rem;
+    .quick-actions-bar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 0.6rem;
 
-      &::-webkit-scrollbar {
-        display: none;
+      @media (max-width: 480px) {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
-    .action-btn {
+    .action-card {
       display: flex;
+      flex-direction: row;
       align-items: center;
+      justify-content: center;
       gap: 0.5rem;
-      padding: 0.6rem 1rem;
+      padding: 0.75rem 0.6rem;
       border-radius: 14px;
       background: white;
       color: #334155;
       text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 600;
-      white-space: nowrap;
       border: 1px solid #e2e8f0;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
       cursor: pointer;
+      min-height: 48px;
     }
-    .primary-action {
+    .action-icon {
+      font-size: 22px !important;
+      color: #2563eb;
+      flex-shrink: 0;
+      line-height: 1;
+      margin: 0;
+    }
+    .action-label {
+      font-size: 0.85rem;
+      font-weight: 700;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+    .primary-card {
       background: #eff6ff;
       color: #2563eb;
       border-color: #bfdbfe;
@@ -290,7 +305,7 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
     .tx-title {
       font-weight: 700;
       color: #1e293b;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
     }
     .tx-meta {
       font-size: 0.75rem;
@@ -319,7 +334,6 @@ export class DashboardComponent {
   public summary = this.expenseService.financialSummary;
   public recentExpenses = this.expenseService.expenses;
 
-  /** Today's spend computation */
   public todaySpent = computed(() => {
     const todayStr = new Date().toISOString().slice(0, 10);
     return this.recentExpenses()

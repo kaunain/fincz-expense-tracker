@@ -1,7 +1,7 @@
 /**
  * @file expenses.component.ts
- * @description Mobile-First Expenses Manager with sticky search, category chips carousel,
- * transaction list items, and MatDialog / MatSnackBar CRUD integration.
+ * @description Expenses Manager with Indian Rupees (₹) formatting, non-overlapping category filter chips carousel,
+ * search filter, and transaction list items.
  */
 
 import { Component, inject } from '@angular/core';
@@ -34,32 +34,34 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
           type="text"
           [(ngModel)]="searchQuery"
           (ngModelChange)="applyFilters()"
-          placeholder="Search by description..."
+          placeholder="Search by description or notes..."
           class="search-input"
         />
         <button *ngIf="searchQuery" class="clear-btn" (click)="clearSearch()">✕</button>
       </div>
 
-      <!-- Category Filter Chips Carousel -->
-      <div class="chips-carousel">
-        <button
-          class="chip"
-          [class.active]="selectedCategory === ''"
-          (click)="selectCategory('')"
-          matRipple
-        >
-          All
-        </button>
-        <button
-          *ngFor="let cat of categories()"
-          class="chip"
-          [class.active]="selectedCategory === cat.name"
-          (click)="selectCategory(cat.name)"
-          matRipple
-        >
-          <span class="chip-dot" [style.background-color]="cat.color"></span>
-          {{ cat.name }}
-        </button>
+      <!-- Category Filter Chips Carousel (No Cut-off / Overlap Fix) -->
+      <div class="chips-carousel-wrapper">
+        <div class="chips-carousel">
+          <button
+            class="chip"
+            [class.active]="selectedCategory === ''"
+            (click)="selectCategory('')"
+            matRipple
+          >
+            All
+          </button>
+          <button
+            *ngFor="let cat of categories()"
+            class="chip"
+            [class.active]="selectedCategory === cat.name"
+            (click)="selectCategory(cat.name)"
+            matRipple
+          >
+            <span class="chip-dot" [style.background-color]="cat.color"></span>
+            <span class="chip-name">{{ cat.name }}</span>
+          </button>
+        </div>
       </div>
 
       <!-- Transaction List Section -->
@@ -86,7 +88,7 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
           </div>
 
           <div class="card-right">
-            <span class="tx-amount">-\${{ item.amount | number:'1.2-2' }}</span>
+            <span class="tx-amount">-₹{{ item.amount | number:'1.2-2' }}</span>
             <button class="delete-icon-btn" (click)="deleteExpense(item.id!, $event)" title="Delete">
               <span class="material-symbols-outlined">delete</span>
             </button>
@@ -129,11 +131,18 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
       cursor: pointer;
       font-weight: bold;
     }
+    .chips-carousel-wrapper {
+      width: 100%;
+      overflow: hidden;
+    }
     .chips-carousel {
       display: flex;
       gap: 0.5rem;
       overflow-x: auto;
-      padding: 0.25rem 0;
+      padding: 0.35rem 0.15rem;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
 
       &::-webkit-scrollbar {
         display: none;
@@ -142,15 +151,19 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
     .chip {
       display: inline-flex;
       align-items: center;
-      gap: 0.35rem;
-      padding: 0.45rem 0.9rem;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
       border-radius: 9999px;
       background: white;
       color: #475569;
       border: 1px solid #cbd5e1;
-      font-size: 0.8rem;
+      font-size: 0.85rem;
       font-weight: 600;
       white-space: nowrap;
+      flex-shrink: 0;
+      min-height: 38px;
+      line-height: 1;
       cursor: pointer;
       transition: all 0.2s ease;
     }
@@ -158,6 +171,10 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
       width: 8px;
       height: 8px;
       border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .chip-name {
+      white-space: nowrap;
     }
     .chip.active {
       background: #2563eb;
@@ -190,11 +207,12 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-shrink: 0;
     }
     .tx-info {
       display: flex;
       flex-direction: column;
-      gap: 0.2rem;
+      gap: 0.25rem;
     }
     .tx-title {
       font-weight: 700;
@@ -235,6 +253,7 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
       font-weight: 800;
       color: #ef4444;
       font-size: 1.05rem;
+      white-space: nowrap;
     }
     .delete-icon-btn {
       background: none;
