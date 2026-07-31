@@ -1,8 +1,8 @@
-# Sprint 02 - Core Data Engine
+# Sprint 02 - Core Data Engine & Expense CRUD
 
 Duration: 3 Days
 
-Status: Active / Current Sprint
+Status: ✅ Complete
 
 Goal
 
@@ -10,27 +10,18 @@ Establish the Local-First Core Data Engine using Dexie.js (IndexedDB), Angular R
 
 ---
 
-## Key Modules & Tasks
+## Features & Tasks
 
-- **Dexie.js Setup**: Configure IndexedDB database schema (`AppDatabase`) using Dexie.js.
-- **Data Models**: Define strongly-typed `Expense` and `Category` TypeScript interfaces.
-- **CRUD Expense Service**: Implement `ExpenseService` with asynchronous Dexie.js read/write methods.
-- **Reactive Signals Integration**: Wire `ExpenseService` data streams into Angular Reactive Signals (`signal`, `computed`, `effect`) for seamless state reactivity.
-- **Validation**: Enforce schema validations for expense amounts, dates, categories, and descriptions.
-
----
-
-## Technical Stack
-
-- **Storage Engine**: Dexie.js (IndexedDB)
-- **State Management**: Angular Reactive Signals
-- **Language**: TypeScript
+- **Dexie.js IndexedDB Engine**: Configure `AppDatabase` (`src/app/core/db/app-database.ts`) with schema indexes.
+- **Data Models**: Define strongly-typed `Expense` and `Category` TypeScript models with JSDoc documentation.
+- **ExpenseService**: Implement `ExpenseService` (`src/app/core/services/expense.service.ts`) for asynchronous Dexie.js read/write/update/delete.
+- **Angular Signals Integration**: Wire `ExpenseService` data streams into reactive Signals (`signal`, `computed`) for live UI updating.
+- **Expenses Manager View**: Build `ExpensesComponent` (`src/app/features/expenses/expenses.component.ts`) with interactive search, category filter, payment method filter, transaction table, and modal dialog.
 
 ---
 
 ## Deliverables
 
-- Working Dexie.js IndexedDB schema and database initialization
-- Standardized TypeScript Expense & Category models
-- Production-ready `ExpenseService` supporting Create, Read, Update, Delete operations
-- Reactive Signals state integration for automatic view rendering
+- ✅ Dexie.js IndexedDB setup with automatic default category seeding
+- ✅ Production-ready `ExpenseService` with Reactive Signals state
+- ✅ Interactive Expense CRUD table and modal form with validation

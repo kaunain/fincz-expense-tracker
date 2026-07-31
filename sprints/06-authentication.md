@@ -1,25 +1,23 @@
-# Sprint 06 - Authentication
+# Sprint 06 - Cloud Authentication & Accounts (Phase 2 Expansion)
 
 Duration: 3 Days
 
-Status: Planned
+Status: ⏸️ Deferred (Phase 2 Expansion)
 
 Goal
 
-Secure the application.
+Provide user registration, JWT authentication, and secure cloud account profiles for multi-device sync.
 
 ---
 
-## Features
+## Technical Scope (Phase 2)
 
-- Register
-- Login
-- JWT
-- Route Guards
+- **Security Framework**: Spring Security & JWT Authentication
+- **User Accounts**: User registration, login, and profile settings
+- **Route Protection**: Angular AuthGuards and HTTP Interceptors
 
 ---
 
 ## Deliverables
 
-- Authentication
-- Protected Routes
+- Deferred to Phase 2 (fincz-platform expansion)
