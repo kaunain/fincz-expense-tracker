@@ -1,128 +1,112 @@
-# ☁️ Cloudflare Pages Deployment Guide (CLI First)
+# ☁️ Cloudflare Pages Automatic GitHub Integration & Deployment Guide
 
-This document provides a comprehensive, production-ready, CLI-driven deployment guide for **Fincz Expense Tracker** on **Cloudflare Pages**.
-
----
-
-## 📌 Project & Deployment Overview
-
-- **Application:** Fincz Expense Tracker
-- **Architecture:** Local-First Static Web Application (Angular 22 + Dexie.js IndexedDB)
-- **Deployment Platform:** Cloudflare Pages
-- **Production URL:** `https://expense.fincz.com`
-- **Preview / Default URL:** `https://expense.pages.dev` (or `https://fincz-expense-tracker.pages.dev`)
-- **CLI Tool:** Wrangler CLI (`wrangler`)
-- **Build Output Directory:** `./dist/fincz-expense-tracker/browser`
+This guide explains how to connect your GitHub repository directly to **Cloudflare Pages** so that Cloudflare automatically fetches code on every `git push`, builds the Angular static application, and deploys it to production (`expense.fincz.com`).
 
 ---
 
-## 🏗️ Architecture & Configuration Files
+## 📌 Architecture & Auto-Deploy Overview
 
-The project includes pre-configured Cloudflare Pages integration files:
-
-1. **`wrangler.jsonc`**: Cloudflare Pages configuration defining project name, compatibility date, and build output directory (`dist/fincz-expense-tracker/browser`).
-2. **`public/_redirects`**: Client-side SPA routing fallback rule (`/* /index.html 200`) ensuring Angular client-side routes (`/dashboard`, `/expenses`, `/categories`, `/reports`, `/settings`) work on direct browser refresh.
-3. **`package.json` Scripts**: Standardized CLI commands for authentication, local previews, and deployments.
+- **GitHub Repository:** `kaunain/fincz-expense-tracker`
+- **Deployment Platform:** Cloudflare Pages (Direct Git Integration)
+- **Production Domain:** `expense.fincz.com`
+- **Default Pages URL:** `https://fincz-expense-tracker.pages.dev`
+- **Build Trigger:** Automatic on `git push` to `main` (Production) or `dev` (Preview)
+- **Build Command:** `pnpm run build`
+- **Build Output Directory:** `dist/fincz-expense-tracker/browser`
 
 ---
 
-## 🛠️ Step-by-Step CLI Deployment Guide
+## 🛠️ Step-by-Step GitHub + Cloudflare Pages Setup
 
-### Step 1: Install Dependencies & Build Application
+### Step 1: Connect GitHub Repository in Cloudflare Dashboard
 
-Make sure all project dependencies are installed and test the production build locally:
+1. Log in to your [Cloudflare Dashboard](https://dash.cloudflare.com/).
+2. Navigate to **Workers & Pages** ➔ **Create Application** ➔ Select the **Pages** tab.
+3. Click **Connect to Git** and authorize Cloudflare to access your GitHub account.
+4. Select the repository: **`kaunain/fincz-expense-tracker`**.
 
-```bash
-# Install dependencies
-pnpm install
+---
 
-# Build static bundle for production
-pnpm run build
+### Step 2: Configure Build Settings in Cloudflare Pages
+
+Set the build configurations exactly as specified below:
+
+| Configuration Field | Setting Value | Notes / Description |
+|---------------------|---------------|---------------------|
+| **Project Name** | `fincz-expense-tracker` | Project identifier |
+| **Production Branch** | `main` | Deploys live to production |
+| **Framework Preset** | `Angular` or `None (Custom)` | Framework preset |
+| **Build Command** | `pnpm run build` | Runs Angular static compiler |
+| **Build Output Directory** | `dist/fincz-expense-tracker/browser` | Target folder containing compiled `index.html` & static assets |
+
+---
+
+### Step 3: Add Required Environment Variables in Cloudflare Pages
+
+Inside the Cloudflare Pages deployment settings, add the following **Environment Variables** (for both Production and Preview):
+
+```env
+NODE_VERSION = 24
+PNPM_VERSION = 11
+NG_CLI_ANALYTICS = false
 ```
 
-The output files will be generated in `./dist/fincz-expense-tracker/browser`.
+*Why this is required:* Cloudflare Pages build runners default to older Node versions unless `NODE_VERSION=24` is explicitly set, which is required for Angular 22 & pnpm 11 compatibility.
 
 ---
 
-### Step 2: Authenticate with Cloudflare CLI (Wrangler)
+### Step 4: Click "Save and Deploy"
 
-Before running deployment commands for the first time, log in to your Cloudflare account via Wrangler:
+Cloudflare will automatically:
+1. Clone the `main` branch of `kaunain/fincz-expense-tracker`.
+2. Run `pnpm install` and `pnpm run build`.
+3. Read `public/_redirects` (`/* /index.html 200`) and deploy the static app to `https://fincz-expense-tracker.pages.dev`.
+
+---
+
+### Step 5: Bind Custom Domain (`expense.fincz.com`)
+
+1. In Cloudflare Pages project dashboard, go to **Custom Domains**.
+2. Click **Set up a Custom Domain**.
+3. Enter `expense.fincz.com` and click **Continue**.
+4. Cloudflare will automatically configure the CNAME record in your `fincz.com` DNS zone and provision a free SSL certificate.
+
+---
+
+## 🔄 How the Automatic Workflow Works
+
+```
+  Developer pushes code to GitHub
+                │
+                ▼
+        [ git push origin main ]
+                │
+                ▼
+  GitHub Webhook triggers Cloudflare Pages
+                │
+                ▼
+  Cloudflare automatically runs:
+   1. git clone
+   2. pnpm install
+   3. pnpm run build
+                │
+                ▼
+  Deploys output (dist/fincz-expense-tracker/browser)
+                │
+                ▼
+  Live at https://expense.fincz.com 🚀
+```
+
+---
+
+## 💻 Optional: Manual CLI Deployments (Wrangler Backup)
+
+If you ever need to trigger a manual deploy from your terminal:
 
 ```bash
-# Log in to Cloudflare account via browser OAuth
+# Log in to Cloudflare
 pnpm run cf:login
 
-# Verify authenticated account identity
-pnpm run cf:whoami
-```
-
----
-
-### Step 3: Deploy to Cloudflare Pages via CLI
-
-#### Option A: Deploy to Production (`main` branch)
-
-To deploy the production build directly from your terminal:
-
-```bash
+# Deploy production build directly
 pnpm run deploy:prod
-```
-
-Or run directly with Wrangler:
-```bash
-npx wrangler pages deploy dist/fincz-expense-tracker/browser --project-name fincz-expense-tracker --branch main
-```
-
-#### Option B: Deploy to Preview (`preview` branch)
-
-To deploy a temporary preview build for testing features before merging to production:
-
-```bash
-pnpm run deploy:preview
-```
-
----
-
-### Step 4: Configure Custom Domain (`expense.fincz.com`)
-
-To bind your custom domain `expense.fincz.com` to the Cloudflare Pages project via Wrangler CLI or Cloudflare DNS:
-
-```bash
-# Add custom domain to Cloudflare Pages project via Wrangler
-npx wrangler pages domain add expense.fincz.com --project-name fincz-expense-tracker
-```
-
-*Note: Ensure your Cloudflare DNS zone for `fincz.com` has CNAME target pointing to `fincz-expense-tracker.pages.dev`.*
-
----
-
-## 📜 NPM Package Scripts Reference
-
-| Script Command | Realized Terminal Command | Description |
-|----------------|--------------------------|-------------|
-| `pnpm run cf:login` | `wrangler login` | Authenticates CLI with Cloudflare account |
-| `pnpm run cf:whoami` | `wrangler whoami` | Displays active Cloudflare user and account details |
-| `pnpm run build` | `ng build` | Compiles static Angular bundle to `dist/fincz-expense-tracker/browser` |
-| `pnpm run deploy` | `pnpm run build && wrangler pages deploy dist/...` | Compiles build and deploys to Cloudflare Pages |
-| `pnpm run deploy:preview` | `pnpm run build && wrangler pages deploy ... --branch preview` | Deploys feature preview build |
-| `pnpm run deploy:prod` | `pnpm run build && wrangler pages deploy ... --branch main` | Deploys production build |
-
----
-
-## 🔒 Environment Variables & GitHub Actions Preparation
-
-### Environment Variables Policy
-- Never hardcode API tokens or credentials inside repository source code or `wrangler.jsonc`.
-- For CI/CD automation, pass `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` as secure environment variables.
-
-### GitHub Actions Preparation (Future Automated CI/CD)
-When ready to automate deployment on push to `main`, add the following step to your GitHub Actions workflow:
-
-```yaml
-- name: Deploy to Cloudflare Pages
-  uses: cloudflare/wrangler-action@v3
-  with:
-    apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-    accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-    command: pages deploy dist/fincz-expense-tracker/browser --project-name=fincz-expense-tracker --branch=main
 ```
