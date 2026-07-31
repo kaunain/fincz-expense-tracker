@@ -1,7 +1,6 @@
 /**
  * @file expense.service.ts
- * @description Core Expense Data Engine providing local-first IndexedDB CRUD operations via Dexie.js
- * and exposing Angular Reactive Signals for responsive UI integration.
+ * @description Core Expense Data Engine with income/expense tracking via Dexie.js and Angular Signals.
  */
 
 import { Injectable, signal, computed } from '@angular/core';
@@ -13,90 +12,88 @@ import { DEFAULT_CATEGORIES } from '../models/category.model';
   providedIn: 'root'
 })
 export class ExpenseService {
-  /** Reactive signal holding raw array of all expenses */
   private expensesSignal = signal<Expense[]>([]);
 
-  /** Filter criteria signal for active queries */
   private filterSignal = signal<ExpenseFilter>({
     sortBy: 'date',
     sortDirection: 'desc'
   });
 
-  /** Read-only reactive signal of all expenses */
   public readonly expenses = computed(() => this.expensesSignal());
 
-  /** Read-only reactive signal of filtered expenses */
   public readonly filteredExpenses = computed(() => {
     const list = this.expensesSignal();
     const filter = this.filterSignal();
 
     return list.filter((item) => {
-      // Search query filter (matches title or notes)
       if (filter.searchQuery) {
         const query = filter.searchQuery.toLowerCase();
         const matchesTitle = item.title.toLowerCase().includes(query);
         const matchesNotes = item.notes?.toLowerCase().includes(query) ?? false;
         if (!matchesTitle && !matchesNotes) return false;
       }
+      if (filter.category && item.category !== filter.category) return false;
+      if (filter.paymentMethod && item.paymentMethod !== filter.paymentMethod) return false;
+      if (filter.type && item.type !== filter.type) return false;
 
-      // Category filter
-      if (filter.category && item.category !== filter.category) {
-        return false;
+      // Date range filter
+      if (filter.dateRange && filter.dateRange !== 'all') {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const itemDate = new Date(item.date);
+        if (filter.dateRange === 'today') {
+          if (itemDate < today) return false;
+        } else if (filter.dateRange === 'week') {
+          const weekAgo = new Date(today);
+          weekAgo.setDate(today.getDate() - 7);
+          if (itemDate < weekAgo) return false;
+        } else if (filter.dateRange === 'month') {
+          const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+          if (itemDate < monthStart) return false;
+        }
       }
 
-      // Payment method filter
-      if (filter.paymentMethod && item.paymentMethod !== filter.paymentMethod) {
-        return false;
-      }
-
-      // Start date filter
-      if (filter.startDate && item.date < filter.startDate) {
-        return false;
-      }
-
-      // End date filter
-      if (filter.endDate && item.date > filter.endDate) {
-        return false;
-      }
+      if (filter.startDate && item.date < filter.startDate) return false;
+      if (filter.endDate && item.date > filter.endDate) return false;
 
       return true;
     }).sort((a, b) => {
       const field = filter.sortBy || 'date';
       const dir = filter.sortDirection === 'asc' ? 1 : -1;
-
-      if (field === 'amount') {
-        return (a.amount - b.amount) * dir;
-      }
-      if (field === 'title') {
-        return a.title.localeCompare(b.title) * dir;
-      }
-      // Default: date sorting
+      if (field === 'amount') return (a.amount - b.amount) * dir;
+      if (field === 'title') return a.title.localeCompare(b.title) * dir;
       return (new Date(a.date).getTime() - new Date(b.date).getTime()) * dir;
     });
   });
 
-  /** Computed financial summary calculations for metrics & charts */
   public readonly financialSummary = computed<FinancialSummary>(() => {
     const list = this.expensesSignal();
-    const totalSpent = list.reduce((sum, item) => sum + Number(item.amount), 0);
+
+    const expenses = list.filter(i => i.type === 'expense' || !i.type);
+    const incomes = list.filter(i => i.type === 'income');
+
+    const totalSpent = expenses.reduce((sum, i) => sum + Number(i.amount), 0);
+    const totalIncome = incomes.reduce((sum, i) => sum + Number(i.amount), 0);
+    const netBalance = totalIncome - totalSpent;
     const transactionCount = list.length;
 
-    // Current Month Calculation
     const now = new Date();
     const currentMonthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    const monthlySpent = list
-      .filter((item) => item.date.startsWith(currentMonthPrefix))
-      .reduce((sum, item) => sum + Number(item.amount), 0);
+    const monthlySpent = expenses
+      .filter(i => i.date.startsWith(currentMonthPrefix))
+      .reduce((sum, i) => sum + Number(i.amount), 0);
+    const monthlyIncome = incomes
+      .filter(i => i.date.startsWith(currentMonthPrefix))
+      .reduce((sum, i) => sum + Number(i.amount), 0);
 
-    // Category Breakdown Calculation
     const categoryMap = new Map<string, number>();
-    list.forEach((item) => {
-      const current = categoryMap.get(item.category) || 0;
-      categoryMap.set(item.category, current + Number(item.amount));
+    expenses.forEach(i => {
+      const current = categoryMap.get(i.category) || 0;
+      categoryMap.set(i.category, current + Number(i.amount));
     });
 
     const categoryBreakdown = Array.from(categoryMap.entries()).map(([catName, amount]) => {
-      const matched = DEFAULT_CATEGORIES.find((c) => c.name === catName);
+      const matched = DEFAULT_CATEGORIES.find(c => c.name === catName);
       return {
         category: catName,
         amount,
@@ -105,21 +102,13 @@ export class ExpenseService {
       };
     }).sort((a, b) => b.amount - a.amount);
 
-    return {
-      totalSpent,
-      monthlySpent,
-      transactionCount,
-      categoryBreakdown
-    };
+    return { totalSpent, totalIncome, netBalance, monthlySpent, monthlyIncome, transactionCount, categoryBreakdown };
   });
 
   constructor() {
     this.refreshExpenses();
   }
 
-  /**
-   * Reload expenses from Dexie IndexedDB into Signals state
-   */
   async refreshExpenses(): Promise<void> {
     try {
       const items = await db.expenses.orderBy('date').reverse().toArray();
@@ -129,49 +118,34 @@ export class ExpenseService {
     }
   }
 
-  /**
-   * Set filter criteria for expense querying
-   */
   setFilter(filter: Partial<ExpenseFilter>): void {
-    this.filterSignal.update((prev) => ({ ...prev, ...filter }));
+    this.filterSignal.update(prev => ({ ...prev, ...filter }));
   }
 
-  /**
-   * Add new expense transaction to IndexedDB
-   */
   async addExpense(expense: Omit<Expense, 'id' | 'createdAt' | 'updatedAt'>): Promise<number> {
     const timestamp = new Date().toISOString();
     const newRecord: Expense = {
       ...expense,
+      type: expense.type ?? 'expense',
       createdAt: timestamp,
       updatedAt: timestamp
     };
-
     const id = await db.expenses.add(newRecord);
     await this.refreshExpenses();
     return id;
   }
 
-  /**
-   * Update existing expense record by primary key ID
-   */
   async updateExpense(id: number, changes: Partial<Expense>): Promise<void> {
     const updatedAt = new Date().toISOString();
     await db.expenses.update(id, { ...changes, updatedAt });
     await this.refreshExpenses();
   }
 
-  /**
-   * Delete expense record by primary key ID
-   */
   async deleteExpense(id: number): Promise<void> {
     await db.expenses.delete(id);
     await this.refreshExpenses();
   }
 
-  /**
-   * Clear all expense records from database
-   */
   async clearAllExpenses(): Promise<void> {
     await db.expenses.clear();
     await this.refreshExpenses();

@@ -1,9 +1,3 @@
-/**
- * @file add-expense-dialog.component.ts
- * @description Material 3 Dialog for adding/editing expenses with Indian Rupees (₹),
- * native MatDatepicker calendar picker, and auto-complete title suggestions after typing 3+ chars.
- */
-
 import { Component, Inject, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -18,10 +12,11 @@ import { MatDatepickerModule } from '@angular/material/datepicker';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { CategoryService } from '../../../core/services/category.service';
 import { ExpenseService } from '../../../core/services/expense.service';
-import { Expense, PaymentMethod } from '../../../core/models/expense.model';
+import { Expense, PaymentMethod, TransactionType } from '../../../core/models/expense.model';
 
 export interface ExpenseDialogData {
   expense?: Expense;
+  defaultType?: 'expense' | 'income';
 }
 
 @Component({
@@ -44,22 +39,28 @@ export interface ExpenseDialogData {
   template: `
     <div class="dialog-container">
       <div class="dialog-header">
-        <h2>{{ isEdit ? '✏️ Edit Transaction' : '💸 Add New Expense' }}</h2>
+        <h2>{{ isEdit ? '✏️ Edit Transaction' : '💸 Add New Transaction' }}</h2>
         <button mat-icon-button class="close-btn" (click)="onCancel()">
           <span class="material-symbols-outlined">close</span>
         </button>
       </div>
 
+      <div class="type-toggle" *ngIf="!isEdit">
+        <button type="button" class="toggle-btn" [class.active]="selectedType === 'expense'" (click)="setType('expense')">Expense</button>
+        <button type="button" class="toggle-btn" [class.active]="selectedType === 'income'" (click)="setType('income')">Income</button>
+      </div>
+
       <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="dialog-form">
         <!-- Hero Amount Input Field (Indian Rupees ₹) -->
-        <div class="amount-field-wrapper">
-          <span class="currency-symbol">₹</span>
+        <div class="amount-field-wrapper" [class.income-bg]="selectedType === 'income'" [class.expense-bg]="selectedType === 'expense'">
+          <span class="currency-symbol" [class.income-text]="selectedType === 'income'">₹</span>
           <input
             type="number"
             step="0.01"
             formControlName="amount"
             placeholder="0.00"
             class="amount-input"
+            [class.income-text]="selectedType === 'income'"
             autofocus
           />
         </div>
@@ -75,7 +76,7 @@ export interface ExpenseDialogData {
             matInput
             formControlName="title"
             [matAutocomplete]="auto"
-            placeholder="e.g. Grocery, Milk, Petrol"
+            placeholder="e.g. Grocery, Salary"
           />
           <mat-icon matPrefix>edit_note</mat-icon>
 
@@ -94,7 +95,7 @@ export interface ExpenseDialogData {
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>Category</mat-label>
             <mat-select formControlName="category">
-              <mat-option *ngFor="let cat of categories()" [value]="cat.name">
+              <mat-option *ngFor="let cat of filteredCategories()" [value]="cat.name">
                 <span class="cat-option">
                   <span class="cat-dot" [style.background-color]="cat.color"></span>
                   {{ cat.name }}
@@ -135,7 +136,7 @@ export interface ExpenseDialogData {
         <div class="dialog-actions">
           <button type="button" mat-button (click)="onCancel()">Cancel</button>
           <button type="submit" mat-flat-button color="primary" [disabled]="expenseForm.invalid" class="save-btn">
-            {{ isEdit ? 'Update Expense' : 'Save Expense' }}
+            {{ isEdit ? 'Update Transaction' : 'Save Transaction' }}
           </button>
         </div>
       </form>
@@ -157,6 +158,30 @@ export interface ExpenseDialogData {
       font-weight: 700;
       color: #0f172a;
     }
+    .type-toggle {
+      display: flex;
+      background: #f1f5f9;
+      border-radius: 12px;
+      padding: 0.25rem;
+      margin-bottom: 1rem;
+      gap: 0.25rem;
+    }
+    .toggle-btn {
+      flex: 1;
+      padding: 0.5rem;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .toggle-btn.active {
+      background: white;
+      color: #0f172a;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
     .dialog-form {
       display: flex;
       flex-direction: column;
@@ -166,17 +191,26 @@ export interface ExpenseDialogData {
       display: flex;
       align-items: center;
       justify-content: center;
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
       border-radius: 16px;
       padding: 0.75rem 1rem;
       margin-bottom: 0.5rem;
+    }
+    .amount-field-wrapper.expense-bg {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+    }
+    .amount-field-wrapper.income-bg {
+      background: #dcfce7;
+      border: 1px solid #bbf7d0;
     }
     .currency-symbol {
       font-size: 2.2rem;
       font-weight: 800;
       color: #2563eb;
       margin-right: 0.35rem;
+    }
+    .currency-symbol.income-text {
+      color: #16a34a;
     }
     .amount-input {
       font-size: 2.25rem;
@@ -187,6 +221,9 @@ export interface ExpenseDialogData {
       outline: none;
       width: 100%;
       text-align: center;
+    }
+    .amount-input.income-text {
+      color: #16a34a;
     }
     .full-width {
       width: 100%;
@@ -244,12 +281,13 @@ export class AddExpenseDialogComponent {
   public categories = this.categoryService.categories;
   public pastExpenses = this.expenseService.expenses;
   public isEdit = false;
+  public selectedType: 'expense' | 'income' = 'expense';
 
   public expenseForm = this.fb.group({
     title: ['', Validators.required],
     amount: [null as number | null, [Validators.required, Validators.min(0.01)]],
     date: [new Date(), Validators.required],
-    category: ['Food & Dining', Validators.required],
+    category: ['', Validators.required],
     paymentMethod: ['UPI' as PaymentMethod, Validators.required],
     notes: ['']
   });
@@ -257,6 +295,7 @@ export class AddExpenseDialogComponent {
   constructor(@Inject(MAT_DIALOG_DATA) public data: ExpenseDialogData) {
     if (data?.expense) {
       this.isEdit = true;
+      this.selectedType = data.expense.type || 'expense';
       this.expenseForm.patchValue({
         title: data.expense.title,
         amount: data.expense.amount,
@@ -265,6 +304,33 @@ export class AddExpenseDialogComponent {
         paymentMethod: data.expense.paymentMethod,
         notes: data.expense.notes || ''
       });
+    } else if (data?.defaultType) {
+      this.selectedType = data.defaultType;
+    }
+
+    // Initialize category with a default for the type if not editing
+    if (!this.isEdit) {
+      const defaultCats = this.filteredCategories();
+      if (defaultCats.length > 0) {
+        this.expenseForm.patchValue({ category: defaultCats[0].name });
+      }
+    }
+  }
+
+  public filteredCategories = computed(() => {
+    return this.categories().filter(c => c.type === this.selectedType);
+  });
+
+  setType(type: 'expense' | 'income'): void {
+    if (this.isEdit) return; // Prevent changing type during edit
+    this.selectedType = type;
+    
+    // Update category selection to a valid one for the new type
+    const defaultCats = this.filteredCategories();
+    if (defaultCats.length > 0) {
+      this.expenseForm.patchValue({ category: defaultCats[0].name });
+    } else {
+      this.expenseForm.patchValue({ category: '' });
     }
   }
 
@@ -277,7 +343,8 @@ export class AddExpenseDialogComponent {
 
     const uniqueTitles = new Set<string>();
     for (const exp of this.pastExpenses()) {
-      if (exp.title && exp.title.toLowerCase().includes(rawTitle)) {
+      // Filter suggestions by type? Maybe not strictly necessary but nice.
+      if (exp.type === this.selectedType && exp.title && exp.title.toLowerCase().includes(rawTitle)) {
         uniqueTitles.add(exp.title);
       }
     }
@@ -304,7 +371,8 @@ export class AddExpenseDialogComponent {
       date: formattedDateStr,
       category: val.category,
       paymentMethod: val.paymentMethod,
-      notes: val.notes
+      notes: val.notes,
+      type: this.selectedType
     });
   }
 }

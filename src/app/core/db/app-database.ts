@@ -1,10 +1,6 @@
 /**
  * @file app-database.ts
  * @description Dexie.js (IndexedDB wrapper) database configuration for local-first storage.
- * 
- * Open-Source Customization Note:
- * To add new database tables or fields, update the schema definition inside the constructor.
- * Dexie handles indexed fields automatically based on comma-separated keys.
  */
 
 import Dexie, { Table } from 'dexie';
@@ -12,29 +8,41 @@ import { Expense } from '../models/expense.model';
 import { Category, DEFAULT_CATEGORIES } from '../models/category.model';
 
 export class AppDatabase extends Dexie {
-  /** Expenses IndexedDB Table */
   expenses!: Table<Expense, number>;
-
-  /** Categories IndexedDB Table */
   categories!: Table<Category, number>;
 
   constructor() {
     super('FinczExpenseTrackerDB');
 
-    // Define Dexie Schema & Indexes
-    // ++id = Auto-increment primary key
-    // Indexed fields: date, category, amount, title
+    // Version 1 — original schema
     this.version(1).stores({
       expenses: '++id, title, amount, category, date, paymentMethod, createdAt',
       categories: '++id, &name, isDefault'
     });
 
-    // Hook to pre-seed default categories on first database creation
+    // Version 2 — add 'type' index for income/expense filtering
+    this.version(2).stores({
+      expenses: '++id, title, amount, category, date, paymentMethod, type, createdAt',
+      categories: '++id, &name, isDefault, type'
+    }).upgrade(async tx => {
+      // Migrate existing expenses to have type='expense'
+      await tx.table('expenses').toCollection().modify((expense: any) => {
+        if (!expense.type) {
+          expense.type = 'expense';
+        }
+      });
+      // Migrate existing categories to have type='expense'
+      await tx.table('categories').toCollection().modify((cat: any) => {
+        if (!cat.type) {
+          cat.type = 'expense';
+        }
+      });
+    });
+
     this.on('populate', async () => {
       await this.categories.bulkAdd(DEFAULT_CATEGORIES);
     });
   }
 }
 
-/** Singleton Database Instance */
 export const db = new AppDatabase();

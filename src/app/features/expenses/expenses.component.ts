@@ -1,9 +1,3 @@
-/**
- * @file expenses.component.ts
- * @description Expenses Manager with Indian Rupees (₹) formatting, non-overlapping category filter chips carousel,
- * search filter, and transaction list items.
- */
-
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -12,7 +6,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ExpenseService } from '../../core/services/expense.service';
 import { CategoryService } from '../../core/services/category.service';
-import { Expense } from '../../core/models/expense.model';
+import { Expense, TransactionType } from '../../core/models/expense.model';
 import { AddExpenseDialogComponent } from '../../shared/components/add-expense-dialog/add-expense-dialog.component';
 
 @Component({
@@ -27,6 +21,21 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
   ],
   template: `
     <div class="expenses-page">
+      <!-- Income / Expense Tabs -->
+      <div class="type-tabs">
+        <button class="tab-btn" [class.active]="selectedType === undefined" (click)="selectType(undefined)" matRipple>All</button>
+        <button class="tab-btn" [class.active]="selectedType === 'expense'" (click)="selectType('expense')" matRipple>Expenses</button>
+        <button class="tab-btn" [class.active]="selectedType === 'income'" (click)="selectType('income')" matRipple>Income</button>
+      </div>
+
+      <!-- Date Range Chips -->
+      <div class="date-chips-carousel">
+        <button class="date-chip" [class.active]="selectedDateRange === 'today'" (click)="selectDateRange('today')" matRipple>Today</button>
+        <button class="date-chip" [class.active]="selectedDateRange === 'week'" (click)="selectDateRange('week')" matRipple>This Week</button>
+        <button class="date-chip" [class.active]="selectedDateRange === 'month'" (click)="selectDateRange('month')" matRipple>This Month</button>
+        <button class="date-chip" [class.active]="selectedDateRange === 'all'" (click)="selectDateRange('all')" matRipple>All Time</button>
+      </div>
+
       <!-- Search & Filters Bar -->
       <div class="search-box">
         <span class="material-symbols-outlined search-icon">search</span>
@@ -40,7 +49,7 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
         <button *ngIf="searchQuery" class="clear-btn" (click)="clearSearch()">✕</button>
       </div>
 
-      <!-- Category Filter Chips Carousel (No Cut-off / Overlap Fix) -->
+      <!-- Category Filter Chips Carousel -->
       <div class="chips-carousel-wrapper">
         <div class="chips-carousel">
           <button
@@ -59,7 +68,7 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
             matRipple
           >
             <span class="chip-dot" [style.background-color]="cat.color"></span>
-            <span class="chip-name">{{ cat.name }}</span>
+            <span class="chip-name">{{ getCategoryEmoji(cat.name) }} {{ cat.name }}</span>
           </button>
         </div>
       </div>
@@ -67,15 +76,15 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
       <!-- Transaction List Section -->
       <div class="transactions-container">
         <div *ngIf="expenses().length === 0" class="empty-state m3-card">
-          <span class="material-symbols-outlined empty-icon">receipt_long</span>
+          <div class="empty-icon">🤷‍♂️</div>
           <h3>No transactions found</h3>
-          <p>Tap the + button below to add your first expense.</p>
+          <p>Adjust your filters or add a new transaction.</p>
         </div>
 
         <div *ngFor="let item of expenses()" class="transaction-card m3-card" matRipple (click)="editExpense(item)">
           <div class="card-left">
-            <div class="icon-avatar">
-              <span class="material-symbols-outlined">payments</span>
+            <div class="icon-avatar" [class.income-bg]="item.type === 'income'" [class.expense-bg]="item.type !== 'income'">
+              <span class="emoji-icon">{{ getCategoryEmoji(item.category) }}</span>
             </div>
             <div class="tx-info">
               <span class="tx-title">{{ item.title }}</span>
@@ -88,7 +97,9 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
           </div>
 
           <div class="card-right">
-            <span class="tx-amount">-₹{{ item.amount | number:'1.2-2' }}</span>
+            <span class="tx-amount" [class.income-text]="item.type === 'income'" [class.expense-text]="item.type !== 'income'">
+              {{ item.type === 'income' ? '+' : '-' }}₹{{ item.amount | number:'1.2-2' }}
+            </span>
             <button class="delete-icon-btn" (click)="deleteExpense(item.id!, $event)" title="Delete">
               <span class="material-symbols-outlined">delete</span>
             </button>
@@ -102,6 +113,53 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
       display: flex;
       flex-direction: column;
       gap: 1rem;
+    }
+    .type-tabs {
+      display: flex;
+      background: #f1f5f9;
+      border-radius: 12px;
+      padding: 0.25rem;
+      gap: 0.25rem;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 0.5rem;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .tab-btn.active {
+      background: white;
+      color: #0f172a;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .date-chips-carousel {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding-bottom: 0.25rem;
+      scrollbar-width: none;
+      &::-webkit-scrollbar { display: none; }
+    }
+    .date-chip {
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      border: 1px solid #cbd5e1;
+      background: white;
+      color: #475569;
+      font-size: 0.85rem;
+      font-weight: 600;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .date-chip.active {
+      background: #1e293b;
+      color: white;
+      border-color: #1e293b;
     }
     .search-box {
       display: flex;
@@ -202,12 +260,19 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
       width: 44px;
       height: 44px;
       border-radius: 14px;
-      background: #eff6ff;
-      color: #2563eb;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
+    }
+    .income-bg {
+      background: #dcfce7;
+    }
+    .expense-bg {
+      background: #fee2e2;
+    }
+    .emoji-icon {
+      font-size: 1.5rem;
     }
     .tx-info {
       display: flex;
@@ -251,9 +316,14 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
     }
     .tx-amount {
       font-weight: 800;
-      color: #ef4444;
       font-size: 1.05rem;
       white-space: nowrap;
+    }
+    .income-text {
+      color: #16a34a;
+    }
+    .expense-text {
+      color: #ef4444;
     }
     .delete-icon-btn {
       background: none;
@@ -289,12 +359,37 @@ export class ExpensesComponent {
 
   public searchQuery = '';
   public selectedCategory = '';
+  public selectedType: 'expense' | 'income' | undefined = undefined;
+  public selectedDateRange: 'today' | 'week' | 'month' | 'all' = 'all';
+
+  private emojiMap: Record<string, string> = {
+    'Food & Dining': '🍔', 'Housing & Rent': '🏠', 'Transportation': '🚗',
+    'Utilities & Bills': '⚡', 'Entertainment': '🎬', 'Shopping': '🛍️',
+    'Health & Fitness': '❤️', 'Education': '📚', 'Travel': '✈️', 'Miscellaneous': '📦',
+    'Salary': '💼', 'Freelance': '💻', 'Business': '🏢', 'Investment': '📈', 'Gift': '🎁', 'Other Income': '💰'
+  };
+
+  getCategoryEmoji(categoryName: string): string {
+    return this.emojiMap[categoryName] || '🏷️';
+  }
 
   applyFilters(): void {
     this.expenseService.setFilter({
       searchQuery: this.searchQuery,
-      category: this.selectedCategory
+      category: this.selectedCategory,
+      type: this.selectedType,
+      dateRange: this.selectedDateRange
     });
+  }
+
+  selectType(type: 'expense' | 'income' | undefined): void {
+    this.selectedType = type;
+    this.applyFilters();
+  }
+
+  selectDateRange(range: 'today' | 'week' | 'month' | 'all'): void {
+    this.selectedDateRange = range;
+    this.applyFilters();
   }
 
   selectCategory(categoryName: string): void {
@@ -322,10 +417,11 @@ export class ExpensesComponent {
           date: result.date,
           category: result.category,
           paymentMethod: result.paymentMethod,
-          notes: result.notes || undefined
+          notes: result.notes || undefined,
+          type: result.type
         });
 
-        this.snackBar.open('Expense updated successfully! ✨', 'Dismiss', {
+        this.snackBar.open('Transaction updated successfully! ✨', 'Dismiss', {
           duration: 3000
         });
       }

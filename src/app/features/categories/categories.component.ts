@@ -1,14 +1,10 @@
-/**
- * @file categories.component.ts
- * @description Mobile-First Category Manager with Material 3 cards, custom palette builder, and snackbar toasts.
- */
-
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CategoryService } from '../../core/services/category.service';
+import { TransactionType } from '../../core/models/expense.model';
 
 @Component({
   selector: 'app-categories',
@@ -18,18 +14,32 @@ import { CategoryService } from '../../core/services/category.service';
     <div class="categories-page">
       <div class="page-title-box">
         <h1>🏷️ Categories Manager</h1>
-        <p class="subtitle">Organize expenses with custom tags & color palettes.</p>
+        <p class="subtitle">Organize transactions with custom tags & color palettes.</p>
+      </div>
+
+      <!-- Type Tabs -->
+      <div class="type-tabs">
+        <button class="tab-btn" [class.active]="selectedTab === 'expense'" (click)="selectedTab = 'expense'" matRipple>Expense Categories</button>
+        <button class="tab-btn" [class.active]="selectedTab === 'income'" (click)="selectedTab = 'income'" matRipple>Income Categories</button>
       </div>
 
       <!-- Add Custom Category Card -->
       <div class="m3-card add-card">
-        <h3>+ Add Custom Category</h3>
+        <h3>+ Add Custom {{ selectedTab === 'expense' ? 'Expense' : 'Income' }} Category</h3>
         <div class="form-row">
           <input 
             type="text" 
+            [(ngModel)]="newCategoryEmoji" 
+            placeholder="🚀" 
+            class="input-control emoji-input"
+            maxlength="2"
+            title="Emoji Icon"
+          />
+          <input 
+            type="text" 
             [(ngModel)]="newCategoryName" 
-            placeholder="e.g. Subscriptions, Travel" 
-            class="input-control"
+            placeholder="e.g. Subscriptions" 
+            class="input-control name-input"
           />
           <input 
             type="color" 
@@ -45,9 +55,10 @@ import { CategoryService } from '../../core/services/category.service';
 
       <!-- Category Cards Grid -->
       <div class="categories-grid">
-        <div *ngFor="let cat of categories()" class="m3-card category-card" matRipple>
+        <div *ngFor="let cat of filteredCategories()" class="m3-card category-card" matRipple>
           <div class="cat-left">
             <span class="color-dot" [style.background-color]="cat.color"></span>
+            <span class="cat-emoji" *ngIf="cat.icon && cat.icon !== 'category'">{{ cat.icon }}</span>
             <span class="cat-name">{{ cat.name }}</span>
           </div>
 
@@ -83,6 +94,29 @@ import { CategoryService } from '../../core/services/category.service';
       color: #64748b;
       font-size: 0.85rem;
     }
+    .type-tabs {
+      display: flex;
+      background: #f1f5f9;
+      border-radius: 12px;
+      padding: 0.25rem;
+      gap: 0.25rem;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 0.5rem;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .tab-btn.active {
+      background: white;
+      color: #0f172a;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
     .add-card h3 {
       margin-top: 0;
       font-size: 1rem;
@@ -96,12 +130,19 @@ import { CategoryService } from '../../core/services/category.service';
       align-items: center;
     }
     .input-control {
-      flex: 1;
       padding: 0.65rem 0.85rem;
       border: 1px solid #cbd5e1;
       border-radius: 12px;
       outline: none;
       font-size: 0.9rem;
+    }
+    .emoji-input {
+      width: 50px;
+      text-align: center;
+      padding: 0.65rem 0.5rem;
+    }
+    .name-input {
+      flex: 1;
     }
     .color-picker {
       width: 44px;
@@ -147,6 +188,9 @@ import { CategoryService } from '../../core/services/category.service';
       height: 14px;
       border-radius: 50%;
     }
+    .cat-emoji {
+      font-size: 1.2rem;
+    }
     .cat-name {
       font-weight: 700;
       color: #1e293b;
@@ -190,21 +234,30 @@ export class CategoriesComponent {
   private snackBar = inject(MatSnackBar);
 
   public categories = this.categoryService.categories;
+  public selectedTab: 'expense' | 'income' = 'expense';
+  
+  public newCategoryEmoji = '🚀';
   public newCategoryName = '';
   public newCategoryColor = '#2563eb';
+
+  filteredCategories() {
+    return this.categories().filter(c => c.type === this.selectedTab);
+  }
 
   async addCategory(): Promise<void> {
     if (!this.newCategoryName.trim()) return;
 
     await this.categoryService.addCategory({
       name: this.newCategoryName.trim(),
-      icon: 'category',
+      icon: this.newCategoryEmoji || '🏷️',
       color: this.newCategoryColor,
+      type: this.selectedTab,
       isDefault: false
     });
 
     this.snackBar.open(`Category "${this.newCategoryName}" created! 🏷️`, 'Dismiss', { duration: 3000 });
     this.newCategoryName = '';
+    this.newCategoryEmoji = '🚀';
   }
 
   async deleteCategory(id: number): Promise<void> {

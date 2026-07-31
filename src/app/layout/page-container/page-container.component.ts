@@ -120,6 +120,7 @@ export class PageContainerComponent {
     dialogRef.afterClosed().subscribe(async (result) => {
       if (result && result.title && result.amount) {
         await this.expenseService.addExpense({
+          type: result.type || 'expense',
           title: result.title,
           amount: Number(result.amount),
           date: result.date,
