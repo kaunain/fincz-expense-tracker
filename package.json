@@ -1,11 +1,58 @@
 {
-  "name": "fincz-expense-tracker-monorepo",
-  "version": "0.1.0",
+  "name": "fincz-expense-tracker",
+  "version": "0.2.0",
+  "description": "A modern, open-source personal expense tracker built with Angular and Dexie.js (IndexedDB) following a Local-First offline architecture.",
+  "author": "Kaunain Ahmad <https://github.com/kaunain>",
+  "license": "MIT",
   "private": true,
   "scripts": {
-    "start": "pnpm --filter frontend start",
-    "build": "pnpm --filter frontend build",
-    "test": "pnpm --filter frontend test",
-    "lint": "pnpm --filter frontend lint"
+    "ng": "ng",
+    "start": "ng serve",
+    "build": "ng build",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "ng lint"
+  },
+  "dependencies": {
+    "@angular/cdk": "^22.1.0",
+    "@angular/common": "^22.0.0",
+    "@angular/compiler": "^22.0.0",
+    "@angular/core": "^22.0.0",
+    "@angular/forms": "^22.0.0",
+    "@angular/material": "^22.1.0",
+    "@angular/platform-browser": "^22.0.0",
+    "@angular/platform-server": "^22.0.0",
+    "@angular/router": "^22.0.0",
+    "@angular/ssr": "^22.0.9",
+    "date-fns": "^4.4.0",
+    "dexie": "^4.0.10",
+    "express": "^5.1.0",
+    "rxjs": "~7.8.2",
+    "tslib": "^2.3.0",
+    "uuid": "^14.0.1"
+  },
+  "devDependencies": {
+    "@angular/build": "^22.0.9",
+    "@angular/cli": "^22.0.9",
+    "@angular/compiler-cli": "^22.0.0",
+    "@commitlint/cli": "^21.2.1",
+    "@commitlint/config-conventional": "^21.2.0",
+    "@types/express": "^5.0.1",
+    "@types/node": "^20.17.19",
+    "angular-eslint": "^22.1.0",
+    "eslint": "^10.8.0",
+    "husky": "^9.1.7",
+    "jsdom": "^28.0.0",
+    "lint-staged": "^17.2.0",
+    "prettier": "^3.9.6",
+    "typescript": "~6.0.2",
+    "vitest": "^4.0.8"
+  },
+  "lint-staged": {
+    "*.{ts,html,scss,css,json,md}": [
+      "prettier --write"
+    ]
   }
 }

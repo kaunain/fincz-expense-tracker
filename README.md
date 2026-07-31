@@ -1,174 +1,97 @@
 # 💰 Fincz Expense Tracker
 
-> A modern, open-source personal expense tracker built with **Angular** and **Spring Boot**.
+> A modern, open-source personal expense tracker built with a **Local-First Offline Architecture** using **Angular 20+** and **Dexie.js (IndexedDB)**.
 >
-> Designed to evolve into a complete **Personal Finance Platform** for expense tracking, budgeting, savings, investments, and financial insights.
+> Fully static, zero-backend-dependency client-side web application designed for instant loading, privacy, and full data portability.
 
 ![License](https://img.shields.io/badge/license-MIT-green)
-![Angular](https://img.shields.io/badge/Angular-20-red)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-3.x-brightgreen)
+![Angular](https://img.shields.io/badge/Angular-20%2B-red)
+![Dexie.js](https://img.shields.io/badge/Dexie.js-IndexedDB-blue)
+![Architecture](https://img.shields.io/badge/Architecture-Local--First-brightgreen)
 ![Status](https://img.shields.io/badge/status-Active%20Development-blue)
 
 ---
 
-## 📖 About
+## 📖 Features
 
-Fincz Expense Tracker is a modern expense management application designed to help users manage their daily finances in a simple and intuitive way.
-
-The project starts as an Expense Tracker and will gradually evolve into a complete personal finance ecosystem including:
-
-- Expense Tracking
-- Income Tracking
-- Budget Planning
-- Savings Goals
-- Investment Tracking
-- Net Worth Dashboard
-- Financial Reports
-- AI Insights
-
-The primary goal of this project is:
-
-- Learn Angular professionally
-- Build production-quality software
-- Demonstrate enterprise software engineering practices
-- Showcase a real-world portfolio project
+- ⚡ **Local-First Database Engine**: Instant load times and 100% offline access powered by Dexie.js (IndexedDB).
+- 📝 **Expense CRUD**: Add, edit, view, filter, and delete transactions with Angular Reactive Signals state.
+- 🏷️ **Category Manager**: System default categories + custom category creation with palette colors.
+- 📊 **Summary Dashboard & Reports**: Financial metric cards, spending progress bars, and recent activity feed.
+- 💾 **Data Backup & Portability**: One-click JSON Export & Import backup service.
+- 🌐 **Static Deployment Ready**: Easily hostable on Cloudflare Pages, Vercel, Netlify, or GitHub Pages.
 
 ---
 
-# 🚀 Features
+## 🛠️ Quick Start & Local Setup
 
-Current Version (v0.1)
+### Prerequisites
+- Node.js `v20.x` or higher
+- `pnpm` (or `npm`)
 
-- Add Expense
-- View Expense List
-- Dashboard Summary
-- Categories
-- Local Storage Support
+### Installation Commands
 
-Upcoming
+```bash
+# Clone the repository
+git clone https://github.com/kaunain/fincz-expense-tracker.git
+cd fincz-expense-tracker
 
-- Monthly Reports
-- Charts & Analytics
-- Budget Planning
-- Income Tracking
-- Spring Boot REST APIs
-- JWT Authentication
-- PostgreSQL
-- Docker Support
-- Cloud Deployment
+# Install dependencies
+pnpm install
 
----
+# Start local development server
+pnpm start
+```
 
-# 🏗 Tech Stack
-
-## Frontend
-
-- Angular
-- Angular Material
-- TypeScript
-- RxJS
-
-## Backend (Upcoming)
-
-- Java 21
-- Spring Boot
-- Spring Security
-- JWT
-- PostgreSQL
-
-## DevOps
-
-- GitHub Actions
-- Docker
-- Railway
-- Cloudflare
+Navigate to `http://localhost:4200/` in your browser.
 
 ---
 
-# 📂 Project Structure
+## 🏗️ Project Architecture & Structure
 
 ```
 fincz-expense-tracker/
-
-├── frontend/
-├── backend/
-├── docs/
-├── screenshots/
-├── README.md
-├── ROADMAP.md
-├── CHANGELOG.md
-└── LICENSE
+├── src/
+│   ├── app/
+│   │   ├── core/            # Database (Dexie.js), Models, Services (Signals)
+│   │   │   ├── db/          # Dexie AppDatabase schema & IndexedDB migrations
+│   │   │   ├── models/      # Expense & Category TypeScript models
+│   │   │   └── services/    # ExpenseService, CategoryService, ImportExportService
+│   │   ├── features/        # Main Feature Modules
+│   │   │   ├── dashboard/   # Summary cards & spending insights
+│   │   │   ├── expenses/    # CRUD table & Add/Edit form modal
+│   │   │   ├── categories/  # Category manager view
+│   │   │   ├── reports/     # Category distribution analytics
+│   │   │   └── settings/    # JSON Backup export/import & DB clear
+│   │   └── layout/          # App Shell (Header, Sidenav, Footer)
+│   ├── assets/              # Static assets
+│   └── styles.scss          # Global styling & CSS custom variables
+├── angular.json             # Angular CLI Root Configuration
+├── package.json             # Root dependencies & scripts
+├── CONTRIBUTING.md          # Open-Source Contribution Guide
+├── CODE_OF_CONDUCT.md       # Contributor Covenant
+├── DECISIONS.md             # Architecture Decision Records (ADRs)
+└── LICENSE                  # MIT License
 ```
 
 ---
 
-# 🗺 Roadmap
+## 🔧 How to Customize for Your Own Requirements
 
-- [x] Repository Setup
-- [x] Documentation
-- [ ] Angular Setup
-- [ ] Dashboard
-- [ ] Expense Entry
-- [ ] Expense List
-- [ ] Categories
-- [ ] Charts
-- [ ] Budget Module
-- [ ] Spring Boot Backend
-- [ ] Authentication
-- [ ] Docker
-- [ ] Cloud Deployment
+This project is built to be easily forkable and customizable:
+
+1. **Custom Expense Fields**: Update [`src/app/core/models/expense.model.ts`](file:///home/ahmad/NIDE/fincz-expense-tracker/src/app/core/models/expense.model.ts) and [`src/app/core/db/app-database.ts`](file:///home/ahmad/NIDE/fincz-expense-tracker/src/app/core/db/app-database.ts).
+2. **Default Spending Categories**: Modify `DEFAULT_CATEGORIES` in [`src/app/core/models/category.model.ts`](file:///home/ahmad/NIDE/fincz-expense-tracker/src/app/core/models/category.model.ts).
+3. **UI Theme & Branding**: Adjust color variables in [`src/styles.scss`](file:///home/ahmad/NIDE/fincz-expense-tracker/src/styles.scss).
 
 ---
 
-# 📸 Screenshots
+## 🤝 Contributing & Code of Conduct
 
-Coming Soon...
-
----
-
-# 📚 Documentation
-
-Project documentation is available inside the `/docs` directory.
-
-- Architecture
-- Roadmap
-- API Design
-- Database Design
-- UI Design
-- Development Guide
+We welcome all contributions! Check out our [Contributing Guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md) to get started.
 
 ---
 
-# 🤝 Contributing
+## 📄 License
 
-Contributions, suggestions, and feature requests are welcome.
-
-Please create an Issue before starting any major change.
-
----
-
-# ⭐ Star the Repository
-
-If you find this project useful, please consider giving it a ⭐ on GitHub.
-
----
-
-# 📄 License
-
-MIT License
-
----
-
-# 👨‍💻 Author
-
-**Kaunain Ahmad**
-
-Senior Java Backend Engineer
-
-- Portfolio: https://kaunain.fincz.com
-- LinkedIn: https://linkedin.com/in/kaunain-ahmad
-- GitHub: https://github.com/kaunain
-
----
-
-**Built with ❤️ to make personal finance simple.**
+This project is open-source and available under the [MIT License](LICENSE).
