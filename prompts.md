@@ -1,140 +1,282 @@
-# Task: Cloudflare Pages Deployment Automation (CLI First)
+# Fincz Expense Tracker - Complete UX/UI Redesign (Mobile First)
 
-Act as a Staff Frontend Architect, DevOps Engineer, and Cloudflare Expert.
+Act as a Staff Product Designer, Senior UX Designer, Senior Angular Architect, and Google Material Design Expert.
 
-Review the entire project before making any changes.
+Before making any changes:
 
-Project:
-Fincz Expense Tracker
-
-Current Stack:
-- Angular 22
-- Standalone Components
-- SCSS
-- Angular Material
-- pnpm 11
-- Dexie (IndexedDB)
-- Offline First
-- Cloudflare
-- GitHub
-- Ubuntu
+1. Review the complete application.
+2. Review every screen.
+3. Review every component.
+4. Review responsive behavior.
+5. Review navigation flow.
+6. Review spacing, typography, colors, icons, animations, and accessibility.
+7. Review the project architecture before changing any code.
 
 -------------------------------------------------------
-GOAL
+PROJECT GOAL
 -------------------------------------------------------
 
-Deploy the application to Cloudflare Pages.
+This is NOT a finance dashboard.
 
-The deployment process must be completely CLI-driven.
+This is a Personal Expense Tracker.
 
-Avoid manual dashboard configuration whenever Cloudflare CLI (Wrangler) supports it.
+The app should feel like a premium mobile application similar to the best expense tracking apps available today.
 
-The deployment process should be repeatable, automated, and production-ready.
+The application is Mobile First.
 
--------------------------------------------------------
-DEPLOYMENT TARGET
--------------------------------------------------------
-
-Production URL
-
-expense.fincz.com
-
-Temporary URL
-
-expense.pages.dev
+Desktop is secondary.
 
 -------------------------------------------------------
-REQUIREMENTS
+BIGGEST PROBLEM
 -------------------------------------------------------
 
-1.
+Current UI feels:
 
-Review current Angular build output.
+- Outdated
+- Desktop-oriented
+- Difficult on mobile
+- Poor spacing
+- Poor visual hierarchy
+- Not intuitive
+- Not premium
+- Not delightful
 
-Detect the correct production output folder automatically.
-
-2.
-
-Install and configure Wrangler CLI.
-
-3.
-
-Generate all required configuration files.
-
-4.
-
-Configure package.json scripts.
-
-Example:
-
-- deploy
-- deploy:preview
-- deploy:prod
-- cf:login
-- cf:whoami
-
-5.
-
-Create deployment documentation.
-
-docs/deployment/cloudflare-pages.md
-
-6.
-
-If configuration files are missing,
-create them.
-
-If existing files require updates,
-modify them safely.
-
-7.
-
-Never hardcode secrets.
-
-Use environment variables where required.
-
-8.
-
-Prepare the project for GitHub Actions deployment later.
-
-Do not implement GitHub Actions yet.
-
-Only prepare the project.
+Redesign the entire UI/UX.
 
 -------------------------------------------------------
-DELIVERABLES
+DESIGN PRINCIPLES
 -------------------------------------------------------
 
-Review existing project.
+Mobile First
 
-Explain every required change.
+Minimal
 
-Modify files where needed.
+Modern
 
-Generate missing files.
+Premium
 
-Generate deployment scripts.
+Fast
 
-Generate Wrangler configuration.
+Simple
 
-Generate deployment documentation.
+Beautiful
 
-Verify deployment configuration.
+Accessible
 
-Explain how to deploy from terminal.
+Material Design 3
+
+Offline First
 
 -------------------------------------------------------
-IMPORTANT
+DESIGN LANGUAGE
 -------------------------------------------------------
 
-Do NOT redesign the application.
+Use Angular Material 3.
 
-Do NOT change business logic.
+Use Material Design 3 tokens.
 
-Do NOT modify Angular architecture.
+Use Material Icons.
 
-Only work on deployment.
+Use modern cards.
 
-Keep everything production-ready following enterprise best practices.
+Use rounded corners.
 
-At the end create a proper documents for all the above steps so any other persion can follow
+Use soft shadows.
+
+Use proper elevation.
+
+Use large touch targets.
+
+Use smooth animations.
+
+Use excellent spacing.
+
+Use proper typography hierarchy.
+
+-------------------------------------------------------
+REDESIGN EVERYTHING
+-------------------------------------------------------
+
+Review and redesign:
+
+App Shell
+
+Header
+
+Navigation
+
+Bottom Navigation (preferred for mobile)
+
+Sidebar (desktop only)
+
+Dashboard
+
+Expense List
+
+Income List
+
+Category List
+
+Settings
+
+Forms
+
+Dialogs
+
+Cards
+
+Charts
+
+Buttons
+
+FAB
+
+Empty States
+
+Loading States
+
+Error States
+
+Snackbars
+
+Date Picker
+
+Search
+
+Filters
+
+-------------------------------------------------------
+MOBILE EXPERIENCE
+-------------------------------------------------------
+
+This is the highest priority.
+
+The application should feel like a native Android application.
+
+Every screen should be usable with one hand.
+
+Primary actions should be reachable with the thumb.
+
+Use a Floating Action Button for adding transactions.
+
+Use Bottom Navigation instead of a permanent sidebar on mobile.
+
+Minimize scrolling.
+
+Reduce visual clutter.
+
+-------------------------------------------------------
+DASHBOARD
+-------------------------------------------------------
+
+Redesign the dashboard completely.
+
+The first screen should immediately answer:
+
+How much money do I have?
+
+How much did I spend today?
+
+How much this month?
+
+How much income?
+
+Recent transactions.
+
+Quick actions.
+
+Budget progress.
+
+-------------------------------------------------------
+USER EXPERIENCE
+-------------------------------------------------------
+
+Reduce the number of taps required.
+
+Every common action should require the fewest possible interactions.
+
+The app should feel obvious without reading documentation.
+
+-------------------------------------------------------
+VISUAL QUALITY
+-------------------------------------------------------
+
+Target the design quality of premium expense tracking applications.
+
+Focus on:
+
+Clean spacing
+
+Consistent alignment
+
+Modern color palette
+
+Readable typography
+
+Beautiful cards
+
+Meaningful icons
+
+Professional appearance
+
+-------------------------------------------------------
+ACCESSIBILITY
+-------------------------------------------------------
+
+WCAG friendly.
+
+Proper contrast.
+
+Large tap targets.
+
+Keyboard support.
+
+Screen reader friendly.
+
+-------------------------------------------------------
+PERFORMANCE
+-------------------------------------------------------
+
+Do not introduce unnecessary complexity.
+
+Do not increase bundle size significantly.
+
+Reuse Angular Material components.
+
+-------------------------------------------------------
+OUTPUT
+-------------------------------------------------------
+
+Provide:
+
+1. Complete UX review.
+
+2. UI review.
+
+3. Mobile review.
+
+4. Desktop review.
+
+5. Accessibility review.
+
+6. Component review.
+
+7. Navigation review.
+
+8. List all UX problems.
+
+9. Rank issues:
+
+P0 - Must Fix
+P1 - Should Fix
+P2 - Nice to Have
+
+10. Implement the redesign.
+
+11. Keep architecture unchanged.
+
+12. Keep business logic unchanged.
+
+13. Only improve UX/UI.
+
+The final result should feel like a premium, modern, production-ready expense tracker that users enjoy using every day.

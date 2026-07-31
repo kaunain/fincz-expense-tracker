@@ -1,6 +1,6 @@
 /**
  * @file reports.component.ts
- * @description Reports & Analytics view calculating category distribution breakdown and monthly spending trends.
+ * @description Mobile-First Analytics & Spending Reports View with category distribution progress bars.
  */
 
 import { Component, inject } from '@angular/core';
@@ -13,44 +13,48 @@ import { ExpenseService } from '../../core/services/expense.service';
   imports: [CommonModule],
   template: `
     <div class="reports-page">
-      <div class="page-header">
-        <div>
-          <h1>📈 Spending Reports & Analytics</h1>
-          <p class="subtitle">Deep dive into your expense distribution and financial health.</p>
+      <div class="page-title-box">
+        <h1>📈 Reports & Insights</h1>
+        <p class="subtitle">Understand where your money goes every month.</p>
+      </div>
+
+      <!-- Lifetime Stats Cards -->
+      <div class="stats-grid">
+        <div class="m3-card stat-card primary">
+          <span class="stat-label">Total Spent</span>
+          <span class="stat-value">\${{ summary().totalSpent | number:'1.2-2' }}</span>
+        </div>
+        <div class="m3-card stat-card info">
+          <span class="stat-label">This Month</span>
+          <span class="stat-value">\${{ summary().monthlySpent | number:'1.2-2' }}</span>
+        </div>
+        <div class="m3-card stat-card success">
+          <span class="stat-label">Transactions</span>
+          <span class="stat-value">{{ summary().transactionCount }}</span>
         </div>
       </div>
 
-      <!-- Financial Metrics Summary -->
-      <div class="metrics-grid">
-        <div class="card metric">
-          <span class="label">Total Lifetime Spent</span>
-          <span class="value">\${{ summary().totalSpent | number:'1.2-2' }}</span>
-        </div>
-        <div class="card metric">
-          <span class="label">Current Month Spent</span>
-          <span class="value">\${{ summary().monthlySpent | number:'1.2-2' }}</span>
-        </div>
-        <div class="card metric">
-          <span class="label">Total Transactions</span>
-          <span class="value">{{ summary().transactionCount }}</span>
-        </div>
-      </div>
-
-      <!-- Category Breakdown Section -->
-      <div class="card breakdown-card">
+      <!-- Category Spending Breakdown -->
+      <div class="m3-card breakdown-card">
         <h3>🏷️ Category Distribution Breakdown</h3>
+
         <div *ngIf="summary().categoryBreakdown.length === 0" class="empty-state">
-          <p>No transaction data available to generate reports.</p>
+          <span class="material-symbols-outlined empty-icon">pie_chart</span>
+          <p>No transaction data available yet.</p>
         </div>
 
         <div class="breakdown-list">
-          <div *ngFor="let item of summary().categoryBreakdown" class="breakdown-row">
-            <div class="row-header">
-              <span class="cat-title">{{ item.category }}</span>
-              <span class="cat-amount">\${{ item.amount | number:'1.2-2' }} ({{ item.percentage }}%)</span>
+          <div *ngFor="let item of summary().categoryBreakdown" class="breakdown-item">
+            <div class="item-header">
+              <span class="cat-name">{{ item.category }}</span>
+              <span class="cat-val">\${{ item.amount | number:'1.2-2' }} ({{ item.percentage }}%)</span>
             </div>
             <div class="bar-bg">
-              <div class="bar-fill" [style.width.%]="item.percentage" [style.background-color]="item.color"></div>
+              <div 
+                class="bar-fill" 
+                [style.width.%]="item.percentage" 
+                [style.background-color]="item.color"
+              ></div>
             </div>
           </div>
         </div>
@@ -61,60 +65,55 @@ import { ExpenseService } from '../../core/services/expense.service';
     .reports-page {
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
+      gap: 1.25rem;
     }
-    .page-header h1 {
+    .page-title-box h1 {
       margin: 0;
-      font-size: 1.75rem;
-      color: #1e293b;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #0f172a;
     }
     .subtitle {
       margin: 0.25rem 0 0 0;
       color: #64748b;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
     }
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 1.25rem;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    .metrics-grid {
+    .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 1rem;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.85rem;
     }
-    .metric {
+    .stat-card {
       display: flex;
       flex-direction: column;
       gap: 0.25rem;
     }
-    .metric .label {
-      font-size: 0.85rem;
+    .stat-label {
+      font-size: 0.75rem;
+      font-weight: 600;
       color: #64748b;
-      font-weight: 500;
     }
-    .metric .value {
-      font-size: 1.5rem;
-      font-weight: 700;
+    .stat-value {
+      font-size: 1.4rem;
+      font-weight: 800;
       color: #0f172a;
     }
     .breakdown-card h3 {
       margin-top: 0;
-      font-size: 1.15rem;
+      font-size: 1.05rem;
+      font-weight: 700;
       color: #0f172a;
+      margin-bottom: 1rem;
     }
     .breakdown-list {
       display: flex;
       flex-direction: column;
       gap: 1rem;
-      margin-top: 1rem;
     }
-    .row-header {
+    .item-header {
       display: flex;
       justify-content: space-between;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       font-weight: 600;
       margin-bottom: 0.35rem;
     }
@@ -129,9 +128,13 @@ import { ExpenseService } from '../../core/services/expense.service';
       transition: width 0.3s ease;
     }
     .empty-state {
-      padding: 2rem;
       text-align: center;
+      padding: 2.5rem 1rem;
       color: #94a3b8;
+    }
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 0.5rem;
     }
   `]
 })

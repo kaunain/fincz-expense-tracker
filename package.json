@@ -25,6 +25,7 @@
     "deploy:prod": "pnpm run build && wrangler pages deploy dist/fincz-expense-tracker/browser --project-name fincz-expense-tracker --branch main"
   },
   "dependencies": {
+    "@angular/animations": "^22.1.0",
     "@angular/cdk": "^22.1.0",
     "@angular/common": "^22.0.0",
     "@angular/compiler": "^22.0.0",

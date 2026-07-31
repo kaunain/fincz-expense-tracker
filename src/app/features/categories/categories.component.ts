@@ -1,65 +1,65 @@
 /**
  * @file categories.component.ts
- * @description Category Management View allowing users to view default spending categories and create custom categories.
+ * @description Mobile-First Category Manager with Material 3 cards, custom palette builder, and snackbar toasts.
  */
 
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { CategoryService } from '../../core/services/category.service';
 
 @Component({
   selector: 'app-categories',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatRippleModule, MatSnackBarModule],
   template: `
     <div class="categories-page">
-      <div class="page-header">
-        <div>
-          <h1>🏷️ Category Management</h1>
-          <p class="subtitle">Customize spending categories and color badges for your expense tracker.</p>
-        </div>
+      <div class="page-title-box">
+        <h1>🏷️ Categories Manager</h1>
+        <p class="subtitle">Organize expenses with custom tags & color palettes.</p>
       </div>
 
-      <!-- Add New Custom Category Card -->
-      <div class="card add-category-card">
-        <h3>+ Create Custom Category</h3>
+      <!-- Add Custom Category Card -->
+      <div class="m3-card add-card">
+        <h3>+ Add Custom Category</h3>
         <div class="form-row">
           <input 
             type="text" 
             [(ngModel)]="newCategoryName" 
-            placeholder="Category Name (e.g. Subscriptions)" 
-            class="form-control"
+            placeholder="e.g. Subscriptions, Travel" 
+            class="input-control"
           />
           <input 
             type="color" 
             [(ngModel)]="newCategoryColor" 
             class="color-picker" 
-            title="Choose Badge Color"
+            title="Badge Color"
           />
-          <button class="btn btn-primary" (click)="addCategory()" [disabled]="!newCategoryName.trim()">
-            Save Category
+          <button class="save-btn" (click)="addCategory()" [disabled]="!newCategoryName.trim()" matRipple>
+            Save
           </button>
         </div>
       </div>
 
-      <!-- Categories Grid -->
+      <!-- Category Cards Grid -->
       <div class="categories-grid">
-        <div *ngFor="let cat of categories()" class="card category-card">
-          <div class="category-header">
-            <span class="color-badge" [style.background-color]="cat.color"></span>
-            <span class="category-title">{{ cat.name }}</span>
+        <div *ngFor="let cat of categories()" class="m3-card category-card" matRipple>
+          <div class="cat-left">
+            <span class="color-dot" [style.background-color]="cat.color"></span>
+            <span class="cat-name">{{ cat.name }}</span>
           </div>
 
-          <div class="category-meta">
-            <span class="tag" [class.system-tag]="cat.isDefault">{{ cat.isDefault ? 'System Default' : 'Custom' }}</span>
+          <div class="cat-right">
+            <span class="badge" [class.system]="cat.isDefault">{{ cat.isDefault ? 'Default' : 'Custom' }}</span>
             <button 
               *ngIf="!cat.isDefault" 
-              class="icon-btn delete-btn" 
+              class="delete-btn" 
               (click)="deleteCategory(cat.id!)" 
               title="Delete Category"
             >
-              🗑️
+              <span class="material-symbols-outlined">delete</span>
             </button>
           </div>
         </div>
@@ -70,121 +70,128 @@ import { CategoryService } from '../../core/services/category.service';
     .categories-page {
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
+      gap: 1.25rem;
     }
-    .page-header h1 {
+    .page-title-box h1 {
       margin: 0;
-      font-size: 1.75rem;
-      color: #1e293b;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #0f172a;
     }
     .subtitle {
       margin: 0.25rem 0 0 0;
       color: #64748b;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
     }
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 1.25rem;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-    }
-    .add-category-card h3 {
+    .add-card h3 {
       margin-top: 0;
-      font-size: 1.1rem;
+      font-size: 1rem;
+      font-weight: 700;
       color: #0f172a;
+      margin-bottom: 0.75rem;
     }
     .form-row {
       display: flex;
-      gap: 0.75rem;
+      gap: 0.5rem;
       align-items: center;
     }
-    .form-control {
+    .input-control {
       flex: 1;
-      padding: 0.6rem 0.75rem;
+      padding: 0.65rem 0.85rem;
       border: 1px solid #cbd5e1;
-      border-radius: 8px;
+      border-radius: 12px;
       outline: none;
+      font-size: 0.9rem;
     }
     .color-picker {
       width: 44px;
-      height: 40px;
+      height: 42px;
       border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      cursor: pointer;
+      border-radius: 12px;
       padding: 2px;
+      cursor: pointer;
       background: white;
     }
-    .btn {
-      padding: 0.6rem 1.2rem;
-      border-radius: 8px;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-    }
-    .btn-primary {
-      background-color: #2563eb;
+    .save-btn {
+      padding: 0.65rem 1.25rem;
+      border-radius: 12px;
+      background: #2563eb;
       color: white;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
 
       &:disabled {
-        background-color: #94a3b8;
+        background: #94a3b8;
         cursor: not-allowed;
       }
     }
     .categories-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 1rem;
+      gap: 0.85rem;
     }
     .category-card {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      padding: 0.85rem 1rem;
     }
-    .category-header {
+    .cat-left {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.65rem;
     }
-    .color-badge {
+    .color-dot {
       width: 14px;
       height: 14px;
       border-radius: 50%;
     }
-    .category-title {
-      font-weight: 600;
+    .cat-name {
+      font-weight: 700;
       color: #1e293b;
+      font-size: 0.9rem;
     }
-    .category-meta {
+    .cat-right {
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
-    .tag {
+    .badge {
       font-size: 0.7rem;
       padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-      background: #e2e8f0;
-      color: #475569;
-      font-weight: 600;
+      border-radius: 6px;
+      background: #eff6ff;
+      color: #1d4ed8;
+      font-weight: 700;
     }
-    .system-tag {
+    .badge.system {
       background: #f1f5f9;
-      color: #94a3b8;
+      color: #64748b;
     }
-    .icon-btn {
+    .delete-btn {
       background: none;
       border: none;
+      color: #cbd5e1;
       cursor: pointer;
+
+      &:hover {
+        color: #ef4444;
+      }
+
+      .material-symbols-outlined {
+        font-size: 20px;
+      }
     }
   `]
 })
 export class CategoriesComponent {
   private categoryService = inject(CategoryService);
+  private snackBar = inject(MatSnackBar);
 
   public categories = this.categoryService.categories;
   public newCategoryName = '';
-  public newCategoryColor = '#3b82f6';
+  public newCategoryColor = '#2563eb';
 
   async addCategory(): Promise<void> {
     if (!this.newCategoryName.trim()) return;
@@ -196,12 +203,14 @@ export class CategoriesComponent {
       isDefault: false
     });
 
+    this.snackBar.open(`Category "${this.newCategoryName}" created! 🏷️`, 'Dismiss', { duration: 3000 });
     this.newCategoryName = '';
   }
 
   async deleteCategory(id: number): Promise<void> {
     if (confirm('Delete this custom category?')) {
       await this.categoryService.deleteCategory(id);
+      this.snackBar.open('Category deleted', 'Dismiss', { duration: 3000 });
     }
   }
 }

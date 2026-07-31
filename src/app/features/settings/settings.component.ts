@@ -1,72 +1,87 @@
 /**
  * @file settings.component.ts
- * @description Application Settings & Data Portability view for JSON Backup Export/Import and Database Management.
+ * @description Mobile-First Settings View for Data Backup Export/Import, Database Reset, and App Info.
  */
 
 import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { MatRippleModule } from '@angular/material/core';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ImportExportService } from '../../core/services/import-export.service';
 import { ExpenseService } from '../../core/services/expense.service';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatRippleModule, MatSnackBarModule],
   template: `
     <div class="settings-page">
-      <div class="page-header">
-        <div>
-          <h1>⚙️ Settings & Backup</h1>
-          <p class="subtitle">Manage local data storage, export JSON backups, and restore user data.</p>
-        </div>
+      <div class="page-title-box">
+        <h1>⚙️ Settings & Backup</h1>
+        <p class="subtitle">Manage local IndexedDB storage, export backups & restore data.</p>
       </div>
 
-      <!-- Backup & Data Portability -->
-      <div class="card settings-card">
-        <h3>💾 Data Backup & Portability</h3>
-        <p class="description">
-          Fincz Expense Tracker operates on a <strong>Local-First Architecture</strong>. Your financial data is stored 100% locally inside your browser's IndexedDB. Export your data regularly to create safe offline backups or transfer to another device.
-        </p>
+      <!-- Data Backup & Portability Card -->
+      <div class="m3-card settings-card">
+        <div class="card-icon-header">
+          <span class="material-symbols-outlined header-icon">cloud_sync</span>
+          <div>
+            <h3>Data Backup & Safety</h3>
+            <p class="card-desc">Your financial records are stored 100% locally on this device.</p>
+          </div>
+        </div>
 
-        <div class="actions-row">
-          <button class="btn btn-primary" (click)="exportBackup()">
-            📥 Export Backup (JSON)
+        <div class="action-buttons">
+          <button class="btn btn-primary" (click)="exportBackup()" matRipple>
+            <span class="material-symbols-outlined">download</span>
+            <span>Export Backup (JSON)</span>
           </button>
 
-          <label class="btn btn-secondary file-upload-btn">
-            📤 Import Backup (JSON)
+          <label class="btn btn-outline file-btn" matRipple>
+            <span class="material-symbols-outlined">upload</span>
+            <span>Import Backup (JSON)</span>
             <input type="file" accept=".json" (change)="onFileSelected($event)" hidden />
           </label>
         </div>
-
-        <div *ngIf="statusMessage()" class="status-alert" [class.success]="isSuccess()" [class.error]="!isSuccess()">
-          {{ statusMessage() }}
-        </div>
       </div>
 
-      <!-- Danger Zone -->
-      <div class="card settings-card danger-card">
-        <h3 class="danger-title">⚠️ Danger Zone</h3>
-        <p class="description">
-          Wipe all transactions stored in your local browser IndexedDB database. This action cannot be undone unless you have exported a JSON backup.
-        </p>
+      <!-- Danger Zone Card -->
+      <div class="m3-card settings-card danger-card">
+        <div class="card-icon-header">
+          <span class="material-symbols-outlined danger-icon">warning</span>
+          <div>
+            <h3 class="danger-title">Danger Zone</h3>
+            <p class="card-desc">Permanently wipe all transactions from your browser's IndexedDB database.</p>
+          </div>
+        </div>
 
-        <button class="btn btn-danger" (click)="clearDatabase()">
-          🗑️ Clear All Database Records
+        <button class="btn btn-danger" (click)="clearDatabase()" matRipple>
+          <span class="material-symbols-outlined">delete_forever</span>
+          <span>Clear Local Database</span>
         </button>
       </div>
 
-      <!-- Open Source Meta -->
-      <div class="card settings-card info-card">
-        <h3>ℹ️ Open Source Application Details</h3>
-        <ul class="meta-list">
-          <li><strong>Application:</strong> Fincz Expense Tracker (v0.2.0)</li>
-          <li><strong>Architecture:</strong> Local-First Static Client-Side Web Application</li>
-          <li><strong>Primary Storage Engine:</strong> IndexedDB via Dexie.js</li>
-          <li><strong>Framework:</strong> Angular 20+ (Standalone Components, Signals)</li>
-          <li><strong>License:</strong> MIT Open Source License</li>
-          <li><strong>Author:</strong> Kaunain Ahmad</li>
-        </ul>
+      <!-- App Info Card -->
+      <div class="m3-card settings-card">
+        <h3>ℹ️ App Information</h3>
+        <div class="info-list">
+          <div class="info-item">
+            <span class="info-label">Version</span>
+            <span class="info-val">v0.2.0 (Local-First M3)</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Storage Engine</span>
+            <span class="info-val">IndexedDB (Dexie.js)</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">Privacy</span>
+            <span class="info-val">100% Client-Side Offline</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">License</span>
+            <span class="info-val">MIT Open Source</span>
+          </div>
+        </div>
       </div>
     </div>
   `,
@@ -74,127 +89,117 @@ import { ExpenseService } from '../../core/services/expense.service';
     .settings-page {
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
+      gap: 1.25rem;
     }
-    .page-header h1 {
+    .page-title-box h1 {
       margin: 0;
-      font-size: 1.75rem;
-      color: #1e293b;
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #0f172a;
     }
     .subtitle {
       margin: 0.25rem 0 0 0;
       color: #64748b;
-      font-size: 0.9rem;
-    }
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 1.5rem;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      font-size: 0.85rem;
     }
     .settings-card h3 {
-      margin-top: 0;
-      font-size: 1.15rem;
+      margin: 0;
+      font-size: 1.05rem;
+      font-weight: 700;
       color: #0f172a;
     }
-    .description {
-      color: #475569;
-      font-size: 0.9rem;
-      line-height: 1.5;
-    }
-    .actions-row {
+    .card-icon-header {
       display: flex;
-      gap: 1rem;
-      margin-top: 1.25rem;
+      gap: 0.85rem;
+      align-items: flex-start;
+      margin-bottom: 1.25rem;
+    }
+    .header-icon {
+      font-size: 2rem;
+      color: #2563eb;
+    }
+    .danger-icon {
+      font-size: 2rem;
+      color: #ef4444;
+    }
+    .card-desc {
+      margin: 0.25rem 0 0 0;
+      font-size: 0.85rem;
+      color: #64748b;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 0.75rem;
       flex-wrap: wrap;
     }
     .btn {
-      padding: 0.65rem 1.25rem;
-      border-radius: 8px;
-      font-weight: 600;
-      font-size: 0.9rem;
-      border: none;
-      cursor: pointer;
       display: inline-flex;
       align-items: center;
-    }
-    .btn-primary {
-      background-color: #2563eb;
-      color: white;
-
-      &:hover {
-        background-color: #1d4ed8;
-      }
-    }
-    .btn-secondary {
-      background-color: #f1f5f9;
-      color: #334155;
-
-      &:hover {
-        background-color: #e2e8f0;
-      }
-    }
-    .file-upload-btn {
+      gap: 0.5rem;
+      padding: 0.7rem 1.25rem;
+      border-radius: 14px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      border: none;
       cursor: pointer;
     }
-    .btn-danger {
-      background-color: #ef4444;
+    .btn-primary {
+      background: #2563eb;
       color: white;
-
-      &:hover {
-        background-color: #dc2626;
-      }
     }
-    .status-alert {
-      margin-top: 1rem;
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      font-weight: 500;
+    .btn-outline {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
     }
-    .status-alert.success {
-      background-color: #dcfce7;
-      color: #15803d;
-    }
-    .status-alert.error {
-      background-color: #fee2e2;
-      color: #b91c1c;
+    .file-btn {
+      cursor: pointer;
     }
     .danger-card {
-      border-color: #fecaca;
       background: #fff5f5;
+      border-color: #fecaca;
     }
     .danger-title {
-      color: #991b1b;
+      color: #991b1b !important;
     }
-    .meta-list {
-      list-style: none;
-      padding: 0;
-      margin: 0;
+    .btn-danger {
+      background: #ef4444;
+      color: white;
+    }
+    .info-list {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
-      font-size: 0.9rem;
-      color: #334155;
+      gap: 0.65rem;
+      margin-top: 1rem;
+    }
+    .info-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      border-bottom: 1px dashed #e2e8f0;
+      padding-bottom: 0.5rem;
+    }
+    .info-label {
+      color: #64748b;
+      font-weight: 500;
+    }
+    .info-val {
+      color: #0f172a;
+      font-weight: 700;
     }
   `]
 })
 export class SettingsComponent {
   private importExportService = inject(ImportExportService);
   private expenseService = inject(ExpenseService);
-
-  public statusMessage = signal<string>('');
-  public isSuccess = signal<boolean>(true);
+  private snackBar = inject(MatSnackBar);
 
   async exportBackup(): Promise<void> {
     try {
       await this.importExportService.exportData();
-      this.isSuccess.set(true);
-      this.statusMessage.set('JSON Backup file downloaded successfully!');
+      this.snackBar.open('JSON Backup file exported! 📥', 'Dismiss', { duration: 3000 });
     } catch (error) {
-      this.isSuccess.set(false);
-      this.statusMessage.set('Export failed.');
+      this.snackBar.open('Export failed', 'Dismiss', { duration: 3000 });
     }
   }
 
@@ -205,15 +210,13 @@ export class SettingsComponent {
     const file = input.files[0];
     const result = await this.importExportService.importData(file);
 
-    this.isSuccess.set(result.success);
-    this.statusMessage.set(result.message);
+    this.snackBar.open(result.message, 'Dismiss', { duration: 4000 });
   }
 
   async clearDatabase(): Promise<void> {
-    if (confirm('Are you absolutely sure you want to delete all local expense records?')) {
+    if (confirm('Are you sure you want to delete all local expense records?')) {
       await this.expenseService.clearAllExpenses();
-      this.isSuccess.set(true);
-      this.statusMessage.set('IndexedDB cleared successfully.');
+      this.snackBar.open('Local database cleared 🗑️', 'Dismiss', { duration: 3000 });
     }
   }
 }

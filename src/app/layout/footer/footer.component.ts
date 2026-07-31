@@ -1,3 +1,8 @@
+/**
+ * @file footer.component.ts
+ * @description Minimal Footer component for desktop layouts.
+ */
+
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
@@ -7,21 +12,22 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <footer class="app-footer">
-      <p>&copy; {{ currentYear }} Fincz Expense Tracker v0.1. All rights reserved.</p>
+      <span>Built with ❤️ for privacy • Fincz Expense Tracker (v0.2.0)</span>
     </footer>
   `,
   styles: [`
     .app-footer {
+      padding: 1rem;
       text-align: center;
-      padding: 12px;
-      background-color: #f5f5f5;
-      color: #666;
-      font-size: 0.85rem;
-      border-top: 1px solid #e0e0e0;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      border-top: 1px solid #e2e8f0;
+      margin-top: 2rem;
+
+      @media (max-width: 767px) {
+        display: none;
+      }
     }
-    p { margin: 0; }
   `]
 })
-export class FooterComponent {
-  currentYear = new Date().getFullYear();
-}
+export class FooterComponent {}
