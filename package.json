@@ -13,7 +13,12 @@
     "test": "ng test",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "lint": "ng lint"
+    "lint": "ng lint",
+    "cf:login": "wrangler login",
+    "cf:whoami": "wrangler whoami",
+    "deploy": "pnpm run build && wrangler pages deploy dist/fincz-expense-tracker/browser --project-name fincz-expense-tracker",
+    "deploy:preview": "pnpm run build && wrangler pages deploy dist/fincz-expense-tracker/browser --project-name fincz-expense-tracker --branch preview",
+    "deploy:prod": "pnpm run build && wrangler pages deploy dist/fincz-expense-tracker/browser --project-name fincz-expense-tracker --branch main"
   },
   "dependencies": {
     "@angular/cdk": "^22.1.0",
@@ -48,7 +53,8 @@
     "lint-staged": "^17.2.0",
     "prettier": "^3.9.6",
     "typescript": "~6.0.2",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.8",
+    "wrangler": "^4.0.0"
   },
   "lint-staged": {
     "*.{ts,html,scss,css,json,md}": [
