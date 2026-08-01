@@ -1,0 +1,84 @@
+# Fincz Expense Tracker — Cursor Rules
+
+Read `AGENTS.md` for the full project guide. This file contains Cursor-specific rules and quick hints.
+
+---
+
+## Project Identity
+
+Angular 22 + Angular Material 22 + Dexie.js (IndexedDB) + SCSS + Angular Signals.
+Offline-first — no backend, no API calls. All data in browser IndexedDB.
+Package manager: **pnpm only**.
+
+---
+
+## Code Style Rules
+
+- All components are standalone (`standalone: true`)
+- Use `inject()` for dependency injection, not constructor parameters
+- State is managed with Angular `signal()` and `computed()` — not RxJS BehaviorSubject
+- All component styles are written inline in the `styles: [...]` array — no separate .scss files for components
+- Global utilities and CSS variables are in `src/styles.scss`
+- Use `async/await`, not `.then()` chains
+- Mobile-first CSS: base styles for mobile, `@media (min-width: 768px)` for desktop overrides
+
+---
+
+## Naming Conventions
+
+- Files: `kebab-case.component.ts`, `kebab-case.service.ts`, `kebab-case.model.ts`
+- Classes: `PascalCase`
+- Signals: private `myDataSignal`, public readonly as `myData = computed(...)`
+- CSS classes: `kebab-case`
+
+---
+
+## Do NOT
+
+- Run `pnpm run start` or `ng serve`
+- Use `npm` or `yarn`
+- Create NgModules
+- Use `window` / `document` directly (SSR will break — use `isPlatformBrowser`)
+- Insert duplicate category names (unique constraint in Dexie)
+- Change DB schema without incrementing the version number
+
+---
+
+## CSS Variables to Use
+
+```scss
+var(--primary-color)    // #2563eb — blue, expenses
+var(--accent-color)     // #059669 — green, income
+var(--bg-color)         // #f8fafc — page background
+var(--surface-color)    // #ffffff — card background
+var(--text-main)        // #0f172a
+var(--text-muted)       // #64748b
+var(--border-color)     // #e2e8f0
+var(--radius-md)        // 16px — for cards
+var(--radius-sm)        // 8px — for inputs
+var(--shadow-sm)
+var(--safe-area-bottom) // iOS safe area
+```
+
+---
+
+## Reusable Utilities
+
+```html
+<!-- Standard card -->
+<div class="m3-card">...</div>
+
+<!-- Material icon -->
+<span class="material-symbols-outlined">icon_name</span>
+```
+
+---
+
+## Pending Work
+
+See `PLAN.md` for all tasks. The most impactful ones:
+1. Bottom-nav → 2 buttons only (New Expense + New Income)
+2. Hamburger menu → mobile drawer
+3. Add Transaction dialog UX improvements
+4. Category icon bug fix
+5. Google Analytics setup
