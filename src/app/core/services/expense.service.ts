@@ -3,7 +3,8 @@
  * @description Core Expense Data Engine with income/expense tracking via Dexie.js and Angular Signals.
  */
 
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { db } from '../db/app-database';
 import { Expense, ExpenseFilter, FinancialSummary } from '../models/expense.model';
 import { DEFAULT_CATEGORIES } from '../models/category.model';
@@ -12,12 +13,17 @@ import { DEFAULT_CATEGORIES } from '../models/category.model';
   providedIn: 'root',
 })
 export class ExpenseService {
+  private platformId = inject(PLATFORM_ID);
   private expensesSignal = signal<Expense[]>([]);
 
   private filterSignal = signal<ExpenseFilter>({
     sortBy: 'date',
     sortDirection: 'desc',
   });
+
+  constructor() {
+    this.refreshExpenses();
+  }
 
   public readonly expenses = computed(() => this.expensesSignal());
 
@@ -40,13 +46,12 @@ export class ExpenseService {
         // Date range filter
         if (filter.dateRange && filter.dateRange !== 'all') {
           const today = new Date();
-          today.setHours(0, 0, 0, 0);
-          const itemDate = new Date(item.date);
+          const itemDate = new Date(item.date.includes('T') ? item.date : item.date + 'T00:00:00');
           if (filter.dateRange === 'today') {
-            if (itemDate < today) return false;
+            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+            if (item.date !== todayStr) return false;
           } else if (filter.dateRange === 'week') {
-            const weekAgo = new Date(today);
-            weekAgo.setDate(today.getDate() - 7);
+            const weekAgo = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 7);
             if (itemDate < weekAgo) return false;
           } else if (filter.dateRange === 'month') {
             const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
@@ -122,9 +127,10 @@ export class ExpenseService {
   }
 
   async refreshExpenses(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) return;
     try {
       const items = await db.expenses.orderBy('date').reverse().toArray();
-      this.expensesSignal.set(items);
+      this.expensesSignal.set([...items]);
     } catch (error) {
       console.error('Failed to load expenses from IndexedDB:', error);
     }

@@ -3,7 +3,8 @@
  * @description Service to manage category operations in IndexedDB via Dexie with Angular Signals state.
  */
 
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { db } from '../db/app-database';
 import { Category, DEFAULT_CATEGORIES } from '../models/category.model';
 
@@ -11,6 +12,8 @@ import { Category, DEFAULT_CATEGORIES } from '../models/category.model';
   providedIn: 'root',
 })
 export class CategoryService {
+  private platformId = inject(PLATFORM_ID);
+
   /** Signal holding all loaded categories */
   private categoriesSignal = signal<Category[]>([]);
 
@@ -25,6 +28,7 @@ export class CategoryService {
    * Initializes category store and seeds default items if DB is empty
    */
   async initCategories(): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) return;
     try {
       let items = await db.categories.toArray();
       if (items.length === 0) {

@@ -130,18 +130,8 @@ export class PageContainerComponent {
       data: { defaultType },
     });
 
-    dialogRef.afterClosed().subscribe(async (result) => {
-      if (result && result.title && result.amount) {
-        await this.expenseService.addExpense({
-          type: result.type || 'expense',
-          title: result.title,
-          amount: Number(result.amount),
-          date: result.date,
-          category: result.category,
-          paymentMethod: result.paymentMethod as PaymentMethod,
-          notes: result.notes || undefined,
-        });
-
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
         // Generic message that works for both expense and income
         const label = result.type === 'income' ? 'Income' : 'Expense';
         this.snackBar.open(`${label} added successfully! 🎉`, 'Dismiss', {

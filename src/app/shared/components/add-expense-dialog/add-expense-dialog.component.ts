@@ -17,6 +17,7 @@ import {
   Inject,
   ViewChild,
   computed,
+  effect,
   inject,
   signal
 } from '@angular/core';
@@ -102,6 +103,7 @@ export interface ExpenseDialogData {
             type="number"
             step="0.01"
             formControlName="amount"
+            (input)="onAmountInput($event)"
             placeholder="0.00"
             class="amount-input"
             [class.income-text]="selectedType() === 'income'"
@@ -189,6 +191,7 @@ export interface ExpenseDialogData {
             mat-flat-button
             color="primary"
             [disabled]="expenseForm.invalid"
+            (click)="onSubmit()"
             class="save-btn"
           >
             {{ isEdit ? 'Update Transaction' : 'Save Transaction' }}
@@ -428,6 +431,8 @@ export class AddExpenseDialogComponent implements AfterViewInit {
   public pastExpenses = this.expenseService.expenses;
   public isEdit = false;
   public selectedType = signal<'expense' | 'income'>('expense');
+  // Guard to prevent double-fire when both (click) and (ngSubmit) trigger onSubmit
+  private isSubmitting = false;
 
   /** Max date allowed for transactions is TODAY (no future dates) */
   public maxDate: Date = new Date();
@@ -456,10 +461,9 @@ export class AddExpenseDialogComponent implements AfterViewInit {
     }
 
     if (!this.isEdit) {
-      const defaultCats = this.filteredCategories();
-      if (defaultCats.length > 0) {
-        this.expenseForm.patchValue({ category: defaultCats[0].name });
-      }
+      const type = this.selectedType();
+      const defaultCategoryName = type === 'income' ? 'Salary' : 'Food';
+      this.expenseForm.patchValue({ category: defaultCategoryName });
     }
   }
 
@@ -470,6 +474,12 @@ export class AddExpenseDialogComponent implements AfterViewInit {
   }
 
   /** Detects whether string is an emoji or Material icon string */
+  onAmountInput(event: Event): void {
+    const val = (event.target as HTMLInputElement).value;
+    const num = val !== '' ? parseFloat(val) : null;
+    this.expenseForm.get('amount')?.setValue(num, { emitEvent: true });
+  }
+
   isEmoji(icon: string | undefined): boolean {
     if (!icon) return false;
     return Array.from(icon).some((char) => char.codePointAt(0)! > 255);
@@ -525,25 +535,76 @@ export class AddExpenseDialogComponent implements AfterViewInit {
   }
 
   onSubmit(): void {
-    if (this.expenseForm.invalid) return;
+    if (this.isSubmitting) return;
+    this.isSubmitting = true;
 
-    const val = this.expenseForm.value;
-
-    let formattedDateStr = new Date().toISOString().slice(0, 10);
-    if (val.date) {
-      formattedDateStr = new Date(val.date).toISOString().slice(0, 10);
+    // Extract amount: check reactive form control, then ViewChild, then DOM querySelector
+    const formVal = this.expenseForm.value;
+    let rawVal: any = formVal.amount;
+    if (rawVal === null || rawVal === undefined || rawVal === '') {
+      if (this.amountInput?.nativeElement?.value) {
+        rawVal = this.amountInput.nativeElement.value;
+      } else if (typeof document !== 'undefined') {
+        const domEl = document.querySelector('app-add-expense-dialog input.amount-input') as HTMLInputElement;
+        if (domEl?.value) {
+          rawVal = domEl.value;
+        }
+      }
     }
 
-    const titleText = (val.notes || '').trim() || val.category || 'Transaction';
+    const amountNum = typeof rawVal === 'number' ? rawVal : parseFloat(String(rawVal || 0));
 
-    this.dialogRef.close({
+    if (!amountNum || isNaN(amountNum) || amountNum <= 0) {
+      this.expenseForm.get('amount')?.markAsTouched();
+      this.isSubmitting = false;
+      return;
+    }
+
+    const categoryVal = formVal.category || (this.selectedType() === 'income' ? 'Salary' : 'Food');
+    const paymentMethodVal = formVal.paymentMethod || 'UPI';
+
+    const notesVal = (formVal.notes || '').trim();
+
+    // Build local-timezone date string (avoids UTC midnight shift)
+    const d = formVal.date ? new Date(formVal.date) : new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    const formattedDateStr = `${year}-${month}-${day}`;
+
+    const titleText = notesVal || categoryVal || 'Transaction';
+
+    const result = {
       title: titleText,
-      amount: val.amount,
+      amount: amountNum,
       date: formattedDateStr,
-      category: val.category,
-      paymentMethod: val.paymentMethod,
-      notes: val.notes || '',
+      category: categoryVal,
+      paymentMethod: paymentMethodVal,
+      notes: notesVal,
       type: this.selectedType()
-    });
+    };
+
+    if (this.isEdit) {
+      // Edit mode: return result to caller (ExpensesComponent.editExpense subscriber)
+      this.dialogRef.close(result);
+    } else {
+      // Add mode: save directly here so the record is guaranteed to be in IndexedDB
+      // before the dialog closes — avoids afterClosed() timing/hydration issues.
+      this.expenseService.addExpense({
+        type: result.type,
+        title: result.title,
+        amount: result.amount,
+        date: result.date,
+        category: result.category,
+        paymentMethod: result.paymentMethod as import('../../../core/models/expense.model').PaymentMethod,
+        notes: result.notes || undefined,
+      }).then(() => {
+        // Signal success (non-null) so callers can show a snackbar if they want
+        this.dialogRef.close(result);
+      }).catch((err) => {
+        console.error('Failed to save expense in dialog:', err);
+        this.isSubmitting = false;
+      });
+    }
   }
 }

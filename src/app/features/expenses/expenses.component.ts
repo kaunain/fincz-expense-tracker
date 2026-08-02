@@ -8,7 +8,7 @@
  * - emojiMap updated to match new shorter category names
  */
 
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
@@ -453,11 +453,16 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
     `,
   ],
 })
-export class ExpensesComponent {
+export class ExpensesComponent implements OnInit {
   private expenseService = inject(ExpenseService);
   private categoryService = inject(CategoryService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
+
+  ngOnInit(): void {
+    this.expenseService.refreshExpenses();
+    this.applyFilters();
+  }
 
   public expenses = this.expenseService.filteredExpenses;
   public categories = this.categoryService.categories;
@@ -551,11 +556,17 @@ export class ExpensesComponent {
 
   /** Opens the Add Transaction dialog (used by empty-state CTA button) */
   openAddDialog(): void {
-    this.dialog.open(AddExpenseDialogComponent, {
+    const dialogRef = this.dialog.open(AddExpenseDialogComponent, {
       width: '100%',
       maxWidth: '480px',
       panelClass: 'm3-dialog-panel',
       data: { defaultType: 'expense' },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.snackBar.open('Transaction saved! 🎉', 'Dismiss', { duration: 3000 });
+      }
     });
   }
 

@@ -78,7 +78,7 @@ test.describe('Fincz Expense Tracker - E2E QA Crawl & Audit', () => {
         await deleteBtn.click();
         
         // Confirm dialog if pops up
-        const confirmBtn = page.locator('button:has-text("Delete")').last();
+        const confirmBtn = page.locator('app-confirm-dialog button:has-text("Delete")').first();
         if (await confirmBtn.isVisible()) {
           await confirmBtn.click();
         }
