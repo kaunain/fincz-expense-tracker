@@ -122,10 +122,6 @@ export class ExpenseService {
     };
   });
 
-  constructor() {
-    this.refreshExpenses();
-  }
-
   async refreshExpenses(): Promise<void> {
     if (!isPlatformBrowser(this.platformId)) return;
     try {
