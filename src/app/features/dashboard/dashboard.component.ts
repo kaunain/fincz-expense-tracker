@@ -11,6 +11,7 @@ import { MatRippleModule } from '@angular/material/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ExpenseService } from '../../core/services/expense.service';
+import { AccountService } from '../../core/services/account.service';
 import { DonutChartComponent } from '../../shared/components/donut-chart/donut-chart.component';
 import { AddExpenseDialogComponent } from '../../shared/components/add-expense-dialog/add-expense-dialog.component';
 import { PaymentMethod, TransactionType } from '../../core/models/expense.model';
@@ -21,6 +22,18 @@ import { PaymentMethod, TransactionType } from '../../core/models/expense.model'
   imports: [CommonModule, RouterLink, MatRippleModule, DonutChartComponent],
   template: `
     <div class="dashboard-page">
+      <!-- Total Wealth Card -->
+      <div class="m3-card total-wealth-banner">
+        <div class="wealth-content">
+          <span class="wealth-title">Total Net Wealth</span>
+          <span class="wealth-amount">₹{{ accountService.totalWealth() | number: '1.2-2' }}</span>
+        </div>
+        <a routerLink="/accounts" class="accounts-link" matRipple>
+          <span>Accounts</span>
+          <span class="material-symbols-outlined">chevron_right</span>
+        </a>
+      </div>
+
       <!-- Month Navigator -->
       <div class="month-nav">
         <button class="month-btn" (click)="prevMonth()" matRipple>‹</button>
@@ -110,7 +123,7 @@ import { PaymentMethod, TransactionType } from '../../core/models/expense.model'
         </div>
 
         <div class="tx-list">
-          <div *ngFor="let item of recentMonthTransactions() | slice: 0 : 5" class="tx-item">
+          <div *ngFor="let item of recentMonthTransactions() | slice: 0 : 3" class="tx-item">
             <div class="tx-avatar" [class.income-avatar]="item.type === 'income'">
               {{ item.type === 'income' ? '📈' : getCategoryIcon(item.category) }}
             </div>
@@ -132,6 +145,47 @@ import { PaymentMethod, TransactionType } from '../../core/models/expense.model'
         display: flex;
         flex-direction: column;
         gap: 1.25rem;
+      }
+      .total-wealth-banner {
+        background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        color: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1.25rem 1.5rem;
+        border-radius: 18px;
+      }
+      .wealth-content {
+        display: flex;
+        flex-direction: column;
+        gap: 0.2rem;
+      }
+      .wealth-title {
+        font-size: 0.78rem;
+        color: #94a3b8;
+        font-weight: 600;
+      }
+      .wealth-amount {
+        font-size: 1.65rem;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+      }
+      .accounts-link {
+        display: flex;
+        align-items: center;
+        gap: 0.2rem;
+        padding: 0.5rem 0.85rem;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 0.82rem;
+        transition: background 0.2s;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.2);
+        }
       }
       .month-nav {
         display: flex;
@@ -363,6 +417,7 @@ import { PaymentMethod, TransactionType } from '../../core/models/expense.model'
 })
 export class DashboardComponent {
   private expenseService = inject(ExpenseService);
+  public accountService = inject(AccountService);
   private dialog = inject(MatDialog);
   private snackBar = inject(MatSnackBar);
 
