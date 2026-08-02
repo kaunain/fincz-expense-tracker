@@ -58,10 +58,11 @@ import { PaymentMethod } from '../../core/models/expense.model';
         </mat-sidenav-content>
       </mat-sidenav-container>
 
-      <!-- Mobile Bottom Navigation — two quick-action buttons -->
+      <!-- Mobile Bottom Navigation — 3 quick-action buttons -->
       <app-bottom-nav
         (onAddExpense)="openAddExpenseDialog('expense')"
         (onAddIncome)="openAddExpenseDialog('income')"
+        (onTransfer)="openTransferDialog()"
       ></app-bottom-nav>
     </div>
   `,
@@ -149,6 +150,18 @@ export class PageContainerComponent {
           verticalPosition: 'bottom',
         });
       }
+    });
+  }
+
+  /** Opens the Money Transfer Modal dialog */
+  async openTransferDialog(): Promise<void> {
+    const { TransferDialogComponent } = await import(
+      '../../shared/components/transfer-dialog/transfer-dialog.component'
+    );
+    this.dialog.open(TransferDialogComponent, {
+      width: '100%',
+      maxWidth: '480px',
+      panelClass: 'm3-dialog-panel'
     });
   }
 }
