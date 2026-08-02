@@ -99,6 +99,26 @@ export class AppDatabase extends Dexie {
         }
       });
 
+    // Version 4 — add Dividend & Bank Interest income categories for existing users
+    this.version(4)
+      .stores({
+        expenses: '++id, title, amount, category, date, paymentMethod, type, createdAt',
+        categories: '++id, &name, isDefault, type',
+      })
+      .upgrade(async (tx) => {
+        const v4Categories = [
+          { name: 'Dividend', icon: '🪙', color: '#f4a261', type: 'income', isDefault: true },
+          { name: 'Bank Interest', icon: '🏦', color: '#2a9d8f', type: 'income', isDefault: true },
+        ];
+
+        for (const cat of v4Categories) {
+          const exists = await tx.table('categories').where('name').equals(cat.name).count();
+          if (exists === 0) {
+            await tx.table('categories').add(cat);
+          }
+        }
+      });
+
     this.on('populate', async () => {
       await this.categories.bulkAdd(DEFAULT_CATEGORIES);
     });

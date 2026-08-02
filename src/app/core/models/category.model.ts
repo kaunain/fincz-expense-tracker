@@ -2,10 +2,17 @@
  * @file category.model.ts
  * @description Data model and default presets for Expense and Income Categories.
  *
- * Changes:
- * - Shortened some category names for better display on small screens
- * - Added 'Transfer' category (used by the money-transfer feature in Settings)
- * - Added 'Rental' and 'Pension' income categories
+ * Expanded Income presets:
+ * - Salary 💼
+ * - Freelance 💻
+ * - Business 🏢
+ * - Investment 📈
+ * - Dividend 🪙
+ * - Bank Interest 🏦
+ * - Gift 🎁
+ * - Rental 🏘️
+ * - Pension 👴
+ * - Other 💰
  */
 
 export interface Category {
@@ -19,12 +26,6 @@ export interface Category {
   budgetLimit?: number;
 }
 
-/**
- * DEFAULT_CATEGORIES — seeded when the database is first created (fresh install).
- *
- * IMPORTANT: Changes here only affect NEW users.
- * For existing users, add a DB version migration in app-database.ts to sync these changes.
- */
 export const DEFAULT_CATEGORIES: Omit<Category, 'id'>[] = [
   // --- Expense categories ---
   { name: 'Food', icon: '🍔', color: '#ff6b6b', type: 'expense', isDefault: true },
@@ -37,7 +38,6 @@ export const DEFAULT_CATEGORIES: Omit<Category, 'id'>[] = [
   { name: 'Education', icon: '📚', color: '#f77f00', type: 'expense', isDefault: true },
   { name: 'Travel', icon: '✈️', color: '#7209b7', type: 'expense', isDefault: true },
   { name: 'Miscellaneous', icon: '📦', color: '#6c757d', type: 'expense', isDefault: true },
-  // Transfer is used internally when moving money between payment accounts
   { name: 'Transfer', icon: '🔄', color: '#6366f1', type: 'expense', isDefault: true },
 
   // --- Income categories ---
@@ -45,6 +45,8 @@ export const DEFAULT_CATEGORIES: Omit<Category, 'id'>[] = [
   { name: 'Freelance', icon: '💻', color: '#118ab2', type: 'income', isDefault: true },
   { name: 'Business', icon: '🏢', color: '#073b4c', type: 'income', isDefault: true },
   { name: 'Investment', icon: '📈', color: '#2ec4b6', type: 'income', isDefault: true },
+  { name: 'Dividend', icon: '🪙', color: '#f4a261', type: 'income', isDefault: true },
+  { name: 'Bank Interest', icon: '🏦', color: '#2a9d8f', type: 'income', isDefault: true },
   { name: 'Gift', icon: '🎁', color: '#e76f51', type: 'income', isDefault: true },
   { name: 'Rental', icon: '🏘️', color: '#457b9d', type: 'income', isDefault: true },
   { name: 'Pension', icon: '👴', color: '#8338ec', type: 'income', isDefault: true },
