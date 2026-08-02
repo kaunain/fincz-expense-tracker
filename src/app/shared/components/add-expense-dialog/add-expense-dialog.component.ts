@@ -75,7 +75,7 @@ export interface ExpenseDialogData {
         <button
           type="button"
           class="toggle-btn"
-          [class.active]="selectedType === 'expense'"
+          [class.active]="selectedType() === 'expense'"
           (click)="setType('expense')"
         >
           Expense
@@ -83,7 +83,7 @@ export interface ExpenseDialogData {
         <button
           type="button"
           class="toggle-btn"
-          [class.active]="selectedType === 'income'"
+          [class.active]="selectedType() === 'income'"
           (click)="setType('income')"
         >
           Income
@@ -94,10 +94,10 @@ export interface ExpenseDialogData {
         <!-- Hero amount input — auto-focused, no spinner arrows -->
         <div
           class="amount-field-wrapper"
-          [class.income-bg]="selectedType === 'income'"
-          [class.expense-bg]="selectedType === 'expense'"
+          [class.income-bg]="selectedType() === 'income'"
+          [class.expense-bg]="selectedType() === 'expense'"
         >
-          <span class="currency-symbol" [class.income-text]="selectedType === 'income'">₹</span>
+          <span class="currency-symbol" [class.income-text]="selectedType() === 'income'">₹</span>
           <input
             #amountInput
             type="number"
@@ -105,7 +105,7 @@ export interface ExpenseDialogData {
             formControlName="amount"
             placeholder="0.00"
             class="amount-input"
-            [class.income-text]="selectedType === 'income'"
+            [class.income-text]="selectedType() === 'income'"
             aria-label="Amount in rupees"
             (keydown)="filterNonNumericKeys($event)"
             (keydown.enter)="onSubmit()"
