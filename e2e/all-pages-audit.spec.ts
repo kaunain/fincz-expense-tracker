@@ -74,9 +74,10 @@ test.describe('Fincz Expense Tracker — Full Multi-Page E2E & Persistence QA Au
     // b. Add Expense Flow ("Test Lunch", 250)
     const amountInput = page.locator('input[formcontrolname="amount"], input.amount-input').first();
     await amountInput.fill('250');
-    const titleInput = page.locator('input[formcontrolname="title"]').first();
-    await titleInput.fill('Test Lunch');
     await expect(saveBtn).toBeEnabled();
+
+    const notesInput = page.locator('input[formcontrolname="notes"]').first();
+    await notesInput.fill('Test Lunch');
 
     // Submit Expense
     await saveBtn.click();
@@ -91,7 +92,7 @@ test.describe('Fincz Expense Tracker — Full Multi-Page E2E & Persistence QA Au
     await expect(page.locator('.transaction-card:has-text("Test Lunch")').first()).toBeVisible();
 
     // d. Add Income Flow ("Freelance Payment", 1500)
-    const addBtnIncome = page.locator('button.header-add-btn, button.add-expense-btn').first();
+    const addBtnIncome = page.locator('button.header-add-btn, button.add-expense-btn, button.empty-cta-btn').first();
     await addBtnIncome.click();
     await page.waitForSelector('app-add-expense-dialog');
 
@@ -100,7 +101,7 @@ test.describe('Fincz Expense Tracker — Full Multi-Page E2E & Persistence QA Au
     await incomeToggleBtn.click();
 
     await amountInput.fill('1500');
-    await titleInput.fill('Freelance Payment');
+    await notesInput.fill('Freelance Payment');
     await saveBtn.click();
 
     await expect(page.locator('.transaction-card:has-text("Freelance Payment")').first()).toBeVisible();

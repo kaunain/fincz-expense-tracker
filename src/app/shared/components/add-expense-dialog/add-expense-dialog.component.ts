@@ -117,17 +117,17 @@ export interface ExpenseDialogData {
           Please enter a valid amount.
         </div>
 
-        <!-- Description / Title (MANDATORY, Min 3 characters) -->
+        <!-- Notes / Detail input -->
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Description *</mat-label>
+          <mat-label>Notes (Optional)</mat-label>
           <input
             type="text"
             matInput
-            formControlName="title"
+            formControlName="notes"
             [matAutocomplete]="auto"
-            placeholder="e.g. Grocery, Salary"
+            placeholder="e.g. Lunch at Cafe, Salary"
           />
-          <mat-icon matPrefix>edit_note</mat-icon>
+          <mat-icon matPrefix>notes</mat-icon>
 
           <mat-autocomplete #auto="matAutocomplete">
             <mat-option *ngFor="let suggestion of filteredTitleSuggestions()" [value]="suggestion">
@@ -137,12 +137,6 @@ export interface ExpenseDialogData {
               </span>
             </mat-option>
           </mat-autocomplete>
-          <mat-error *ngIf="expenseForm.get('title')?.hasError('required')">
-            Description is required.
-          </mat-error>
-          <mat-error *ngIf="expenseForm.get('title')?.hasError('minlength')">
-            Description must be at least 3 characters.
-          </mat-error>
         </mat-form-field>
 
         <!-- Quick category chips — horizontal scrollable, single tap to select -->
@@ -185,14 +179,6 @@ export interface ExpenseDialogData {
             <input matInput [matDatepicker]="picker" [max]="maxDate" formControlName="date" />
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
-          </mat-form-field>
-        </div>
-
-        <!-- Compact Optional Notes field -->
-        <div class="compact-notes-wrapper">
-          <mat-form-field appearance="outline" class="full-width compact-notes">
-            <mat-label>Notes (Optional)</mat-label>
-            <input matInput formControlName="notes" placeholder="Additional details..." />
           </mat-form-field>
         </div>
 
@@ -447,7 +433,6 @@ export class AddExpenseDialogComponent implements AfterViewInit {
   public maxDate: Date = new Date();
 
   public expenseForm = this.fb.group({
-    title: ['', [Validators.required, Validators.minLength(3)]],
     amount: [null as number | null, [Validators.required, Validators.min(0.01)]],
     date: [new Date(), Validators.required],
     category: ['', Validators.required],
@@ -460,12 +445,11 @@ export class AddExpenseDialogComponent implements AfterViewInit {
       this.isEdit = true;
       this.selectedType.set(data.expense.type || 'expense');
       this.expenseForm.patchValue({
-        title: data.expense.title,
         amount: data.expense.amount,
         date: new Date(data.expense.date),
         category: data.expense.category,
         paymentMethod: data.expense.paymentMethod,
-        notes: data.expense.notes || ''
+        notes: data.expense.notes || data.expense.title || ''
       });
     } else if (data?.defaultType) {
       this.selectedType.set(data.defaultType);
@@ -550,13 +534,15 @@ export class AddExpenseDialogComponent implements AfterViewInit {
       formattedDateStr = new Date(val.date).toISOString().slice(0, 10);
     }
 
+    const titleText = (val.notes || '').trim() || val.category || 'Transaction';
+
     this.dialogRef.close({
-      title: val.title || '',
+      title: titleText,
       amount: val.amount,
       date: formattedDateStr,
       category: val.category,
       paymentMethod: val.paymentMethod,
-      notes: val.notes,
+      notes: val.notes || '',
       type: this.selectedType()
     });
   }
