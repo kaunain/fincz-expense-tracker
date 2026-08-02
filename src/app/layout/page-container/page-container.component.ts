@@ -47,7 +47,7 @@ import { PaymentMethod } from '../../core/models/expense.model';
           [opened]="!isMobile"
           class="sidenav"
         >
-          <app-sidebar (onAddExpense)="openAddExpenseDialog()"></app-sidebar>
+          <app-sidebar (onNavigate)="isMobile && drawer.close()"></app-sidebar>
         </mat-sidenav>
 
         <mat-sidenav-content class="sidenav-content">
