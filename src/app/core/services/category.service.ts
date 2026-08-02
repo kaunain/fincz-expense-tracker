@@ -8,7 +8,7 @@ import { db } from '../db/app-database';
 import { Category, DEFAULT_CATEGORIES } from '../models/category.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CategoryService {
   /** Signal holding all loaded categories */

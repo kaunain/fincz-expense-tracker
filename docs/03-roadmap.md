@@ -326,18 +326,18 @@ This project will be used to learn:
 
 # GitHub Milestones
 
-| Version | Status |
-|----------|--------|
-| v0.1 | Planning |
-| v0.2 | Planned |
-| v0.3 | Planned |
-| v0.4 | Planned |
-| v0.5 | Planned |
-| v0.6 | Planned |
-| v0.7 | Planned |
-| v0.8 | Planned |
-| v0.9 | Planned |
-| v1.0 | Planned |
+| Version | Status   |
+| ------- | -------- |
+| v0.1    | Planning |
+| v0.2    | Planned  |
+| v0.3    | Planned  |
+| v0.4    | Planned  |
+| v0.5    | Planned  |
+| v0.6    | Planned  |
+| v0.7    | Planned  |
+| v0.8    | Planned  |
+| v0.9    | Planned  |
+| v1.0    | Planned  |
 
 ---
 

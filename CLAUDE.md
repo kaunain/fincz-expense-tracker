@@ -7,13 +7,13 @@ For the full architecture guide, read `AGENTS.md` first.
 
 ## Quick Reference
 
-| | |
-|---|---|
-| Stack | Angular 22 + Angular Material 22 + Dexie.js 4 + SCSS |
-| State | Angular Signals only — no RxJS in components |
-| DB | IndexedDB via Dexie, DB name: `FinczExpenseTrackerDB`, current version: 2 |
-| Package Manager | `pnpm` only |
-| Component Style | Standalone, inline SCSS in `styles: [...]` array |
+|                 |                                                                           |
+| --------------- | ------------------------------------------------------------------------- |
+| Stack           | Angular 22 + Angular Material 22 + Dexie.js 4 + SCSS                      |
+| State           | Angular Signals only — no RxJS in components                              |
+| DB              | IndexedDB via Dexie, DB name: `FinczExpenseTrackerDB`, current version: 2 |
+| Package Manager | `pnpm` only                                                               |
+| Component Style | Standalone, inline SCSS in `styles: [...]` array                          |
 
 ---
 
@@ -27,28 +27,29 @@ For the full architecture guide, read `AGENTS.md` first.
 
 ## Key File Locations
 
-| What you need | File |
-|---|---|
-| Route definitions | `src/app/app.routes.ts` |
-| Main page shell | `src/app/layout/page-container/page-container.component.ts` |
-| Header bar | `src/app/layout/header/header.component.ts` |
-| Sidebar (desktop nav) | `src/app/layout/sidebar/sidebar.component.ts` |
-| Bottom nav (mobile) | `src/app/layout/bottom-nav/bottom-nav.component.ts` |
-| Add transaction dialog | `src/app/shared/components/add-expense-dialog/add-expense-dialog.component.ts` |
-| Expense data service | `src/app/core/services/expense.service.ts` |
-| Category data service | `src/app/core/services/category.service.ts` |
-| DB schema + migrations | `src/app/core/db/app-database.ts` |
-| Expense model | `src/app/core/models/expense.model.ts` |
-| Category model + defaults | `src/app/core/models/category.model.ts` |
-| Build info (version/date) | `src/app/core/config/build-info.ts` |
-| Global styles + CSS vars | `src/styles.scss` |
-| Main HTML (for scripts) | `src/index.html` |
+| What you need             | File                                                                           |
+| ------------------------- | ------------------------------------------------------------------------------ |
+| Route definitions         | `src/app/app.routes.ts`                                                        |
+| Main page shell           | `src/app/layout/page-container/page-container.component.ts`                    |
+| Header bar                | `src/app/layout/header/header.component.ts`                                    |
+| Sidebar (desktop nav)     | `src/app/layout/sidebar/sidebar.component.ts`                                  |
+| Bottom nav (mobile)       | `src/app/layout/bottom-nav/bottom-nav.component.ts`                            |
+| Add transaction dialog    | `src/app/shared/components/add-expense-dialog/add-expense-dialog.component.ts` |
+| Expense data service      | `src/app/core/services/expense.service.ts`                                     |
+| Category data service     | `src/app/core/services/category.service.ts`                                    |
+| DB schema + migrations    | `src/app/core/db/app-database.ts`                                              |
+| Expense model             | `src/app/core/models/expense.model.ts`                                         |
+| Category model + defaults | `src/app/core/models/category.model.ts`                                        |
+| Build info (version/date) | `src/app/core/config/build-info.ts`                                            |
+| Global styles + CSS vars  | `src/styles.scss`                                                              |
+| Main HTML (for scripts)   | `src/index.html`                                                               |
 
 ---
 
 ## Angular Patterns Used in This Project
 
 ### Reading a signal in a template
+
 ```ts
 // Component class
 items = inject(ExpenseService).expenses; // this is a Signal
@@ -59,6 +60,7 @@ items = inject(ExpenseService).expenses; // this is a Signal
 ```
 
 ### Adding a new service method
+
 ```ts
 async myNewMethod(id: number): Promise<void> {
   await db.expenses.update(id, { myField: value });
@@ -67,6 +69,7 @@ async myNewMethod(id: number): Promise<void> {
 ```
 
 ### Opening a dialog
+
 ```ts
 private dialog = inject(MatDialog);
 
@@ -83,6 +86,7 @@ openMyDialog(): void {
 ```
 
 ### Adding a new route
+
 ```ts
 // src/app/app.routes.ts
 {
@@ -93,6 +97,7 @@ openMyDialog(): void {
 ```
 
 ### SSR-safe browser API usage
+
 ```ts
 import { PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';

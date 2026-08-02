@@ -31,12 +31,12 @@ This guide explains how to connect your GitHub repository directly to **Cloudfla
 
 Set the build configurations exactly as specified below:
 
-| Configuration Field | Setting Value | Notes / Description |
-|---------------------|---------------|---------------------|
-| **Project Name** | `fincz-expense-tracker` | Project identifier |
-| **Production Branch** | `main` | Deploys live to production |
-| **Framework Preset** | `Angular` or `None (Custom)` | Framework preset |
-| **Build Command** | `pnpm run build` | Runs Angular static compiler |
+| Configuration Field        | Setting Value                        | Notes / Description                                            |
+| -------------------------- | ------------------------------------ | -------------------------------------------------------------- |
+| **Project Name**           | `fincz-expense-tracker`              | Project identifier                                             |
+| **Production Branch**      | `main`                               | Deploys live to production                                     |
+| **Framework Preset**       | `Angular` or `None (Custom)`         | Framework preset                                               |
+| **Build Command**          | `pnpm run build`                     | Runs Angular static compiler                                   |
 | **Build Output Directory** | `dist/fincz-expense-tracker/browser` | Target folder containing compiled `index.html` & static assets |
 
 ---
@@ -51,13 +51,14 @@ PNPM_VERSION = 11
 NG_CLI_ANALYTICS = false
 ```
 
-*Why this is required:* Cloudflare Pages build runners default to older Node versions unless `NODE_VERSION=24` is explicitly set, which is required for Angular 22 & pnpm 11 compatibility.
+_Why this is required:_ Cloudflare Pages build runners default to older Node versions unless `NODE_VERSION=24` is explicitly set, which is required for Angular 22 & pnpm 11 compatibility.
 
 ---
 
 ### Step 4: Click "Save and Deploy"
 
 Cloudflare will automatically:
+
 1. Clone the `main` branch of `kaunain/fincz-expense-tracker`.
 2. Run `pnpm install` and `pnpm run build`.
 3. Read `public/_redirects` (`/* /index.html 200`) and deploy the static app to `https://fincz-expense-tracker.pages.dev`.

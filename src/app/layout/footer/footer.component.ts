@@ -15,19 +15,21 @@ import { CommonModule } from '@angular/common';
       <span>Built with ❤️ for privacy • Fincz Expense Tracker (v0.2.0)</span>
     </footer>
   `,
-  styles: [`
-    .app-footer {
-      padding: 1rem;
-      text-align: center;
-      font-size: 0.75rem;
-      color: #94a3b8;
-      border-top: 1px solid #e2e8f0;
-      margin-top: 2rem;
+  styles: [
+    `
+      .app-footer {
+        padding: 1rem;
+        text-align: center;
+        font-size: 0.75rem;
+        color: #94a3b8;
+        border-top: 1px solid #e2e8f0;
+        margin-top: 2rem;
 
-      @media (max-width: 767px) {
-        display: none;
+        @media (max-width: 767px) {
+          display: none;
+        }
       }
-    }
-  `]
+    `,
+  ],
 })
 export class FooterComponent {}

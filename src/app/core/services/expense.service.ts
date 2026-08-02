@@ -9,14 +9,14 @@ import { Expense, ExpenseFilter, FinancialSummary } from '../models/expense.mode
 import { DEFAULT_CATEGORIES } from '../models/category.model';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ExpenseService {
   private expensesSignal = signal<Expense[]>([]);
 
   private filterSignal = signal<ExpenseFilter>({
     sortBy: 'date',
-    sortDirection: 'desc'
+    sortDirection: 'desc',
   });
 
   public readonly expenses = computed(() => this.expensesSignal());
@@ -25,52 +25,54 @@ export class ExpenseService {
     const list = this.expensesSignal();
     const filter = this.filterSignal();
 
-    return list.filter((item) => {
-      if (filter.searchQuery) {
-        const query = filter.searchQuery.toLowerCase();
-        const matchesTitle = item.title.toLowerCase().includes(query);
-        const matchesNotes = item.notes?.toLowerCase().includes(query) ?? false;
-        if (!matchesTitle && !matchesNotes) return false;
-      }
-      if (filter.category && item.category !== filter.category) return false;
-      if (filter.paymentMethod && item.paymentMethod !== filter.paymentMethod) return false;
-      if (filter.type && item.type !== filter.type) return false;
-
-      // Date range filter
-      if (filter.dateRange && filter.dateRange !== 'all') {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const itemDate = new Date(item.date);
-        if (filter.dateRange === 'today') {
-          if (itemDate < today) return false;
-        } else if (filter.dateRange === 'week') {
-          const weekAgo = new Date(today);
-          weekAgo.setDate(today.getDate() - 7);
-          if (itemDate < weekAgo) return false;
-        } else if (filter.dateRange === 'month') {
-          const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-          if (itemDate < monthStart) return false;
+    return list
+      .filter((item) => {
+        if (filter.searchQuery) {
+          const query = filter.searchQuery.toLowerCase();
+          const matchesTitle = item.title.toLowerCase().includes(query);
+          const matchesNotes = item.notes?.toLowerCase().includes(query) ?? false;
+          if (!matchesTitle && !matchesNotes) return false;
         }
-      }
+        if (filter.category && item.category !== filter.category) return false;
+        if (filter.paymentMethod && item.paymentMethod !== filter.paymentMethod) return false;
+        if (filter.type && item.type !== filter.type) return false;
 
-      if (filter.startDate && item.date < filter.startDate) return false;
-      if (filter.endDate && item.date > filter.endDate) return false;
+        // Date range filter
+        if (filter.dateRange && filter.dateRange !== 'all') {
+          const today = new Date();
+          today.setHours(0, 0, 0, 0);
+          const itemDate = new Date(item.date);
+          if (filter.dateRange === 'today') {
+            if (itemDate < today) return false;
+          } else if (filter.dateRange === 'week') {
+            const weekAgo = new Date(today);
+            weekAgo.setDate(today.getDate() - 7);
+            if (itemDate < weekAgo) return false;
+          } else if (filter.dateRange === 'month') {
+            const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+            if (itemDate < monthStart) return false;
+          }
+        }
 
-      return true;
-    }).sort((a, b) => {
-      const field = filter.sortBy || 'date';
-      const dir = filter.sortDirection === 'asc' ? 1 : -1;
-      if (field === 'amount') return (a.amount - b.amount) * dir;
-      if (field === 'title') return a.title.localeCompare(b.title) * dir;
-      return (new Date(a.date).getTime() - new Date(b.date).getTime()) * dir;
-    });
+        if (filter.startDate && item.date < filter.startDate) return false;
+        if (filter.endDate && item.date > filter.endDate) return false;
+
+        return true;
+      })
+      .sort((a, b) => {
+        const field = filter.sortBy || 'date';
+        const dir = filter.sortDirection === 'asc' ? 1 : -1;
+        if (field === 'amount') return (a.amount - b.amount) * dir;
+        if (field === 'title') return a.title.localeCompare(b.title) * dir;
+        return (new Date(a.date).getTime() - new Date(b.date).getTime()) * dir;
+      });
   });
 
   public readonly financialSummary = computed<FinancialSummary>(() => {
     const list = this.expensesSignal();
 
-    const expenses = list.filter(i => i.type === 'expense' || !i.type);
-    const incomes = list.filter(i => i.type === 'income');
+    const expenses = list.filter((i) => i.type === 'expense' || !i.type);
+    const incomes = list.filter((i) => i.type === 'income');
 
     const totalSpent = expenses.reduce((sum, i) => sum + Number(i.amount), 0);
     const totalIncome = incomes.reduce((sum, i) => sum + Number(i.amount), 0);
@@ -80,29 +82,39 @@ export class ExpenseService {
     const now = new Date();
     const currentMonthPrefix = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const monthlySpent = expenses
-      .filter(i => i.date.startsWith(currentMonthPrefix))
+      .filter((i) => i.date.startsWith(currentMonthPrefix))
       .reduce((sum, i) => sum + Number(i.amount), 0);
     const monthlyIncome = incomes
-      .filter(i => i.date.startsWith(currentMonthPrefix))
+      .filter((i) => i.date.startsWith(currentMonthPrefix))
       .reduce((sum, i) => sum + Number(i.amount), 0);
 
     const categoryMap = new Map<string, number>();
-    expenses.forEach(i => {
+    expenses.forEach((i) => {
       const current = categoryMap.get(i.category) || 0;
       categoryMap.set(i.category, current + Number(i.amount));
     });
 
-    const categoryBreakdown = Array.from(categoryMap.entries()).map(([catName, amount]) => {
-      const matched = DEFAULT_CATEGORIES.find(c => c.name === catName);
-      return {
-        category: catName,
-        amount,
-        color: matched?.color || '#94a3b8',
-        percentage: totalSpent > 0 ? Math.round((amount / totalSpent) * 100) : 0
-      };
-    }).sort((a, b) => b.amount - a.amount);
+    const categoryBreakdown = Array.from(categoryMap.entries())
+      .map(([catName, amount]) => {
+        const matched = DEFAULT_CATEGORIES.find((c) => c.name === catName);
+        return {
+          category: catName,
+          amount,
+          color: matched?.color || '#94a3b8',
+          percentage: totalSpent > 0 ? Math.round((amount / totalSpent) * 100) : 0,
+        };
+      })
+      .sort((a, b) => b.amount - a.amount);
 
-    return { totalSpent, totalIncome, netBalance, monthlySpent, monthlyIncome, transactionCount, categoryBreakdown };
+    return {
+      totalSpent,
+      totalIncome,
+      netBalance,
+      monthlySpent,
+      monthlyIncome,
+      transactionCount,
+      categoryBreakdown,
+    };
   });
 
   constructor() {
@@ -119,7 +131,7 @@ export class ExpenseService {
   }
 
   setFilter(filter: Partial<ExpenseFilter>): void {
-    this.filterSignal.update(prev => ({ ...prev, ...filter }));
+    this.filterSignal.update((prev) => ({ ...prev, ...filter }));
   }
 
   async addExpense(expense: Omit<Expense, 'id' | 'createdAt' | 'updatedAt'>): Promise<number> {
@@ -128,7 +140,7 @@ export class ExpenseService {
       ...expense,
       type: expense.type ?? 'expense',
       createdAt: timestamp,
-      updatedAt: timestamp
+      updatedAt: timestamp,
     };
     const id = await db.expenses.add(newRecord);
     await this.refreshExpenses();

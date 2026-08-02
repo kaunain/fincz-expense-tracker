@@ -8,17 +8,17 @@ This file provides all the context an AI agent needs to understand and work on t
 
 **Fincz Expense Tracker** is a modern, offline-first personal finance tracker that runs entirely in the browser using IndexedDB. There is no backend — all data lives on the user's device.
 
-| Property | Value |
-|---|---|
-| Framework | Angular v22 (Standalone Components) |
-| UI Library | Angular Material v22 (Material 3) |
-| Database | Dexie.js v4 (IndexedDB wrapper) |
-| State | Angular Signals (`signal`, `computed`) |
-| Styles | SCSS inline in components + global `src/styles.scss` |
-| SSR | Angular SSR + Express v5 (for Cloudflare Pages) |
-| Package Manager | **pnpm** — never use npm or yarn |
-| Node Version | >=24.15.0 |
-| Deployment | Cloudflare Pages via Wrangler |
+| Property        | Value                                                |
+| --------------- | ---------------------------------------------------- |
+| Framework       | Angular v22 (Standalone Components)                  |
+| UI Library      | Angular Material v22 (Material 3)                    |
+| Database        | Dexie.js v4 (IndexedDB wrapper)                      |
+| State           | Angular Signals (`signal`, `computed`)               |
+| Styles          | SCSS inline in components + global `src/styles.scss` |
+| SSR             | Angular SSR + Express v5 (for Cloudflare Pages)      |
+| Package Manager | **pnpm** — never use npm or yarn                     |
+| Node Version    | >=24.15.0                                            |
+| Deployment      | Cloudflare Pages via Wrangler                        |
 
 ---
 
@@ -67,6 +67,7 @@ src/
 ## Architecture Patterns
 
 ### Standalone Components Only
+
 Every component is standalone — there are no `NgModule` files.
 
 ```ts
@@ -75,12 +76,19 @@ Every component is standalone — there are no `NgModule` files.
   standalone: true,
   imports: [CommonModule, MatButtonModule],
   template: `<button mat-button>Click</button>`,
-  styles: [`button { color: red; }`]
+  styles: [
+    `
+      button {
+        color: red;
+      }
+    `,
+  ],
 })
 export class ExampleComponent {}
 ```
 
 ### Angular Signals for State
+
 Services expose state via signals, not RxJS observables.
 
 ```ts
@@ -94,6 +102,7 @@ items = inject(MyService).items;
 ```
 
 ### Dependency Injection
+
 Use `inject()` function, not constructor injection.
 
 ```ts
@@ -105,6 +114,7 @@ constructor(private expenseService: ExpenseService) {}
 ```
 
 ### Inline Component Styles
+
 All component-specific CSS is written inside the component file in the `styles` array — no separate `.scss` files for components.
 
 ---
@@ -112,28 +122,30 @@ All component-specific CSS is written inside the component file in the `styles` 
 ## Data Models
 
 ### Expense
+
 ```ts
 interface Expense {
   id?: number;
   type: 'expense' | 'income';
   title: string;
-  amount: number;           // Always a positive number
-  category: string;         // References Category.name
-  date: string;             // Format: 'YYYY-MM-DD'
+  amount: number; // Always a positive number
+  category: string; // References Category.name
+  date: string; // Format: 'YYYY-MM-DD'
   paymentMethod: 'Cash' | 'Credit Card' | 'Debit Card' | 'UPI' | 'Bank Transfer' | 'Other';
   notes?: string;
-  createdAt: string;        // ISO timestamp string
-  updatedAt: string;        // ISO timestamp string
+  createdAt: string; // ISO timestamp string
+  updatedAt: string; // ISO timestamp string
 }
 ```
 
 ### Category
+
 ```ts
 interface Category {
   id?: number;
-  name: string;             // UNIQUE — Dexie enforces this with '&name' index
-  icon: string;             // Emoji string (e.g. '🍔') or Material icon name
-  color: string;            // Hex color string (e.g. '#ff6b6b')
+  name: string; // UNIQUE — Dexie enforces this with '&name' index
+  icon: string; // Emoji string (e.g. '🍔') or Material icon name
+  color: string; // Hex color string (e.g. '#ff6b6b')
   type?: 'expense' | 'income';
   isDefault?: boolean;
   budgetLimit?: number;
@@ -148,22 +160,27 @@ interface Category {
 **Current Schema Version:** 2
 
 Tables:
+
 - `expenses` — all income and expense transactions
 - `categories` — expense and income categories
 
 ### Adding a New Schema Version
+
 Always increment the version number and write an upgrade function:
 
 ```ts
-this.version(3).stores({
-  expenses: '++id, title, amount, category, date, paymentMethod, type, createdAt',
-  categories: '++id, &name, isDefault, type'
-}).upgrade(async tx => {
-  // migrate existing records
-});
+this.version(3)
+  .stores({
+    expenses: '++id, title, amount, category, date, paymentMethod, type, createdAt',
+    categories: '++id, &name, isDefault, type',
+  })
+  .upgrade(async (tx) => {
+    // migrate existing records
+  });
 ```
 
 ### Seeding
+
 `DEFAULT_CATEGORIES` seeds only on `on('populate')` — this fires only when the DB is created fresh. For existing users, write a migration or check inside `CategoryService.initCategories()`.
 
 ---
@@ -171,11 +188,12 @@ this.version(3).stores({
 ## Services API
 
 ### ExpenseService
+
 ```ts
 // Read (reactive signals)
-expenseService.expenses()           // All transactions
-expenseService.filteredExpenses()   // After filter applied
-expenseService.financialSummary()   // Totals, monthly stats, category breakdown
+expenseService.expenses(); // All transactions
+expenseService.filteredExpenses(); // After filter applied
+expenseService.financialSummary(); // Totals, monthly stats, category breakdown
 
 // Write (async)
 await expenseService.addExpense({ type, title, amount, date, category, paymentMethod });
@@ -186,11 +204,12 @@ expenseService.setFilter({ type, category, dateRange, searchQuery });
 ```
 
 ### CategoryService
+
 ```ts
-categoryService.categories()  // All categories (reactive signal)
+categoryService.categories(); // All categories (reactive signal)
 
 await categoryService.addCategory({ name, icon, color, type, isDefault: false });
-await categoryService.deleteCategory(id);  // Throws if isDefault is true
+await categoryService.deleteCategory(id); // Throws if isDefault is true
 ```
 
 ---
@@ -198,6 +217,7 @@ await categoryService.deleteCategory(id);  // Throws if isDefault is true
 ## Layout & Routing
 
 ### Routes
+
 ```
 /              → DashboardComponent (root, home page)
 /expenses      → ExpensesComponent
@@ -207,13 +227,16 @@ await categoryService.deleteCategory(id);  // Throws if isDefault is true
 ```
 
 ### Page Shell (`PageContainerComponent`)
+
 This is the wrapper for all pages. It contains:
+
 - `<app-header>` — emits `toggleSidebar` and `onQuickAdd`
 - `<mat-sidenav>` with `<app-sidebar>` inside
 - `<app-bottom-nav>` — mobile only (`display: none` at `min-width: 768px`)
 - `<router-outlet>` where page content renders
 
 ### Responsive Breakpoint
+
 - `< 768px` → Mobile layout (bottom-nav visible, sidebar hidden)
 - `>= 768px` → Desktop layout (sidebar visible, bottom-nav hidden)
 
@@ -222,6 +245,7 @@ This is the wrapper for all pages. It contains:
 ## Design System
 
 ### CSS Variables (defined in `src/styles.scss`)
+
 ```scss
 --primary-color: #2563eb;      // Blue — used for expenses, primary actions
 --primary-dark: #1d4ed8;
@@ -240,17 +264,22 @@ This is the wrapper for all pages. It contains:
 ```
 
 ### Global Utility Classes
+
 - `.m3-card` — standard card with border, radius, shadow (defined in `styles.scss`)
 - `.fab-button` — floating action button style
 
 ### Icons
+
 Use Material Symbols Outlined:
+
 ```html
 <span class="material-symbols-outlined">settings</span>
 ```
+
 Category icons use emoji strings directly in templates.
 
 ### Typography
+
 Primary font: `Plus Jakarta Sans`. Fallback: `Roboto`.
 
 ---

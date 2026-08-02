@@ -19,7 +19,7 @@ export interface BackupPayload {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ImportExportService {
   private expenseService = inject(ExpenseService);
@@ -37,7 +37,7 @@ export class ImportExportService {
       version: '0.2.0',
       exportedAt: new Date().toISOString(),
       expenses,
-      categories
+      categories,
     };
 
     const jsonString = JSON.stringify(payload, null, 2);
@@ -55,7 +55,9 @@ export class ImportExportService {
   /**
    * Import backup JSON file, validate structure, and populate IndexedDB without ConstraintErrors
    */
-  async importData(file: File): Promise<{ success: boolean; importedCount: number; message: string }> {
+  async importData(
+    file: File
+  ): Promise<{ success: boolean; importedCount: number; message: string }> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
 
@@ -68,7 +70,7 @@ export class ImportExportService {
             return resolve({
               success: false,
               importedCount: 0,
-              message: 'Invalid backup format: Missing expenses array.'
+              message: 'Invalid backup format: Missing expenses array.',
             });
           }
 
@@ -84,7 +86,11 @@ export class ImportExportService {
             }
 
             // Deduplicate categories by name
-            if (payload.categories && Array.isArray(payload.categories) && payload.categories.length > 0) {
+            if (
+              payload.categories &&
+              Array.isArray(payload.categories) &&
+              payload.categories.length > 0
+            ) {
               const uniqueCategoriesMap = new Map<string, Category>();
               for (const cat of payload.categories) {
                 if (cat.name && !uniqueCategoriesMap.has(cat.name)) {
@@ -104,13 +110,13 @@ export class ImportExportService {
           resolve({
             success: true,
             importedCount: count,
-            message: `Successfully imported ${count} transactions!`
+            message: `Successfully imported ${count} transactions!`,
           });
         } catch (error) {
           resolve({
             success: false,
             importedCount: 0,
-            message: `Failed to parse backup file: ${(error as Error).message}`
+            message: `Failed to parse backup file: ${(error as Error).message}`,
           });
         }
       };

@@ -38,4 +38,4 @@ jobs:
       - name: Build Static App
         run: pnpm run build
         env:
-          NG_CLI_ANALYTICS: "false"
+          NG_CLI_ANALYTICS: 'false'

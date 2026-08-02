@@ -26,22 +26,23 @@ Built with Angular 22 standalone components, Angular Material 22, and Angular Si
 
 ## Most Important Rules
 
-| Rule | Reason |
-|---|---|
-| Use `pnpm` only | Project enforces pnpm in `.npmrc` and `angular.json` |
-| No `ng serve` / `pnpm start` | User runs dev server manually |
-| Standalone components only | No NgModules in this project |
-| Use `inject()` not constructor injection | Angular v14+ pattern used throughout |
-| Use `signal()` / `computed()` for state | No RxJS state in components or services |
+| Rule                                            | Reason                                               |
+| ----------------------------------------------- | ---------------------------------------------------- |
+| Use `pnpm` only                                 | Project enforces pnpm in `.npmrc` and `angular.json` |
+| No `ng serve` / `pnpm start`                    | User runs dev server manually                        |
+| Standalone components only                      | No NgModules in this project                         |
+| Use `inject()` not constructor injection        | Angular v14+ pattern used throughout                 |
+| Use `signal()` / `computed()` for state         | No RxJS state in components or services              |
 | Check `isPlatformBrowser()` before browser APIs | SSR is enabled — `window`/`document` crash on server |
-| Increment Dexie version on schema changes | Required for proper IndexedDB migrations |
-| Category `name` is unique | Dexie `&name` constraint — duplicate insert = error |
+| Increment Dexie version on schema changes       | Required for proper IndexedDB migrations             |
+| Category `name` is unique                       | Dexie `&name` constraint — duplicate insert = error  |
 
 ---
 
 ## Current Pending Tasks (from PLAN.md)
 
 ### High Priority
+
 - Google Analytics `G-SP0MLCNXK8` → add gtag script to `src/index.html`
 - Bottom-nav → replace 5 nav links with 2 action buttons (New Expense + New Income)
 - Hamburger menu → add mobile drawer with all navigation items
@@ -49,11 +50,13 @@ Built with Angular 22 standalone components, Angular Material 22, and Angular Si
 - Category page → fix icon display bug (emoji vs Material icon detection)
 
 ### Medium Priority
+
 - Header → remove "Offline First" badge, add About info dialog, wrap logo in `routerLink="/"`
 - Routes → make Dashboard the root route `/` (not `/dashboard`)
 - Settings → fix build date (currently `new Date()` runs at runtime — needs build-time injection)
 
 ### Low Priority
+
 - Settings → add income configuration card
 - Settings → add transfer between payment modes feature
 - Dark mode support via CSS `prefers-color-scheme`

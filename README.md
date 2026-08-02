@@ -26,6 +26,7 @@
 ## 🛠️ Quick Start & Local Setup
 
 ### Prerequisites
+
 - Node.js `v20.x` or higher
 - `pnpm` (or `npm`)
 

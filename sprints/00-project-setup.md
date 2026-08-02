@@ -19,12 +19,12 @@ Prepare the project for development by setting up the Angular workspace, develop
 
 Install and verify the following tools.
 
-| Tool | Recommended Version |
-|------|----------------------|
-| Git | Latest Stable |
+| Tool    | Recommended Version             |
+| ------- | ------------------------------- |
+| Git     | Latest Stable                   |
 | Node.js | Latest LTS supported by Angular |
-| pnpm | Latest |
-| VS Code | Latest |
+| pnpm    | Latest                          |
+| VS Code | Latest                          |
 
 ---
 
@@ -244,6 +244,7 @@ lint-staged \
 @commitlint/cli \
 @commitlint/config-conventional
 ```
+
 ---
 
 ## VS Code Configuration
@@ -435,16 +436,16 @@ Focus Areas
 
 ## Sprint Status
 
-| Item | Status |
-|------|--------|
-| Repository Setup | ✅ |
-| Angular Workspace | ✅ |
-| pnpm Setup | ✅ |
-| Angular Material | ✅ |
-| Enterprise Structure | ⏳ |
-| Code Quality Tools | ⏳ |
-| GitHub Actions | ⏳ |
-| Documentation | ⏳ |
+| Item                 | Status |
+| -------------------- | ------ |
+| Repository Setup     | ✅     |
+| Angular Workspace    | ✅     |
+| pnpm Setup           | ✅     |
+| Angular Material     | ✅     |
+| Enterprise Structure | ⏳     |
+| Code Quality Tools   | ⏳     |
+| GitHub Actions       | ⏳     |
+| Documentation        | ⏳     |
 
 ---
 

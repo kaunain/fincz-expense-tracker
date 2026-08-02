@@ -19,12 +19,14 @@ Whether you are fixing a bug, adding a new category feature, improving documenta
 ### Local Setup Instructions
 
 1. **Fork & Clone the Repository**:
+
    ```bash
    git clone https://github.com/YOUR-USERNAME/fincz-expense-tracker.git
    cd fincz-expense-tracker
    ```
 
 2. **Install Dependencies**:
+
    ```bash
    pnpm install
    ```
@@ -65,11 +67,13 @@ fincz-expense-tracker/
 ## 💡 How to Customize the Codebase
 
 ### 1. Adding a New Payment Method or Expense Field
+
 - Open [`src/app/core/models/expense.model.ts`](file:///home/ahmad/NIDE/fincz-expense-tracker/src/app/core/models/expense.model.ts) and add your field to the `Expense` interface.
 - Update the IndexedDB schema inside [`src/app/core/db/app-database.ts`](file:///home/ahmad/NIDE/fincz-expense-tracker/src/app/core/db/app-database.ts) if you want the new field to be indexed for fast queries.
 - Update [`ExpensesComponent`](file:///home/ahmad/NIDE/fincz-expense-tracker/src/app/features/expenses/expenses.component.ts) form controls to capture the field in the UI.
 
 ### 2. Customizing Default Categories
+
 - Open [`src/app/core/models/category.model.ts`](file:///home/ahmad/NIDE/fincz-expense-tracker/src/app/core/models/category.model.ts).
 - Edit or append items inside `DEFAULT_CATEGORIES`.
 

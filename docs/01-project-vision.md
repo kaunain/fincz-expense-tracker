@@ -190,11 +190,11 @@ This project is built for three reasons:
 
 # Project Status
 
-| Version | Status |
-|----------|--------|
-| v0.1 | Planning |
-| v0.2 | Development |
-| v1.0 | Public Release |
+| Version | Status         |
+| ------- | -------------- |
+| v0.1    | Planning       |
+| v0.2    | Development    |
+| v1.0    | Public Release |
 
 ---
 

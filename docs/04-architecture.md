@@ -3,7 +3,7 @@
 **Project Name:** Fincz Expense Tracker  
 **Version:** 0.2.0  
 **Status:** Active Development  
-**Author:** Kaunain Ahmad  
+**Author:** Kaunain Ahmad
 
 ---
 
@@ -93,14 +93,17 @@ fincz-expense-tracker/
 # Core Architectural Components
 
 ### 1. Dexie.js (IndexedDB Engine)
+
 - Serves as the primary client-side persistent database.
 - Provides asynchronous, promise-based indexed queries over browser `IndexedDB`.
 - Auto-seeds default categories on initial database creation.
 
 ### 2. Angular Reactive Signals State Management
+
 - Utilizes `signal`, `computed`, and `effect` primitives for fine-grained UI reactivity.
 - Eliminates unnecessary component re-renders and complex RxJS subscription boilerplate.
 
 ### 3. Data Portability & Serialization
+
 - Provides manual JSON Export and Import services (`ImportExportService`).
 - Guarantees 100% data ownership, backup safety, and easy migration across devices.

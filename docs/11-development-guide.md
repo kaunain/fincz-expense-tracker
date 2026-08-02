@@ -3,7 +3,7 @@
 **Project Name:** Fincz Expense Tracker  
 **Version:** 0.2.0  
 **Status:** Active  
-**Author:** Kaunain Ahmad  
+**Author:** Kaunain Ahmad
 
 ---
 
@@ -37,13 +37,16 @@ pnpm run build
 # Codebase Standards & Guidelines
 
 ### 1. Angular Standalone Components & Signals
+
 - All new components must be `standalone: true`.
 - Prefer Angular Reactive Signals (`signal`, `computed`, `effect`) over complex RxJS subject pipelines for local state.
 
 ### 2. IndexedDB via Dexie.js
+
 - Keep database operations inside dedicated Angular services (`ExpenseService`, `CategoryService`).
 - Never perform direct DOM/IndexedDB mutations inside components.
 
 ### 3. Open-Source Documentation
+
 - Annotate all exported models, interfaces, and service methods with clear JSDoc comments.
 - Follow conventional commit messages (`feat: ...`, `fix: ...`, `docs: ...`).

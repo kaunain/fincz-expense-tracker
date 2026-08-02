@@ -3,7 +3,7 @@
 **Project Name:** Fincz Expense Tracker  
 **Version:** 0.2.0  
 **Status:** Active  
-**Author:** Kaunain Ahmad  
+**Author:** Kaunain Ahmad
 
 ---
 
@@ -18,6 +18,7 @@ All data is stored directly in the user's browser database with index-optimized 
 # Client-Side Database Schema (IndexedDB via Dexie.js)
 
 ### Database Name
+
 `FinczExpenseTrackerDB`
 
 ---
@@ -26,21 +27,21 @@ All data is stored directly in the user's browser database with index-optimized 
 
 **Purpose:** Stores user financial transaction records.
 
-| Attribute | TypeScript Type | Indexed Key | Description |
-|-----------|-----------------|-------------|-------------|
-| `id` | `number` | Primary Key (`++id`) | Auto-incremented unique ID |
-| `title` | `string` | Indexed | Short transaction title/description |
-| `amount` | `number` | Indexed | Transaction monetary value |
-| `category` | `string` | Indexed | Associated category name |
-| `date` | `string` | Indexed | ISO Date string (`YYYY-MM-DD`) |
-| `paymentMethod` | `PaymentMethod` | Indexed | Cash, Credit Card, Debit Card, UPI, etc. |
-| `notes` | `string` | Optional | Additional notes or tags |
-| `createdAt` | `string` | Indexed | ISO Timestamp of creation |
-| `updatedAt` | `string` | Metadata | ISO Timestamp of last modification |
+| Attribute       | TypeScript Type | Indexed Key          | Description                              |
+| --------------- | --------------- | -------------------- | ---------------------------------------- |
+| `id`            | `number`        | Primary Key (`++id`) | Auto-incremented unique ID               |
+| `title`         | `string`        | Indexed              | Short transaction title/description      |
+| `amount`        | `number`        | Indexed              | Transaction monetary value               |
+| `category`      | `string`        | Indexed              | Associated category name                 |
+| `date`          | `string`        | Indexed              | ISO Date string (`YYYY-MM-DD`)           |
+| `paymentMethod` | `PaymentMethod` | Indexed              | Cash, Credit Card, Debit Card, UPI, etc. |
+| `notes`         | `string`        | Optional             | Additional notes or tags                 |
+| `createdAt`     | `string`        | Indexed              | ISO Timestamp of creation                |
+| `updatedAt`     | `string`        | Metadata             | ISO Timestamp of last modification       |
 
 ```typescript
 // Dexie Store Definition
-expenses: '++id, title, amount, category, date, paymentMethod, createdAt'
+expenses: '++id, title, amount, category, date, paymentMethod, createdAt';
 ```
 
 ---
@@ -49,18 +50,18 @@ expenses: '++id, title, amount, category, date, paymentMethod, createdAt'
 
 **Purpose:** Stores spending categories and visual badges.
 
-| Attribute | TypeScript Type | Indexed Key | Description |
-|-----------|-----------------|-------------|-------------|
-| `id` | `number` | Primary Key (`++id`) | Auto-incremented unique ID |
-| `name` | `string` | Unique Index (`&name`) | Category display name |
-| `icon` | `string` | Property | Material design icon key |
-| `color` | `string` | Property | HEX color badge string |
-| `isDefault` | `boolean` | Indexed | `true` for system defaults |
-| `budgetLimit` | `number` | Optional | Optional monthly spending limit |
+| Attribute     | TypeScript Type | Indexed Key            | Description                     |
+| ------------- | --------------- | ---------------------- | ------------------------------- |
+| `id`          | `number`        | Primary Key (`++id`)   | Auto-incremented unique ID      |
+| `name`        | `string`        | Unique Index (`&name`) | Category display name           |
+| `icon`        | `string`        | Property               | Material design icon key        |
+| `color`       | `string`        | Property               | HEX color badge string          |
+| `isDefault`   | `boolean`       | Indexed                | `true` for system defaults      |
+| `budgetLimit` | `number`        | Optional               | Optional monthly spending limit |
 
 ```typescript
 // Dexie Store Definition
-categories: '++id, &name, isDefault'
+categories: '++id, &name, isDefault';
 ```
 
 ---
@@ -68,6 +69,7 @@ categories: '++id, &name, isDefault'
 # Seed Data (Default Categories)
 
 Upon first launch, `AppDatabase` automatically populates the `categories` table with system presets:
+
 - Food & Dining (`#ff6b6b`)
 - Housing & Rent (`#4ecdc4`)
 - Transportation (`#ffe66d`)
