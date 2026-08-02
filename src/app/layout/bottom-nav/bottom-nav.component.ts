@@ -1,9 +1,8 @@
 /**
  * @file bottom-nav.component.ts
- * @description Mobile Bottom Action Bar with 3 main quick-action triggers:
+ * @description Mobile Bottom Action Bar with 2 quick-action buttons:
  *   - "New Expense" (blue)
  *   - "New Income"  (green)
- *   - "Transfer"    (purple)
  */
 
 import { Component, EventEmitter, Output } from '@angular/core';
@@ -35,18 +34,6 @@ import { MatRippleModule } from '@angular/material/core';
       >
         <span class="material-symbols-outlined btn-icon">add_circle</span>
         <span class="btn-label">New Income</span>
-      </button>
-
-      <div class="btn-divider" aria-hidden="true"></div>
-
-      <button
-        class="action-btn transfer-btn"
-        (click)="onTransfer.emit()"
-        aria-label="Transfer between accounts"
-        matRipple
-      >
-        <span class="material-symbols-outlined btn-icon">swap_horiz</span>
-        <span class="btn-label">Transfer</span>
       </button>
     </nav>
   `,
@@ -85,7 +72,7 @@ import { MatRippleModule } from '@angular/material/core';
       cursor: pointer;
       font-family: inherit;
       transition: background-color 0.15s ease;
-      padding: 0 0.25rem;
+      padding: 0 0.5rem;
     }
 
     .expense-btn {
@@ -102,27 +89,20 @@ import { MatRippleModule } from '@angular/material/core';
       }
     }
 
-    .transfer-btn {
-      color: #6366f1;
-      &:active {
-        background: rgba(99, 102, 241, 0.08);
-      }
-    }
-
     .btn-icon {
-      font-size: 24px;
+      font-size: 26px;
       line-height: 1;
     }
 
     .btn-label {
-      font-size: 0.7rem;
+      font-size: 0.72rem;
       font-weight: 700;
       letter-spacing: 0.01em;
     }
 
     .btn-divider {
       width: 1px;
-      height: 32px;
+      height: 36px;
       background: #e2e8f0;
       flex-shrink: 0;
     }
@@ -131,5 +111,4 @@ import { MatRippleModule } from '@angular/material/core';
 export class BottomNavComponent {
   @Output() onAddExpense = new EventEmitter<void>();
   @Output() onAddIncome = new EventEmitter<void>();
-  @Output() onTransfer = new EventEmitter<void>();
 }

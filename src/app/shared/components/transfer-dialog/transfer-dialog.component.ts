@@ -1,12 +1,12 @@
 /**
  * @file transfer-dialog.component.ts
- * @description Dedicated dialog for transferring money between payment methods
- * (e.g. Cash -> Bank Transfer, Bank -> UPI).
+ * @description Modal dialog for recording money transfers between payment accounts.
  *
- * Creates 2 paired transactions:
- * 1. Expense debit from "From" account
- * 2. Income credit to "To" account
- * Both categorized as 'Transfer'.
+ * Features:
+ * - Select From / To accounts
+ * - Interactive Swap/Interchange button (From ⇄ To)
+ * - Amount, date (max today), and optional note
+ * - Creates paired Debit (Expense) & Credit (Income) records categorized as 'Transfer'
  */
 
 import { Component, inject } from '@angular/core';
@@ -33,8 +33,8 @@ const PAYMENT_METHODS = ['Cash', 'UPI', 'Bank Transfer', 'Credit Card', 'Debit C
       </div>
 
       <form (ngSubmit)="onSubmit()" class="dialog-form">
-        <!-- From / To Selects -->
-        <div class="form-row">
+        <!-- From / Swap / To Selects Row -->
+        <div class="form-row swap-row">
           <div class="form-group half-width">
             <label class="form-label" for="transferFrom">From Account</label>
             <select id="transferFrom" class="select-input" [(ngModel)]="transfer.from" name="from">
@@ -42,9 +42,16 @@ const PAYMENT_METHODS = ['Cash', 'UPI', 'Bank Transfer', 'Credit Card', 'Debit C
             </select>
           </div>
 
-          <div class="arrow-divider">
-            <span class="material-symbols-outlined">arrow_forward</span>
-          </div>
+          <!-- Clickable Swap Button to interchange From and To -->
+          <button
+            type="button"
+            class="swap-btn"
+            (click)="swapAccounts()"
+            aria-label="Interchange From and To accounts"
+            title="Swap Accounts"
+          >
+            <span class="material-symbols-outlined">swap_horiz</span>
+          </button>
 
           <div class="form-group half-width">
             <label class="form-label" for="transferTo">To Account</label>
@@ -101,7 +108,6 @@ const PAYMENT_METHODS = ['Cash', 'UPI', 'Bank Transfer', 'Credit Card', 'Debit C
           />
         </div>
 
-        <!-- Error hint if accounts are identical -->
         <p class="error-text" *ngIf="transfer.from === transfer.to">
           ⚠️ "From" and "To" accounts must be different.
         </p>
@@ -144,7 +150,7 @@ const PAYMENT_METHODS = ['Cash', 'UPI', 'Bank Transfer', 'Credit Card', 'Debit C
     }
     .form-row {
       display: flex;
-      gap: 0.75rem;
+      gap: 0.5rem;
       align-items: flex-end;
     }
     .half-width {
@@ -198,12 +204,30 @@ const PAYMENT_METHODS = ['Cash', 'UPI', 'Bank Transfer', 'Credit Card', 'Debit C
       border: none;
       border-radius: 0;
     }
-    .arrow-divider {
+
+    /* Interchange / Swap Button */
+    .swap-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid #cbd5e1;
+      background: #f8fafc;
+      color: #6366f1;
       display: flex;
       align-items: center;
-      padding-bottom: 0.6rem;
-      color: #94a3b8;
+      justify-content: center;
+      cursor: pointer;
+      margin-bottom: 2px;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+
+      &:hover {
+        background: #eff6ff;
+        border-color: #6366f1;
+        transform: rotate(180deg);
+      }
     }
+
     .error-text {
       margin: 0;
       font-size: 0.78rem;
@@ -236,6 +260,13 @@ export class TransferDialogComponent {
     date: new Date().toISOString().slice(0, 10),
     note: ''
   };
+
+  /** Swaps/Interchanges From Account and To Account */
+  swapAccounts(): void {
+    const temp = this.transfer.from;
+    this.transfer.from = this.transfer.to;
+    this.transfer.to = temp;
+  }
 
   onCancel(): void {
     this.dialogRef.close();
@@ -270,15 +301,6 @@ export class TransferDialogComponent {
     });
 
     this.snackBar.open(`Transfer of ₹${amount} recorded! 🔄`, 'Dismiss', { duration: 3000 });
-
-    // Reset Form Fields completely
-    this.transfer = {
-      from: 'Cash',
-      to: 'Bank Transfer',
-      amount: null,
-      date: new Date().toISOString().slice(0, 10),
-      note: ''
-    };
 
     this.dialogRef.close(true);
   }
