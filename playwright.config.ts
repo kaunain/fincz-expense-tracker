@@ -4,7 +4,7 @@ export default defineConfig({
   testDir: './e2e',
   timeout: 30 * 1000,
   expect: {
-    timeout: 5000
+    timeout: 5000,
   },
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
@@ -25,7 +25,7 @@ export default defineConfig({
       },
     },
     {
-      name: 'Mobile Chrome (iPhone 12/13 style)',
+      name: 'Mobile Chrome (390x844)',
       use: {
         ...devices['Pixel 5'],
         viewport: { width: 390, height: 844 },
