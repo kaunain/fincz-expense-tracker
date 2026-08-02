@@ -1,19 +1,17 @@
 /**
  * @file sidebar.component.ts
  * @description Navigation Drawer for Desktop & Mobile views.
- *
- * Changes:
- * - Removed duplicate "Add Expense" button to clean up sidebar layout.
- * - Emits `navigate` event when any navigation link is clicked so the parent
- *   (PageContainerComponent) can automatically close the mobile drawer.
+ * Includes Dashboard, Accounts, Expenses, Categories, Reports, Settings, and About trigger.
  */
 
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatRippleModule } from '@angular/material/core';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { AboutDialogComponent } from '../header/about-dialog/about-dialog.component';
 
 interface NavItem {
   label: string;
@@ -24,7 +22,7 @@ interface NavItem {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatListModule, MatIconModule, MatRippleModule],
+  imports: [CommonModule, RouterModule, MatListModule, MatIconModule, MatRippleModule, MatDialogModule],
   template: `
     <div class="sidebar-wrapper">
       <nav class="nav-list" aria-label="Main navigation">
@@ -40,6 +38,12 @@ interface NavItem {
           <span class="material-symbols-outlined nav-icon">{{ item.icon }}</span>
           <span class="nav-text">{{ item.label }}</span>
         </a>
+
+        <!-- About dialog trigger item inside navigation menu -->
+        <button class="nav-link about-btn" (click)="openAboutDialog()" matRipple>
+          <span class="material-symbols-outlined nav-icon">info</span>
+          <span class="nav-text">About App</span>
+        </button>
       </nav>
     </div>
   `,
@@ -70,6 +74,12 @@ interface NavItem {
       font-weight: 600;
       font-size: 0.9rem;
       transition: all 0.2s ease;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      width: 100%;
+      text-align: left;
+      font-family: inherit;
     }
 
     .nav-icon {
@@ -86,17 +96,35 @@ interface NavItem {
       color: #2563eb;
       font-weight: 700;
     }
+
+    .about-btn {
+      margin-top: 0.5rem;
+      border-top: 1px solid #f1f5f9;
+      padding-top: 0.85rem;
+      border-radius: 0;
+    }
   `]
 })
 export class SidebarComponent {
-  /** Emitted whenever a nav item is tapped/clicked */
+  private dialog = inject(MatDialog);
+
   @Output() onNavigate = new EventEmitter<void>();
 
   navItems: NavItem[] = [
     { label: 'Dashboard', icon: 'dashboard', route: '/' },
+    { label: 'Accounts', icon: 'account_balance_wallet', route: '/accounts' },
     { label: 'Expenses', icon: 'receipt_long', route: '/expenses' },
     { label: 'Categories', icon: 'category', route: '/categories' },
     { label: 'Reports', icon: 'equalizer', route: '/reports' },
     { label: 'Settings', icon: 'settings', route: '/settings' },
   ];
+
+  openAboutDialog(): void {
+    this.onNavigate.emit();
+    this.dialog.open(AboutDialogComponent, {
+      width: '100%',
+      maxWidth: '400px',
+      panelClass: 'm3-dialog-panel'
+    });
+  }
 }

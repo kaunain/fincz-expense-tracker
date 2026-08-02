@@ -6,10 +6,12 @@
 import Dexie, { Table } from 'dexie';
 import { Expense } from '../models/expense.model';
 import { Category, DEFAULT_CATEGORIES } from '../models/category.model';
+import { Account, DEFAULT_ACCOUNTS } from '../models/account.model';
 
 export class AppDatabase extends Dexie {
   expenses!: Table<Expense, number>;
   categories!: Table<Category, number>;
+  accounts!: Table<Account, number>;
 
   constructor() {
     super('FinczExpenseTrackerDB');
@@ -119,8 +121,25 @@ export class AppDatabase extends Dexie {
         }
       });
 
+    // Version 5 — add accounts table
+    this.version(5)
+      .stores({
+        expenses: '++id, title, amount, category, date, paymentMethod, type, createdAt',
+        categories: '++id, &name, isDefault, type',
+        accounts: '++id, &name, type',
+      })
+      .upgrade(async (tx) => {
+        for (const acc of DEFAULT_ACCOUNTS) {
+          const exists = await tx.table('accounts').where('name').equals(acc.name).count();
+          if (exists === 0) {
+            await tx.table('accounts').add(acc);
+          }
+        }
+      });
+
     this.on('populate', async () => {
       await this.categories.bulkAdd(DEFAULT_CATEGORIES);
+      await this.accounts.bulkAdd(DEFAULT_ACCOUNTS);
     });
   }
 }
