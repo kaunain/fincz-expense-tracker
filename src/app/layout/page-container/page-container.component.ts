@@ -31,12 +31,12 @@ import { PaymentMethod } from '../../core/models/expense.model';
     HeaderComponent,
     SidebarComponent,
     BottomNavComponent,
-    FooterComponent
+    FooterComponent,
   ],
   template: `
     <div class="main-layout">
-      <app-header 
-        (toggleSidebar)="drawer.toggle()" 
+      <app-header
+        (toggleSidebar)="drawer.toggle()"
         (onQuickAdd)="openAddExpenseDialog()"
       ></app-header>
 
@@ -58,43 +58,49 @@ import { PaymentMethod } from '../../core/models/expense.model';
         </mat-sidenav-content>
       </mat-sidenav-container>
 
-      <!-- Mobile Bottom Navigation & Pinned FAB -->
-      <app-bottom-nav (onAddClick)="openAddExpenseDialog()"></app-bottom-nav>
+      <!-- Mobile Bottom Navigation — two quick-action buttons -->
+      <app-bottom-nav
+        (onAddExpense)="openAddExpenseDialog('expense')"
+        (onAddIncome)="openAddExpenseDialog('income')"
+      ></app-bottom-nav>
     </div>
   `,
-  styles: [`
-    .main-layout {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      background: var(--bg-color);
-    }
-    .sidenav-container {
-      flex: 1;
-      background: transparent;
-    }
-    .sidenav {
-      border-right: 1px solid #e2e8f0;
-      background: white;
-    }
-    .sidenav-content {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .content-wrapper {
-      padding: 1rem;
-      max-width: 1280px;
-      width: 100%;
-      margin: 0 auto;
-      padding-bottom: 90px;
-
-      @media (min-width: 768px) {
-        padding: 1.5rem 2rem;
-        padding-bottom: 2rem;
+  styles: [
+    `
+      .main-layout {
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        background: var(--bg-color);
       }
-    }
-  `]
+      .sidenav-container {
+        flex: 1;
+        background: transparent;
+      }
+      .sidenav {
+        border-right: 1px solid #e2e8f0;
+        background: white;
+      }
+      .sidenav-content {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .content-wrapper {
+        padding: 1rem;
+        max-width: 1280px;
+        width: 100%;
+        margin: 0 auto;
+        /* Leave space for the mobile bottom-nav (64px height) */
+        padding-bottom: 72px;
+
+        @media (min-width: 768px) {
+          padding: 1.5rem 2rem;
+          padding-bottom: 2rem;
+        }
+      }
+    `,
+  ],
 })
 export class PageContainerComponent {
   private breakpointObserver = inject(BreakpointObserver);
@@ -110,11 +116,17 @@ export class PageContainerComponent {
     });
   }
 
-  openAddExpenseDialog(): void {
+  /**
+   * Opens the Add/Edit transaction dialog.
+   * @param defaultType - Pre-select 'expense' or 'income' tab in the dialog.
+   */
+  openAddExpenseDialog(defaultType: 'expense' | 'income' = 'expense'): void {
     const dialogRef = this.dialog.open(AddExpenseDialogComponent, {
       width: '100%',
       maxWidth: '480px',
-      panelClass: 'm3-dialog-panel'
+      panelClass: 'm3-dialog-panel',
+      // Pass the default transaction type so dialog opens on correct tab
+      data: { defaultType },
     });
 
     dialogRef.afterClosed().subscribe(async (result) => {
@@ -126,13 +138,15 @@ export class PageContainerComponent {
           date: result.date,
           category: result.category,
           paymentMethod: result.paymentMethod as PaymentMethod,
-          notes: result.notes || undefined
+          notes: result.notes || undefined,
         });
 
-        this.snackBar.open('Expense added successfully! 🎉', 'Dismiss', {
+        // Generic message that works for both expense and income
+        const label = result.type === 'income' ? 'Income' : 'Expense';
+        this.snackBar.open(`${label} added successfully! 🎉`, 'Dismiss', {
           duration: 3000,
           horizontalPosition: 'center',
-          verticalPosition: 'bottom'
+          verticalPosition: 'bottom',
         });
       }
     });
