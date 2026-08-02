@@ -2,14 +2,12 @@
  * @file add-expense-dialog.component.ts
  * @description Dialog for adding or editing a transaction (expense or income).
  *
- * UX improvements applied:
- * - Auto-focus on the amount input field when dialog opens (via AfterViewInit + ViewChild)
- * - Number spinner arrows removed via CSS (clean numeric input look)
- * - Non-numeric key input blocked (letters etc.) — Backspace, Tab, Arrow keys still work
- * - Quick category chip buttons instead of a dropdown (1 tap vs 2 taps)
- * - Enter key on the amount field submits the form if valid
- * - Category auto-selects first option when type toggle changes
- * - Title field made optional (not required) so users can save quickly
+ * Upgrades:
+ * - Title/Description is MANDATORY (min 3 characters, required validator)
+ * - Future dates disabled (`[max]="maxDate"` set to Today)
+ * - Compact Notes field layout
+ * - Emoji vs Material symbol icon rendering fix for category chips
+ * - Auto-suggest for description retains search history
  */
 
 import {
@@ -20,7 +18,7 @@ import {
   ViewChild,
   computed,
   inject,
-  signal,
+  signal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
@@ -59,7 +57,7 @@ export interface ExpenseDialogData {
     MatIconModule,
     MatAutocompleteModule,
     MatDatepickerModule,
-    MatChipsModule,
+    MatChipsModule
   ],
   template: `
     <div class="dialog-container">
@@ -70,7 +68,7 @@ export interface ExpenseDialogData {
         </button>
       </div>
 
-      <!-- Expense / Income toggle — hidden in edit mode (type cannot change on edit) -->
+      <!-- Expense / Income toggle — hidden in edit mode -->
       <div class="type-toggle" *ngIf="!isEdit" role="group" aria-label="Transaction type">
         <button
           type="button"
@@ -91,6 +89,7 @@ export interface ExpenseDialogData {
       </div>
 
       <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="dialog-form">
+
         <!-- Hero amount input — auto-focused, no spinner arrows -->
         <div
           class="amount-field-wrapper"
@@ -118,9 +117,9 @@ export interface ExpenseDialogData {
           Please enter a valid amount.
         </div>
 
-        <!-- Description / Title (optional) with auto-suggest -->
+        <!-- Description / Title (MANDATORY, Min 3 characters) -->
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Description (Optional)</mat-label>
+          <mat-label>Description *</mat-label>
           <input
             type="text"
             matInput
@@ -138,6 +137,12 @@ export interface ExpenseDialogData {
               </span>
             </mat-option>
           </mat-autocomplete>
+          <mat-error *ngIf="expenseForm.get('title')?.hasError('required')">
+            Description is required.
+          </mat-error>
+          <mat-error *ngIf="expenseForm.get('title')?.hasError('minlength')">
+            Description must be at least 3 characters.
+          </mat-error>
         </mat-form-field>
 
         <!-- Quick category chips — horizontal scrollable, single tap to select -->
@@ -154,8 +159,8 @@ export interface ExpenseDialogData {
               role="option"
               [attr.aria-selected]="expenseForm.get('category')?.value === cat.name"
             >
-              <!-- Show emoji icon if available, else show a colored dot -->
-              <span class="chip-icon">{{ cat.icon || '🏷️' }}</span>
+              <span class="chip-icon" *ngIf="isEmoji(cat.icon)">{{ cat.icon }}</span>
+              <span class="material-symbols-outlined chip-mat-icon" *ngIf="!isEmoji(cat.icon) && cat.icon">{{ cat.icon }}</span>
               <span class="chip-label">{{ cat.name }}</span>
             </button>
           </div>
@@ -174,20 +179,22 @@ export interface ExpenseDialogData {
             </mat-select>
           </mat-form-field>
 
-          <!-- Date picker -->
+          <!-- Date picker (Future dates blocked via [max]="maxDate") -->
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>Date</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="date" />
+            <input matInput [matDatepicker]="picker" [max]="maxDate" formControlName="date" />
             <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
             <mat-datepicker #picker></mat-datepicker>
           </mat-form-field>
         </div>
 
-        <!-- Optional notes field -->
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Notes (Optional)</mat-label>
-          <input matInput formControlName="notes" placeholder="Additional notes" />
-        </mat-form-field>
+        <!-- Compact Optional Notes field -->
+        <div class="compact-notes-wrapper">
+          <mat-form-field appearance="outline" class="full-width compact-notes">
+            <mat-label>Notes (Optional)</mat-label>
+            <input matInput formControlName="notes" placeholder="Additional details..." />
+          </mat-form-field>
+        </div>
 
         <div class="dialog-actions">
           <button type="button" mat-button (click)="onCancel()">Cancel</button>
@@ -204,230 +211,226 @@ export interface ExpenseDialogData {
       </form>
     </div>
   `,
-  styles: [
-    `
-      .dialog-container {
-        padding: 0.5rem;
-      }
+  styles: [`
+    .dialog-container {
+      padding: 0.5rem;
+    }
 
-      .dialog-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-      }
+    .dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.75rem;
+    }
 
-      .dialog-header h2 {
+    .dialog-header h2 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    .type-toggle {
+      display: flex;
+      background: #f1f5f9;
+      border-radius: 12px;
+      padding: 0.25rem;
+      margin-bottom: 0.75rem;
+      gap: 0.25rem;
+    }
+
+    .toggle-btn {
+      flex: 1;
+      padding: 0.5rem;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
+      font-weight: 600;
+      color: #64748b;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .toggle-btn.active {
+      background: white;
+      color: #0f172a;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .dialog-form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .amount-field-wrapper {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      padding: 0.6rem 1rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .amount-field-wrapper.expense-bg {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+    }
+
+    .amount-field-wrapper.income-bg {
+      background: #dcfce7;
+      border: 1px solid #bbf7d0;
+    }
+
+    .currency-symbol {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #2563eb;
+      margin-right: 0.35rem;
+    }
+
+    .currency-symbol.income-text {
+      color: #16a34a;
+    }
+
+    .amount-input {
+      font-size: 2.25rem;
+      font-weight: 800;
+      color: #0f172a;
+      border: none;
+      background: transparent;
+      outline: none;
+      width: 100%;
+      text-align: center;
+
+      &::-webkit-inner-spin-button,
+      &::-webkit-outer-spin-button {
+        -webkit-appearance: none;
         margin: 0;
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: #0f172a;
       }
 
-      /* Expense / Income toggle pill */
-      .type-toggle {
-        display: flex;
+      -moz-appearance: textfield;
+    }
+
+    .amount-input.income-text {
+      color: #16a34a;
+    }
+
+    .category-section {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #64748b;
+    }
+
+    .category-chips {
+      display: flex;
+      gap: 0.5rem;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
+
+    .cat-chip {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 0.45rem 0.75rem;
+      border-radius: 12px;
+      border: 2px solid transparent;
+      background: #f8fafc;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: all 0.15s ease;
+      font-family: inherit;
+
+      &:hover {
         background: #f1f5f9;
-        border-radius: 12px;
-        padding: 0.25rem;
-        margin-bottom: 1rem;
-        gap: 0.25rem;
-      }
-
-      .toggle-btn {
-        flex: 1;
-        padding: 0.5rem;
-        border: none;
-        background: transparent;
-        border-radius: 8px;
-        font-weight: 600;
-        color: #64748b;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-
-      .toggle-btn.active {
-        background: white;
-        color: #0f172a;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-      }
-
-      .dialog-form {
-        display: flex;
-        flex-direction: column;
-        gap: 0.75rem;
-      }
-
-      /* Colored hero amount box */
-      .amount-field-wrapper {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 16px;
-        padding: 0.75rem 1rem;
-        margin-bottom: 0.5rem;
-      }
-
-      .amount-field-wrapper.expense-bg {
-        background: #eff6ff;
-        border: 1px solid #bfdbfe;
-      }
-
-      .amount-field-wrapper.income-bg {
-        background: #dcfce7;
-        border: 1px solid #bbf7d0;
-      }
-
-      .currency-symbol {
-        font-size: 2.2rem;
-        font-weight: 800;
-        color: #2563eb;
-        margin-right: 0.35rem;
-      }
-
-      .currency-symbol.income-text {
-        color: #16a34a;
-      }
-
-      /* Remove default number spinner arrows (Chrome, Safari, Firefox) */
-      .amount-input {
-        font-size: 2.25rem;
-        font-weight: 800;
-        color: #0f172a;
-        border: none;
-        background: transparent;
-        outline: none;
-        width: 100%;
-        text-align: center;
-
-        /* Hide spinner arrows — webkit browsers */
-        &::-webkit-inner-spin-button,
-        &::-webkit-outer-spin-button {
-          -webkit-appearance: none;
-          margin: 0;
-        }
-
-        /* Hide spinner arrows — Firefox */
-        -moz-appearance: textfield;
-      }
-
-      .amount-input.income-text {
-        color: #16a34a;
-      }
-
-      /* Category quick-select chips */
-      .category-section {
-        display: flex;
-        flex-direction: column;
-        gap: 0.5rem;
-      }
-
-      .section-label {
-        font-size: 0.8rem;
-        font-weight: 600;
-        color: #64748b;
-      }
-
-      /* Horizontal scrollable chip row */
-      .category-chips {
-        display: flex;
-        gap: 0.5rem;
-        overflow-x: auto;
-        padding-bottom: 4px;
-        scrollbar-width: none; /* Firefox — hide scrollbar */
-
-        &::-webkit-scrollbar {
-          display: none; /* Chrome — hide scrollbar */
-        }
-      }
-
-      /* Individual category chip */
-      .cat-chip {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 4px;
-        padding: 0.5rem 0.75rem;
-        border-radius: 12px;
-        border: 2px solid transparent;
-        background: #f8fafc;
-        cursor: pointer;
-        flex-shrink: 0; /* Prevent chips from shrinking in scroll row */
-        transition: all 0.15s ease;
-        font-family: inherit;
-
-        &:hover {
-          background: #f1f5f9;
-          border-color: var(--chip-color, #2563eb);
-        }
-      }
-
-      /* Highlighted state for selected category */
-      .cat-chip.selected {
-        background: color-mix(in srgb, var(--chip-color, #2563eb) 12%, white);
         border-color: var(--chip-color, #2563eb);
       }
+    }
 
-      .chip-icon {
-        font-size: 1.4rem;
-        line-height: 1;
-      }
+    .cat-chip.selected {
+      background: color-mix(in srgb, var(--chip-color, #2563eb) 12%, white);
+      border-color: var(--chip-color, #2563eb);
+    }
 
-      .chip-label {
-        font-size: 0.72rem;
-        font-weight: 600;
-        color: #334155;
-        white-space: nowrap;
-      }
+    .chip-icon {
+      font-size: 1.3rem;
+      line-height: 1;
+    }
 
-      /* Layout helpers */
-      .full-width {
-        width: 100%;
-      }
+    .chip-mat-icon {
+      font-size: 20px;
+      color: #64748b;
+    }
 
-      .form-row {
-        display: flex;
-        gap: 0.75rem;
-      }
+    .chip-label {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: #334155;
+      white-space: nowrap;
+    }
 
-      .half-width {
-        flex: 1;
-      }
+    .full-width {
+      width: 100%;
+    }
 
-      .suggestion-item {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        font-size: 0.9rem;
-      }
+    .form-row {
+      display: flex;
+      gap: 0.75rem;
+    }
 
-      .sugg-icon {
-        font-size: 18px;
-        color: #94a3b8;
-      }
+    .half-width {
+      flex: 1;
+    }
 
-      .dialog-actions {
-        display: flex;
-        justify-content: flex-end;
-        gap: 0.75rem;
-        margin-top: 1rem;
-      }
+    .compact-notes-wrapper {
+      margin-top: -0.25rem;
+    }
 
-      .save-btn {
-        border-radius: 12px;
-        padding: 0 1.5rem;
-      }
+    .suggestion-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
 
-      .error-msg {
-        color: #ef4444;
-        font-size: 0.75rem;
-        text-align: center;
-      }
-    `,
-  ],
+    .sugg-icon {
+      font-size: 18px;
+      color: #94a3b8;
+    }
+
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      margin-top: 0.5rem;
+    }
+
+    .save-btn {
+      border-radius: 12px;
+      padding: 0 1.5rem;
+    }
+
+    .error-msg {
+      color: #ef4444;
+      font-size: 0.75rem;
+      text-align: center;
+    }
+  `]
 })
 export class AddExpenseDialogComponent implements AfterViewInit {
-  /** Reference to the raw amount <input> element for manual focus */
   @ViewChild('amountInput') amountInput!: ElementRef<HTMLInputElement>;
 
   private categoryService = inject(CategoryService);
@@ -440,19 +443,20 @@ export class AddExpenseDialogComponent implements AfterViewInit {
   public isEdit = false;
   public selectedType = signal<'expense' | 'income'>('expense');
 
+  /** Max date allowed for transactions is TODAY (no future dates) */
+  public maxDate: Date = new Date();
+
   public expenseForm = this.fb.group({
-    // Title is optional — user can save with just an amount and category
-    title: [''],
+    title: ['', [Validators.required, Validators.minLength(3)]],
     amount: [null as number | null, [Validators.required, Validators.min(0.01)]],
     date: [new Date(), Validators.required],
     category: ['', Validators.required],
     paymentMethod: ['UPI' as PaymentMethod, Validators.required],
-    notes: [''],
+    notes: ['']
   });
 
   constructor(@Inject(MAT_DIALOG_DATA) public data: ExpenseDialogData) {
     if (data?.expense) {
-      // Edit mode — populate form with existing transaction data
       this.isEdit = true;
       this.selectedType.set(data.expense.type || 'expense');
       this.expenseForm.patchValue({
@@ -461,14 +465,12 @@ export class AddExpenseDialogComponent implements AfterViewInit {
         date: new Date(data.expense.date),
         category: data.expense.category,
         paymentMethod: data.expense.paymentMethod,
-        notes: data.expense.notes || '',
+        notes: data.expense.notes || ''
       });
     } else if (data?.defaultType) {
-      // New transaction — use the type passed from the quick-action button
       this.selectedType.set(data.defaultType);
     }
 
-    // Auto-select the first category for the current type
     if (!this.isEdit) {
       const defaultCats = this.filteredCategories();
       if (defaultCats.length > 0) {
@@ -477,81 +479,53 @@ export class AddExpenseDialogComponent implements AfterViewInit {
     }
   }
 
-  /**
-   * Auto-focus the amount input after the dialog is fully rendered.
-   * We use a small delay because Angular Material dialog has an open animation
-   * that can steal focus if we call focus() immediately.
-   */
   ngAfterViewInit(): void {
     setTimeout(() => {
       this.amountInput?.nativeElement?.focus();
     }, 150);
   }
 
-  /** Returns only categories matching the currently selected transaction type */
+  /** Detects whether string is an emoji or Material icon string */
+  isEmoji(icon: string | undefined): boolean {
+    if (!icon) return false;
+    return Array.from(icon).some((char) => char.codePointAt(0)! > 255);
+  }
+
   public filteredCategories = computed(() => {
     return this.categories().filter((c) => c.type === this.selectedType());
   });
 
-  /** Switch between expense/income — also resets category to first valid option */
   setType(type: 'expense' | 'income'): void {
-    if (this.isEdit) return; // Cannot change type when editing an existing transaction
+    if (this.isEdit) return;
     this.selectedType.set(type);
 
-    // Pick the first category of the new type automatically
     const defaultCats = this.filteredCategories();
     this.expenseForm.patchValue({
-      category: defaultCats.length > 0 ? defaultCats[0].name : '',
+      category: defaultCats.length > 0 ? defaultCats[0].name : ''
     });
   }
 
-  /** Set the selected category from a chip click */
   selectCategory(name: string): void {
     this.expenseForm.patchValue({ category: name });
   }
 
-  /**
-   * Filters keyboard input on the amount field.
-   * Allows: digits, decimal point, backspace, delete, tab, arrows, home, end.
-   * Blocks: letters and other non-numeric characters.
-   */
   filterNonNumericKeys(event: KeyboardEvent): void {
     const allowedKeys = [
-      'Backspace',
-      'Delete',
-      'Tab',
-      'Escape',
-      'Enter',
-      'ArrowLeft',
-      'ArrowRight',
-      'ArrowUp',
-      'ArrowDown',
-      'Home',
-      'End',
-      '.',
-      ',',
+      'Backspace', 'Delete', 'Tab', 'Escape', 'Enter',
+      'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown',
+      'Home', 'End', '.', ','
     ];
 
-    // Allow Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X (clipboard operations)
     if (event.ctrlKey || event.metaKey) return;
-
-    // Allow numeric keys (0-9)
     if (/^\d$/.test(event.key)) return;
-
-    // Allow whitelisted special keys
     if (allowedKeys.includes(event.key)) return;
 
-    // Block everything else (letters, symbols, etc.)
     event.preventDefault();
   }
 
-  /**
-   * Auto-suggests previously used transaction titles when user types 3+ characters.
-   * Only shows titles matching the current transaction type.
-   */
   public filteredTitleSuggestions = computed(() => {
     const rawTitle = (this.expenseForm.get('title')?.value || '').trim().toLowerCase();
-    if (rawTitle.length < 3) return [];
+    if (rawTitle.length < 2) return [];
 
     const uniqueTitles = new Set<string>();
     for (const exp of this.pastExpenses()) {
@@ -571,7 +545,6 @@ export class AddExpenseDialogComponent implements AfterViewInit {
 
     const val = this.expenseForm.value;
 
-    // Format date as 'YYYY-MM-DD' string for consistent storage
     let formattedDateStr = new Date().toISOString().slice(0, 10);
     if (val.date) {
       formattedDateStr = new Date(val.date).toISOString().slice(0, 10);
@@ -584,7 +557,7 @@ export class AddExpenseDialogComponent implements AfterViewInit {
       category: val.category,
       paymentMethod: val.paymentMethod,
       notes: val.notes,
-      type: this.selectedType(),
+      type: this.selectedType()
     });
   }
 }

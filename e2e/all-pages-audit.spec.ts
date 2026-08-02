@@ -67,7 +67,7 @@ test.describe('Fincz Expense Tracker — Full Multi-Page E2E & Persistence QA Au
 
     await page.waitForSelector('app-add-expense-dialog');
 
-    // a. Form Validation Test (Submit with empty/invalid amount)
+    // a. Form Validation Test (Submit with empty/invalid amount or short title)
     const saveBtn = page.locator('button.save-btn').first();
     await expect(saveBtn).toBeDisabled();
 
@@ -75,8 +75,13 @@ test.describe('Fincz Expense Tracker — Full Multi-Page E2E & Persistence QA Au
     const amountInput = page.locator('input[formcontrolname="amount"], input.amount-input').first();
     await amountInput.fill('250');
 
+    // Title < 3 chars should keep button disabled
     const titleInput = page.locator('input[formcontrolname="title"]').first();
+    await titleInput.fill('Te');
+    await expect(saveBtn).toBeDisabled();
+
     await titleInput.fill('Test Lunch');
+    await expect(saveBtn).toBeEnabled();
 
     // Submit Expense
     await saveBtn.click();
