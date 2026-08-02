@@ -11,12 +11,13 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MatRippleModule } from '@angular/material/core';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { CategoryService } from '../../core/services/category.service';
 
 @Component({
   selector: 'app-categories',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatRippleModule, MatSnackBarModule],
+  imports: [CommonModule, FormsModule, MatRippleModule, MatSnackBarModule, MatDialogModule],
   template: `
     <div class="categories-page">
       <div class="page-title-box">
@@ -275,6 +276,7 @@ import { CategoryService } from '../../core/services/category.service';
 export class CategoriesComponent {
   private categoryService = inject(CategoryService);
   private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
 
   public categories = this.categoryService.categories;
   public selectedTab: 'expense' | 'income' = 'expense';
@@ -317,9 +319,18 @@ export class CategoriesComponent {
   }
 
   async deleteCategory(id: number): Promise<void> {
-    if (confirm('Delete this custom category?')) {
-      await this.categoryService.deleteCategory(id);
-      this.snackBar.open('Category deleted', 'Dismiss', { duration: 3000 });
-    }
+    // Use Material Dialog instead of native browser confirm() for better UX
+    const { ConfirmDialogComponent } =
+      await import('../../shared/components/confirm-dialog/confirm-dialog.component');
+    const ref = this.dialog.open(ConfirmDialogComponent, {
+      width: '320px',
+      data: { message: 'Delete this custom category?' },
+    });
+    ref.afterClosed().subscribe(async (confirmed) => {
+      if (confirmed) {
+        await this.categoryService.deleteCategory(id);
+        this.snackBar.open('Category deleted', 'Dismiss', { duration: 3000 });
+      }
+    });
   }
 }
