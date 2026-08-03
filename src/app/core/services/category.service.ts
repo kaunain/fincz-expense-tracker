@@ -36,7 +36,7 @@ export class CategoryService {
         items = await db.categories.toArray();
       } else {
         // Migration check for existing databases: ensure Salary & Income categories have type: 'income'
-        const incomeNames = ['Salary', 'Freelance', 'Business', 'Investment', 'Dividend', 'Bank Interest', 'Gift', 'Rental', 'Pension', 'Income'];
+        const incomeNames = ['Salary', 'Freelance', 'Business', 'Investment', 'Dividend', 'Bank Interest', 'Gift', 'Rental', 'Pension', 'Income', 'Other'];
         let updated = false;
         for (const item of items) {
           if (incomeNames.includes(item.name) && item.type !== 'income') {
@@ -51,6 +51,17 @@ export class CategoryService {
           items = await db.categories.toArray();
         }
       }
+
+      // Hard safety check: assign type based on DEFAULT_CATEGORIES map if type is undefined/wrong
+      const defaultTypeMap = new Map(DEFAULT_CATEGORIES.map((c) => [c.name, c.type]));
+      items = items.map((cat) => {
+        const expectedType = defaultTypeMap.get(cat.name);
+        if (expectedType && cat.type !== expectedType) {
+          return { ...cat, type: expectedType };
+        }
+        return cat;
+      });
+
       this.categoriesSignal.set(items);
     } catch (error) {
       console.error('Failed to initialize categories:', error);
