@@ -114,7 +114,7 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
             All
           </button>
           <button
-            *ngFor="let cat of categories()"
+            *ngFor="let cat of filteredCategoryChips()"
             class="chip"
             [class.active]="selectedCategory === cat.name"
             (click)="selectCategory(cat.name)"
@@ -466,6 +466,11 @@ export class ExpensesComponent implements OnInit {
 
   public expenses = this.expenseService.filteredExpenses;
   public categories = this.categoryService.categories;
+
+  public filteredCategoryChips = () => {
+    if (!this.selectedType) return this.categories();
+    return this.categories().filter((c) => c.type === this.selectedType);
+  };
 
   public searchQuery = '';
   public selectedCategory = '';
