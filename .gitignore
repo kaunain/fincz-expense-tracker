@@ -7,6 +7,14 @@
 /.angular/
 .angular/
 
+# Playwright reports & test results
+/playwright-report/
+/blob-report/
+/test-results/
+
+# AI assistant artifacts & history
+.aider*
+
 # Node modules and dependency files
 /node_modules/
 /package-lock.json
@@ -18,7 +26,6 @@
 # Angular CLI and build artefacts
 /.angular-cli.json
 /.ng/
-test-results/
 
 # TypeScript cache
 *.tsbuildinfo
