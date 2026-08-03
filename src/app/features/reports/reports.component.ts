@@ -27,7 +27,6 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
             <label>Date</label>
             <input type="date" [(ngModel)]="selectedDate" class="date-input" [max]="todayDate" />
           </div>
-          <button class="reset-date-btn" (click)="resetDate()" matRipple>Today</button>
         </div>
       </div>
 
@@ -152,10 +151,6 @@ export class ReportsComponent {
 
   public todayDate = new Date().toISOString().split('T')[0];
   public selectedDate = this.todayDate;
-
-  resetDate(): void {
-    this.selectedDate = this.todayDate;
-  }
 
   public dateFilteredStats = computed(() => {
     const all = this.expenses();
