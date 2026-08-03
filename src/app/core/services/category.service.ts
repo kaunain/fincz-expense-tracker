@@ -34,6 +34,22 @@ export class CategoryService {
       if (items.length === 0) {
         await db.categories.bulkAdd(DEFAULT_CATEGORIES);
         items = await db.categories.toArray();
+      } else {
+        // Migration check for existing databases: ensure Salary & Income categories have type: 'income'
+        const incomeNames = ['Salary', 'Freelance', 'Business', 'Investment', 'Dividend', 'Bank Interest', 'Gift', 'Rental', 'Pension', 'Income'];
+        let updated = false;
+        for (const item of items) {
+          if (incomeNames.includes(item.name) && item.type !== 'income') {
+            item.type = 'income';
+            if (item.id) {
+              await db.categories.update(item.id, { type: 'income' });
+            }
+            updated = true;
+          }
+        }
+        if (updated) {
+          items = await db.categories.toArray();
+        }
       }
       this.categoriesSignal.set(items);
     } catch (error) {

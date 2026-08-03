@@ -137,6 +137,29 @@ export class AppDatabase extends Dexie {
         }
       });
 
+    // Version 6 — fix income category types (Salary, Income, Freelance, Business, Investment, etc.) in IndexedDB
+    this.version(6)
+      .stores({
+        expenses: '++id, title, amount, category, date, paymentMethod, type, createdAt',
+        categories: '++id, &name, isDefault, type',
+        accounts: '++id, &name, type',
+      })
+      .upgrade(async (tx) => {
+        const incomeCategoryNames = [
+          'Salary', 'Freelance', 'Business', 'Investment',
+          'Dividend', 'Bank Interest', 'Gift', 'Rental', 'Pension', 'Other Income', 'Income'
+        ];
+
+        await tx
+          .table('categories')
+          .toCollection()
+          .modify((cat: any) => {
+            if (incomeCategoryNames.includes(cat.name)) {
+              cat.type = 'income';
+            }
+          });
+      });
+
     this.on('populate', async () => {
       await this.categories.bulkAdd(DEFAULT_CATEGORIES);
       await this.accounts.bulkAdd(DEFAULT_ACCOUNTS);
