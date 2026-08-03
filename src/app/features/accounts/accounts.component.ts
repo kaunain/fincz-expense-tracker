@@ -84,7 +84,11 @@ import { TransferDialogComponent } from '../../shared/components/transfer-dialog
               >
               <span class="acc-name">{{ acc.name }}</span>
             </div>
-            <button class="delete-btn" (click)="deleteAccount(acc.id!, acc.name)" title="Delete Account">
+            <button
+              class="delete-btn"
+              (click)="deleteAccount(acc.id!, acc.name)"
+              title="Delete Account"
+            >
               <span class="material-symbols-outlined">delete</span>
             </button>
           </div>

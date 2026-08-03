@@ -27,7 +27,7 @@ import { TransferDialogComponent } from '../../shared/components/transfer-dialog
     MatButtonModule,
     MatIconModule,
     MatTooltipModule,
-    MatDialogModule
+    MatDialogModule,
   ],
   template: `
     <header class="app-header">
@@ -64,64 +64,66 @@ import { TransferDialogComponent } from '../../shared/components/transfer-dialog
       </div>
     </header>
   `,
-  styles: [`
-    .app-header {
-      position: sticky;
-      top: 0;
-      z-index: 900;
-      height: 60px;
-      padding: 0 1.25rem;
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid #e2e8f0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
+  styles: [
+    `
+      .app-header {
+        position: sticky;
+        top: 0;
+        z-index: 900;
+        height: 60px;
+        padding: 0 1.25rem;
+        background: rgba(255, 255, 255, 0.92);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
 
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
 
-    .menu-toggle {
-      display: inline-flex;
-    }
+      .menu-toggle {
+        display: inline-flex;
+      }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      text-decoration: none;
-    }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+      }
 
-    .brand-logo-img {
-      height: 28px;
-      width: auto;
-      object-fit: contain;
-    }
+      .brand-logo-img {
+        height: 28px;
+        width: auto;
+        object-fit: contain;
+      }
 
-    .app-subtitle {
-      font-size: 0.75rem;
-      color: #64748b;
-      font-weight: 700;
-      background: #f1f5f9;
-      padding: 0.15rem 0.5rem;
-      border-radius: 6px;
-    }
+      .app-subtitle {
+        font-size: 0.75rem;
+        color: #64748b;
+        font-weight: 700;
+        background: #f1f5f9;
+        padding: 0.15rem 0.5rem;
+        border-radius: 6px;
+      }
 
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
 
-    .header-transfer-btn {
-      color: #6366f1;
-    }
-  `]
+      .header-transfer-btn {
+        color: #6366f1;
+      }
+    `,
+  ],
 })
 export class HeaderComponent {
   private dialog = inject(MatDialog);
@@ -132,7 +134,7 @@ export class HeaderComponent {
     this.dialog.open(TransferDialogComponent, {
       width: '100%',
       maxWidth: '480px',
-      panelClass: 'm3-dialog-panel'
+      panelClass: 'm3-dialog-panel',
     });
   }
 }

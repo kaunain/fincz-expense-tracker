@@ -41,11 +41,15 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
       <div class="stats-grid">
         <div class="m3-card stat-card success">
           <span class="stat-label">Income</span>
-          <span class="stat-value income-text">+₹{{ dateFilteredStats().income | number: '1.2-2' }}</span>
+          <span class="stat-value income-text"
+            >+₹{{ dateFilteredStats().income | number: '1.2-2' }}</span
+          >
         </div>
         <div class="m3-card stat-card primary">
           <span class="stat-label">Expenses</span>
-          <span class="stat-value expense-text">-₹{{ dateFilteredStats().expenses | number: '1.2-2' }}</span>
+          <span class="stat-value expense-text"
+            >-₹{{ dateFilteredStats().expenses | number: '1.2-2' }}</span
+          >
         </div>
         <div class="m3-card stat-card info">
           <span class="stat-label">Balance</span>
@@ -66,10 +70,16 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
             <div *ngFor="let item of dateFilteredStats().categoryBreakdown" class="breakdown-item">
               <div class="item-header">
                 <span class="cat-name">{{ item.category }}</span>
-                <span class="cat-val">₹{{ item.amount | number: '1.2-2' }} ({{ item.percentage }}%)</span>
+                <span class="cat-val"
+                  >₹{{ item.amount | number: '1.2-2' }} ({{ item.percentage }}%)</span
+                >
               </div>
               <div class="bar-bg">
-                <div class="bar-fill" [style.width.%]="item.percentage" [style.background-color]="item.color"></div>
+                <div
+                  class="bar-fill"
+                  [style.width.%]="item.percentage"
+                  [style.background-color]="item.color"
+                ></div>
               </div>
             </div>
           </div>
@@ -89,14 +99,21 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
           <div class="empty-state">No transactions recorded for this period.</div>
         } @else {
           <div class="tx-list">
-            <div *ngFor="let item of dateFilteredStats().items" class="tx-card" (click)="editExpense(item)" matRipple>
+            <div
+              *ngFor="let item of dateFilteredStats().items"
+              class="tx-card"
+              (click)="editExpense(item)"
+              matRipple
+            >
               <div class="tx-left">
                 <div class="tx-avatar" [class.income-bg]="item.type === 'income'">
                   {{ item.type === 'income' ? '📈' : '💸' }}
                 </div>
                 <div class="tx-info">
                   <span class="tx-title">{{ item.title }}</span>
-                  <span class="tx-sub">{{ item.date }} • {{ item.category }} • {{ item.paymentMethod }}</span>
+                  <span class="tx-sub"
+                    >{{ item.date }} • {{ item.category }} • {{ item.paymentMethod }}</span
+                  >
                 </div>
               </div>
               <div class="tx-right">
@@ -113,41 +130,204 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
       </div>
     </div>
   `,
-  styles: [`
-    .reports-page { display: flex; flex-direction: column; gap: 1.25rem; }
-    .page-title-box h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: #0f172a; }
-    .subtitle { margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.85rem; }
-    .date-filter-card h3, .breakdown-card h3, .tx-section h3 { margin-top: 0; font-size: 1.05rem; font-weight: 700; color: #0f172a; }
-    .date-inputs-row { display: flex; align-items: flex-end; gap: 0.75rem; flex-wrap: wrap; }
-    .date-field { display: flex; flex-direction: column; gap: 0.25rem; flex: 1; min-width: 120px; }
-    .date-field label { font-size: 0.75rem; font-weight: 700; color: #64748b; }
-    .date-input { padding: 0.5rem; border-radius: 10px; border: 1px solid #cbd5e1; outline: none; font-size: 0.88rem; }
-    .reset-date-btn { padding: 0.55rem 1rem; border-radius: 10px; border: 1px solid #cbd5e1; background: #f8fafc; font-weight: 700; cursor: pointer; }
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 0.85rem; }
-    .stat-card { display: flex; flex-direction: column; gap: 0.25rem; padding: 1rem; }
-    .stat-label { font-size: 0.75rem; font-weight: 600; color: #64748b; }
-    .stat-value { font-size: 1.2rem; font-weight: 800; color: #0f172a; }
-    .income-text { color: #16a34a; }
-    .expense-text { color: #ef4444; }
-    .breakdown-list { display: flex; flex-direction: column; gap: 0.85rem; }
-    .item-header { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; }
-    .bar-bg { height: 10px; background: #f1f5f9; border-radius: 5px; overflow: hidden; }
-    .bar-fill { height: 100%; transition: width 0.3s ease; }
-    .tx-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; }
-    .csv-btn { display: flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.85rem; border-radius: 10px; border: 1px solid #cbd5e1; background: white; font-weight: 700; font-size: 0.8rem; cursor: pointer; }
-    .tx-list { display: flex; flex-direction: column; gap: 0.5rem; }
-    .tx-card { display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0.85rem; background: #f8fafc; border-radius: 12px; cursor: pointer; }
-    .tx-left { display: flex; align-items: center; gap: 0.75rem; }
-    .tx-avatar { width: 36px; height: 36px; border-radius: 10px; background: #fee2e2; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
-    .tx-avatar.income-bg { background: #dcfce7; }
-    .tx-info { display: flex; flex-direction: column; }
-    .tx-title { font-weight: 700; font-size: 0.88rem; color: #0f172a; }
-    .tx-sub { font-size: 0.72rem; color: #64748b; }
-    .tx-right { display: flex; align-items: center; gap: 0.5rem; }
-    .tx-amount { font-weight: 800; font-size: 0.95rem; color: #ef4444; }
-    .delete-btn { background: none; border: none; color: #cbd5e1; cursor: pointer; &:hover { color: #ef4444; } }
-    .empty-state { text-align: center; padding: 1.5rem; color: #94a3b8; font-size: 0.88rem; }
-  `]
+  styles: [
+    `
+      .reports-page {
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+      }
+      .page-title-box h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        font-weight: 800;
+        color: #0f172a;
+      }
+      .subtitle {
+        margin: 0.25rem 0 0 0;
+        color: #64748b;
+        font-size: 0.85rem;
+      }
+      .date-filter-card h3,
+      .breakdown-card h3,
+      .tx-section h3 {
+        margin-top: 0;
+        font-size: 1.05rem;
+        font-weight: 700;
+        color: #0f172a;
+      }
+      .date-inputs-row {
+        display: flex;
+        align-items: flex-end;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+      .date-field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        flex: 1;
+        min-width: 120px;
+      }
+      .date-field label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: #64748b;
+      }
+      .date-input {
+        padding: 0.5rem;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        outline: none;
+        font-size: 0.88rem;
+      }
+      .reset-date-btn {
+        padding: 0.55rem 1rem;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        background: #f8fafc;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 0.85rem;
+      }
+      .stat-card {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        padding: 1rem;
+      }
+      .stat-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #64748b;
+      }
+      .stat-value {
+        font-size: 1.2rem;
+        font-weight: 800;
+        color: #0f172a;
+      }
+      .income-text {
+        color: #16a34a;
+      }
+      .expense-text {
+        color: #ef4444;
+      }
+      .breakdown-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+      }
+      .item-header {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 0.35rem;
+      }
+      .bar-bg {
+        height: 10px;
+        background: #f1f5f9;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+      .bar-fill {
+        height: 100%;
+        transition: width 0.3s ease;
+      }
+      .tx-header-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.85rem;
+      }
+      .csv-btn {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.4rem 0.85rem;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        background: white;
+        font-weight: 700;
+        font-size: 0.8rem;
+        cursor: pointer;
+      }
+      .tx-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+      .tx-card {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.65rem 0.85rem;
+        background: #f8fafc;
+        border-radius: 12px;
+        cursor: pointer;
+      }
+      .tx-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .tx-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        background: #fee2e2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1rem;
+      }
+      .tx-avatar.income-bg {
+        background: #dcfce7;
+      }
+      .tx-info {
+        display: flex;
+        flex-direction: column;
+      }
+      .tx-title {
+        font-weight: 700;
+        font-size: 0.88rem;
+        color: #0f172a;
+      }
+      .tx-sub {
+        font-size: 0.72rem;
+        color: #64748b;
+      }
+      .tx-right {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .tx-amount {
+        font-weight: 800;
+        font-size: 0.95rem;
+        color: #ef4444;
+      }
+      .delete-btn {
+        background: none;
+        border: none;
+        color: #cbd5e1;
+        cursor: pointer;
+        &:hover {
+          color: #ef4444;
+        }
+      }
+      .empty-state {
+        text-align: center;
+        padding: 1.5rem;
+        color: #94a3b8;
+        font-size: 0.88rem;
+      }
+    `,
+  ],
 })
 export class ReportsComponent {
   private expenseService = inject(ExpenseService);
@@ -226,7 +406,8 @@ export class ReportsComponent {
 
   async deleteExpense(id: number, event: MouseEvent): Promise<void> {
     event.stopPropagation();
-    const { ConfirmDialogComponent } = await import('../../shared/components/confirm-dialog/confirm-dialog.component');
+    const { ConfirmDialogComponent } =
+      await import('../../shared/components/confirm-dialog/confirm-dialog.component');
     const confirmRef = this.dialog.open(ConfirmDialogComponent, {
       width: '320px',
       data: { message: 'Delete this transaction?' },

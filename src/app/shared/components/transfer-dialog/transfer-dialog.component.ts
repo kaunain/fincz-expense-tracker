@@ -132,123 +132,126 @@ const PAYMENT_METHODS = ['Cash', 'UPI', 'Bank Transfer', 'Credit Card', 'Debit C
       </form>
     </div>
   `,
-  styles: [`
-    .dialog-container {
-      padding: 0.5rem;
-    }
-    .dialog-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1rem;
-    }
-    .dialog-header h2 {
-      margin: 0;
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: #0f172a;
-    }
-    .dialog-form {
-      display: flex;
-      flex-direction: column;
-      gap: 0.85rem;
-    }
-    .form-row {
-      display: flex;
-      gap: 0.5rem;
-      align-items: flex-end;
-    }
-    .half-width {
-      flex: 1;
-    }
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-    }
-    .form-label {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: #64748b;
-    }
-    .select-input, .text-input {
-      padding: 0.6rem 0.85rem;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      font-size: 0.9rem;
-      font-family: inherit;
-      background: white;
-      width: 100%;
-      box-sizing: border-box;
-      outline: none;
-
-      &:focus {
-        border-color: #2563eb;
+  styles: [
+    `
+      .dialog-container {
+        padding: 0.5rem;
       }
-    }
-    .rupee-input-wrap {
-      display: flex;
-      align-items: center;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      overflow: hidden;
-
-      &:focus-within {
-        border-color: #2563eb;
+      .dialog-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
       }
-    }
-    .rupee-prefix {
-      padding: 0.6rem 0.6rem 0.6rem 0.85rem;
-      font-weight: 700;
-      color: #64748b;
-      background: #f8fafc;
-      border-right: 1px solid #e2e8f0;
-      font-size: 1rem;
-    }
-    .rupee-input-wrap .text-input {
-      border: none;
-      border-radius: 0;
-    }
-
-    /* Interchange / Swap Button */
-    .swap-btn {
-      width: 38px;
-      height: 38px;
-      border-radius: 10px;
-      border: 1px solid #cbd5e1;
-      background: #f8fafc;
-      color: #6366f1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      margin-bottom: 2px;
-      transition: all 0.2s ease;
-      flex-shrink: 0;
-
-      &:hover {
-        background: #eff6ff;
-        border-color: #6366f1;
-        transform: rotate(180deg);
+      .dialog-header h2 {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #0f172a;
       }
-    }
+      .dialog-form {
+        display: flex;
+        flex-direction: column;
+        gap: 0.85rem;
+      }
+      .form-row {
+        display: flex;
+        gap: 0.5rem;
+        align-items: flex-end;
+      }
+      .half-width {
+        flex: 1;
+      }
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
+      .form-label {
+        font-size: 0.8rem;
+        font-weight: 600;
+        color: #64748b;
+      }
+      .select-input,
+      .text-input {
+        padding: 0.6rem 0.85rem;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        font-size: 0.9rem;
+        font-family: inherit;
+        background: white;
+        width: 100%;
+        box-sizing: border-box;
+        outline: none;
 
-    .error-text {
-      margin: 0;
-      font-size: 0.78rem;
-      color: #ef4444;
-    }
-    .dialog-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.75rem;
-      margin-top: 0.75rem;
-    }
-    .save-btn {
-      border-radius: 12px;
-      padding: 0 1.5rem;
-    }
-  `]
+        &:focus {
+          border-color: #2563eb;
+        }
+      }
+      .rupee-input-wrap {
+        display: flex;
+        align-items: center;
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        overflow: hidden;
+
+        &:focus-within {
+          border-color: #2563eb;
+        }
+      }
+      .rupee-prefix {
+        padding: 0.6rem 0.6rem 0.6rem 0.85rem;
+        font-weight: 700;
+        color: #64748b;
+        background: #f8fafc;
+        border-right: 1px solid #e2e8f0;
+        font-size: 1rem;
+      }
+      .rupee-input-wrap .text-input {
+        border: none;
+        border-radius: 0;
+      }
+
+      /* Interchange / Swap Button */
+      .swap-btn {
+        width: 38px;
+        height: 38px;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        background: #f8fafc;
+        color: #6366f1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        margin-bottom: 2px;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+
+        &:hover {
+          background: #eff6ff;
+          border-color: #6366f1;
+          transform: rotate(180deg);
+        }
+      }
+
+      .error-text {
+        margin: 0;
+        font-size: 0.78rem;
+        color: #ef4444;
+      }
+      .dialog-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 0.75rem;
+        margin-top: 0.75rem;
+      }
+      .save-btn {
+        border-radius: 12px;
+        padding: 0 1.5rem;
+      }
+    `,
+  ],
 })
 export class TransferDialogComponent {
   private expenseService = inject(ExpenseService);
@@ -264,7 +267,7 @@ export class TransferDialogComponent {
     to: '',
     amount: null as number | null,
     date: new Date().toISOString().slice(0, 10),
-    note: ''
+    note: '',
   };
 
   constructor() {
@@ -305,7 +308,7 @@ export class TransferDialogComponent {
       date,
       category: 'Transfer',
       paymentMethod: from as any,
-      notes: noteText
+      notes: noteText,
     });
 
     // Create Credit
@@ -316,7 +319,7 @@ export class TransferDialogComponent {
       date,
       category: 'Transfer',
       paymentMethod: to as any,
-      notes: noteText
+      notes: noteText,
     });
 
     this.snackBar.open(`Transfer of ₹${amount} recorded! 🔄`, 'Dismiss', { duration: 3000 });

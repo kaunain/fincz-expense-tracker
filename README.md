@@ -90,13 +90,13 @@ fincz-expense-tracker/
 
 ## 🔧 Useful Development Commands
 
-| Command | Description |
-| :--- | :--- |
-| `pnpm run build` | Compiles production bundle to `dist/` |
+| Command             | Description                                                        |
+| :------------------ | :----------------------------------------------------------------- |
+| `pnpm run build`    | Compiles production bundle to `dist/`                              |
 | `pnpm run qa:audit` | Runs full Playwright E2E audit across Desktop and Mobile viewports |
-| `pnpm run format` | Formats all code files using Prettier |
-| `pnpm run lint` | Runs ESLint Angular checks |
-| `pnpm run deploy` | Deploys static build to Cloudflare Pages via Wrangler |
+| `pnpm run format`   | Formats all code files using Prettier                              |
+| `pnpm run lint`     | Runs ESLint Angular checks                                         |
+| `pnpm run deploy`   | Deploys static build to Cloudflare Pages via Wrangler              |
 
 ---
 

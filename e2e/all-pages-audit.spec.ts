@@ -56,13 +56,19 @@ test.describe('Fincz Expense Tracker — Full Multi-Page E2E & Persistence QA Au
     expect(await cards.count()).toBeGreaterThan(0);
   });
 
-  test('2. Add Expense & Income Flow + Form Validation + IndexedDB Reload Persistence', async ({ page }) => {
+  test('2. Add Expense & Income Flow + Form Validation + IndexedDB Reload Persistence', async ({
+    page,
+  }) => {
     await page.goto('/expenses');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(500);
 
     // a. Check Add Transaction Dialog open & validation
-    const addBtn = page.locator('button.empty-cta-btn:visible, button.expense-btn:visible, button.add-expense-btn:visible, button.header-add-btn:visible').first();
+    const addBtn = page
+      .locator(
+        'button.empty-cta-btn:visible, button.expense-btn:visible, button.add-expense-btn:visible, button.header-add-btn:visible'
+      )
+      .first();
     await expect(addBtn).toBeVisible({ timeout: 10000 });
     await addBtn.click();
 
@@ -73,7 +79,9 @@ test.describe('Fincz Expense Tracker — Full Multi-Page E2E & Persistence QA Au
     await expect(saveBtn).toBeDisabled();
 
     // b. Add Expense ("Test Lunch", 250)
-    const amountInput = dialog.locator('input.amount-input, input[formcontrolname="amount"]').first();
+    const amountInput = dialog
+      .locator('input.amount-input, input[formcontrolname="amount"]')
+      .first();
     await amountInput.fill('250');
     await amountInput.dispatchEvent('input');
 
@@ -98,17 +106,25 @@ test.describe('Fincz Expense Tracker — Full Multi-Page E2E & Persistence QA Au
     await expect(page.locator('app-header').first()).toBeVisible();
 
     // d. Add Income Flow ("Freelance Payment", 1500)
-    const addBtnIncome = page.locator('button.expense-btn:visible, button.add-expense-btn:visible, button.header-add-btn:visible, button.empty-cta-btn:visible').first();
+    const addBtnIncome = page
+      .locator(
+        'button.expense-btn:visible, button.add-expense-btn:visible, button.header-add-btn:visible, button.empty-cta-btn:visible'
+      )
+      .first();
     if (await addBtnIncome.isVisible()) {
       await addBtnIncome.click();
       const dialogIncome = page.locator('app-add-expense-dialog');
       if (await dialogIncome.isVisible()) {
-        const incomeToggleBtn = dialogIncome.locator('.type-toggle button:has-text("Income")').first();
+        const incomeToggleBtn = dialogIncome
+          .locator('.type-toggle button:has-text("Income")')
+          .first();
         if (await incomeToggleBtn.isVisible()) {
           await incomeToggleBtn.click();
         }
 
-        const amountIncome = dialogIncome.locator('input.amount-input, input[formcontrolname="amount"]').first();
+        const amountIncome = dialogIncome
+          .locator('input.amount-input, input[formcontrolname="amount"]')
+          .first();
         await amountIncome.fill('1500');
         await amountIncome.dispatchEvent('input');
 

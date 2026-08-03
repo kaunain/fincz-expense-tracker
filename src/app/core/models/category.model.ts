@@ -28,4 +28,7 @@ export interface Category {
   budgetLimit?: number;
 }
 
-export const DEFAULT_CATEGORIES: Omit<Category, 'id'>[] = appConfig.categories as Omit<Category, 'id'>[];
+export const DEFAULT_CATEGORIES: Omit<Category, 'id'>[] = appConfig.categories as Omit<
+  Category,
+  'id'
+>[];

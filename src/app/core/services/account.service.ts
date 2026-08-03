@@ -70,7 +70,10 @@ export class AccountService {
   async updateAccount(id: number, oldName: string, changes: Partial<Account>): Promise<void> {
     await db.accounts.update(id, changes);
     if (changes.name && changes.name !== oldName) {
-      await db.expenses.where('paymentMethod').equals(oldName).modify({ paymentMethod: changes.name });
+      await db.expenses
+        .where('paymentMethod')
+        .equals(oldName)
+        .modify({ paymentMethod: changes.name });
       await this.expenseService.refreshExpenses();
     }
     await this.refreshAccounts();
@@ -81,7 +84,10 @@ export class AccountService {
     // Move expenses associated with deleted account to 'Cash' (or first available account)
     const remaining = this.accountsSignal().filter((a) => a.id !== id);
     const fallbackName = remaining.length > 0 ? remaining[0].name : 'Cash';
-    await db.expenses.where('paymentMethod').equals(accountName).modify({ paymentMethod: fallbackName });
+    await db.expenses
+      .where('paymentMethod')
+      .equals(accountName)
+      .modify({ paymentMethod: fallbackName });
     await this.expenseService.refreshExpenses();
     await this.refreshAccounts();
   }

@@ -22,7 +22,14 @@ interface NavItem {
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, RouterModule, MatListModule, MatIconModule, MatRippleModule, MatDialogModule],
+  imports: [
+    CommonModule,
+    RouterModule,
+    MatListModule,
+    MatIconModule,
+    MatRippleModule,
+    MatDialogModule,
+  ],
   template: `
     <div class="sidebar-wrapper">
       <nav class="nav-list" aria-label="Main navigation">
@@ -47,63 +54,65 @@ interface NavItem {
       </nav>
     </div>
   `,
-  styles: [`
-    .sidebar-wrapper {
-      width: 240px;
-      padding: 1.25rem 0.75rem;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      min-height: 100%;
-    }
+  styles: [
+    `
+      .sidebar-wrapper {
+        width: 240px;
+        padding: 1.25rem 0.75rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        min-height: 100%;
+      }
 
-    .nav-list {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-    }
+      .nav-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.35rem;
+      }
 
-    .nav-link {
-      display: flex;
-      align-items: center;
-      gap: 0.85rem;
-      padding: 0.75rem 1rem;
-      border-radius: 12px;
-      text-decoration: none;
-      color: #64748b;
-      font-weight: 600;
-      font-size: 0.9rem;
-      transition: all 0.2s ease;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      width: 100%;
-      text-align: left;
-      font-family: inherit;
-    }
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 0.85rem;
+        padding: 0.75rem 1rem;
+        border-radius: 12px;
+        text-decoration: none;
+        color: #64748b;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+        text-align: left;
+        font-family: inherit;
+      }
 
-    .nav-icon {
-      font-size: 22px;
-    }
+      .nav-icon {
+        font-size: 22px;
+      }
 
-    .nav-link:hover {
-      background: #f1f5f9;
-      color: #0f172a;
-    }
+      .nav-link:hover {
+        background: #f1f5f9;
+        color: #0f172a;
+      }
 
-    .nav-link.active {
-      background: #eff6ff;
-      color: #2563eb;
-      font-weight: 700;
-    }
+      .nav-link.active {
+        background: #eff6ff;
+        color: #2563eb;
+        font-weight: 700;
+      }
 
-    .about-btn {
-      margin-top: 0.5rem;
-      border-top: 1px solid #f1f5f9;
-      padding-top: 0.85rem;
-      border-radius: 0;
-    }
-  `]
+      .about-btn {
+        margin-top: 0.5rem;
+        border-top: 1px solid #f1f5f9;
+        padding-top: 0.85rem;
+        border-radius: 0;
+      }
+    `,
+  ],
 })
 export class SidebarComponent {
   private dialog = inject(MatDialog);
@@ -124,7 +133,7 @@ export class SidebarComponent {
     this.dialog.open(AboutDialogComponent, {
       width: '100%',
       maxWidth: '400px',
-      panelClass: 'm3-dialog-panel'
+      panelClass: 'm3-dialog-panel',
     });
   }
 }

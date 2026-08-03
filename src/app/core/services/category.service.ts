@@ -47,7 +47,19 @@ export class CategoryService {
         }
 
         // Migration check for existing databases: ensure Salary & Income categories have type: 'income'
-        const incomeNames = ['Salary', 'Freelance', 'Business', 'Investment', 'Dividend', 'Bank Interest', 'Gift', 'Rental', 'Pension', 'Income', 'Other'];
+        const incomeNames = [
+          'Salary',
+          'Freelance',
+          'Business',
+          'Investment',
+          'Dividend',
+          'Bank Interest',
+          'Gift',
+          'Rental',
+          'Pension',
+          'Income',
+          'Other',
+        ];
         for (const item of items) {
           if (incomeNames.includes(item.name) && item.type !== 'income') {
             item.type = 'income';

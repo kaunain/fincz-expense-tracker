@@ -4,7 +4,13 @@
     { "name": "Home", "icon": "🏠", "color": "#4ecdc4", "type": "expense", "isDefault": true },
     { "name": "Transport", "icon": "🚗", "color": "#ffe66d", "type": "expense", "isDefault": true },
     { "name": "Bills", "icon": "⚡", "color": "#1a535c", "type": "expense", "isDefault": true },
-    { "name": "Entertainment", "icon": "🎬", "color": "#9b5de5", "type": "expense", "isDefault": true },
+    {
+      "name": "Entertainment",
+      "icon": "🎬",
+      "color": "#9b5de5",
+      "type": "expense",
+      "isDefault": true
+    },
     { "name": "Shopping", "icon": "🛍️", "color": "#f15bb5", "type": "expense", "isDefault": true },
     { "name": "Health", "icon": "❤️", "color": "#00bbf9", "type": "expense", "isDefault": true },
     { "name": "Education", "icon": "📚", "color": "#f77f00", "type": "expense", "isDefault": true },
@@ -18,7 +24,13 @@
   ],
   "accounts": [
     { "name": "Cash", "type": "cash", "icon": "💵", "color": "#10b981", "initialBalance": 0 },
-    { "name": "Credit Card", "type": "card", "icon": "💳", "color": "#ef4444", "initialBalance": 0 },
+    {
+      "name": "Credit Card",
+      "type": "card",
+      "icon": "💳",
+      "color": "#ef4444",
+      "initialBalance": 0
+    },
     { "name": "Debit Card", "type": "card", "icon": "💳", "color": "#06b6d4", "initialBalance": 0 }
   ]
 }

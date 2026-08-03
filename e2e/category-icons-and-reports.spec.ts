@@ -1,8 +1,9 @@
 import { test, expect } from '@playwright/test';
 
 test.describe('Fincz Expense Tracker - Specific Defect Assertions', () => {
-
-  test('1. Category icons in /transactions/new should be non-empty visible elements', async ({ page }) => {
+  test('1. Category icons in /transactions/new should be non-empty visible elements', async ({
+    page,
+  }) => {
     await page.goto('/transactions/new');
     await page.waitForLoadState('domcontentloaded');
 
@@ -16,7 +17,9 @@ test.describe('Fincz Expense Tracker - Specific Defect Assertions', () => {
     expect(firstIconText?.trim().length).toBeGreaterThan(0);
   });
 
-  test('2. Income categories (Salary) must NOT appear when Expense toggle is active', async ({ page }) => {
+  test('2. Income categories (Salary) must NOT appear when Expense toggle is active', async ({
+    page,
+  }) => {
     await page.goto('/transactions/new?type=expense');
     await page.waitForLoadState('domcontentloaded');
 

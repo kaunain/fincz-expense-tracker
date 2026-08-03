@@ -41,12 +41,7 @@ import { PaymentMethod } from '../../core/models/expense.model';
       ></app-header>
 
       <mat-sidenav-container class="sidenav-container">
-        <mat-sidenav
-          #drawer
-          mode="over"
-          [opened]="false"
-          class="sidenav"
-        >
+        <mat-sidenav #drawer mode="over" [opened]="false" class="sidenav">
           <app-sidebar (onNavigate)="drawer.close()"></app-sidebar>
         </mat-sidenav>
 
@@ -157,13 +152,12 @@ export class PageContainerComponent {
 
   /** Opens the Money Transfer Modal dialog */
   async openTransferDialog(): Promise<void> {
-    const { TransferDialogComponent } = await import(
-      '../../shared/components/transfer-dialog/transfer-dialog.component'
-    );
+    const { TransferDialogComponent } =
+      await import('../../shared/components/transfer-dialog/transfer-dialog.component');
     this.dialog.open(TransferDialogComponent, {
       width: '100%',
       maxWidth: '480px',
-      panelClass: 'm3-dialog-panel'
+      panelClass: 'm3-dialog-panel',
     });
   }
 }

@@ -24,13 +24,13 @@ test.describe('Responsive Layout & Horizontal Scroll Audits', () => {
     if (viewport && viewport.width < 768) {
       // Bottom nav should be visible on mobile
       const bottomNav = page.locator('app-bottom-nav');
-      if (await bottomNav.count() > 0) {
+      if ((await bottomNav.count()) > 0) {
         await expect(bottomNav).toBeVisible();
       }
     } else if (viewport && viewport.width >= 768) {
       // Sidebar should be visible on desktop
       const sidebar = page.locator('app-sidebar');
-      if (await sidebar.count() > 0) {
+      if ((await sidebar.count()) > 0) {
         await expect(sidebar).toBeVisible();
       }
     }

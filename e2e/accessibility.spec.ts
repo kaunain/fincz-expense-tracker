@@ -22,7 +22,9 @@ test.describe('Accessibility (a11y) & Focus Audits', () => {
     await page.goto('/expenses');
     await page.waitForLoadState('domcontentloaded');
 
-    const addBtn = page.locator('button.empty-cta-btn, button.add-expense-btn, button.header-add-btn').first();
+    const addBtn = page
+      .locator('button.empty-cta-btn, button.add-expense-btn, button.header-add-btn')
+      .first();
     if (await addBtn.isVisible()) {
       await addBtn.focus();
       await page.keyboard.press('Enter');

@@ -12,7 +12,7 @@ export default defineConfig({
   workers: 2,
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
-    baseURL: process.env.TEST_URL || 'https://expense.fincz.com',
+    baseURL: process.env.TEST_URL || 'http://localhost:4200',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },

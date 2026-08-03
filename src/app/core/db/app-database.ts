@@ -146,8 +146,17 @@ export class AppDatabase extends Dexie {
       })
       .upgrade(async (tx) => {
         const incomeCategoryNames = [
-          'Salary', 'Freelance', 'Business', 'Investment',
-          'Dividend', 'Bank Interest', 'Gift', 'Rental', 'Pension', 'Other Income', 'Income'
+          'Salary',
+          'Freelance',
+          'Business',
+          'Investment',
+          'Dividend',
+          'Bank Interest',
+          'Gift',
+          'Rental',
+          'Pension',
+          'Other Income',
+          'Income',
         ];
 
         await tx

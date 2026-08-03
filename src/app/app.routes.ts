@@ -45,7 +45,9 @@ export const routes: Routes = [
       {
         path: 'transfer',
         loadComponent: () =>
-          import('./features/transfer/transfer-page.component').then((m) => m.TransferPageComponent),
+          import('./features/transfer/transfer-page.component').then(
+            (m) => m.TransferPageComponent
+          ),
       },
       {
         path: 'about',
