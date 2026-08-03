@@ -56,10 +56,6 @@ import { MatRippleModule } from '@angular/material/core';
       align-items: center;
       z-index: 1000;
       box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
-
-      @media (min-width: 768px) {
-        display: none;
-      }
     }
 
     .action-btn {

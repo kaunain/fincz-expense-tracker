@@ -1,396 +1,240 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatRippleModule } from '@angular/material/core';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ExpenseService } from '../../core/services/expense.service';
-import { TransactionType } from '../../core/models/expense.model';
+import { Expense } from '../../core/models/expense.model';
+import { AddExpenseDialogComponent } from '../../shared/components/add-expense-dialog/add-expense-dialog.component';
 
 @Component({
   selector: 'app-reports',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, FormsModule, MatRippleModule, MatDialogModule, MatSnackBarModule],
   template: `
     <div class="reports-page">
       <div class="page-title-box">
         <h1>📈 Reports & Insights</h1>
-        <p class="subtitle">Understand where your money goes every month.</p>
+        <p class="subtitle">Custom date filter, category analysis & direct transaction editing.</p>
       </div>
 
-      <!-- Month Selector -->
-      <div class="month-selector">
-        <button class="nav-btn" (click)="prevMonth()">
-          <span class="material-symbols-outlined">chevron_left</span>
-        </button>
-        <div class="current-month">{{ currentMonthLabel() }}</div>
-        <button class="nav-btn" (click)="nextMonth()" [disabled]="isCurrentMonth()">
-          <span class="material-symbols-outlined">chevron_right</span>
-        </button>
+      <!-- Date Range Filter Section -->
+      <div class="m3-card date-filter-card">
+        <h3>📅 Custom Date Range</h3>
+        <div class="date-inputs-row">
+          <div class="date-field">
+            <label>From</label>
+            <input type="date" [(ngModel)]="startDate" class="date-input" />
+          </div>
+          <div class="date-field">
+            <label>To</label>
+            <input type="date" [(ngModel)]="endDate" class="date-input" />
+          </div>
+          <button class="reset-date-btn" (click)="resetDateRange()" matRipple>Reset</button>
+        </div>
       </div>
 
-      <!-- Stats Row -->
+      <!-- Stats Summary Grid -->
       <div class="stats-grid">
         <div class="m3-card stat-card success">
           <span class="stat-label">Income</span>
-          <span class="stat-value income-text"
-            >+₹{{ currentMonthStats().income | number: '1.2-2' }}</span
-          >
+          <span class="stat-value income-text">+₹{{ dateFilteredStats().income | number: '1.2-2' }}</span>
         </div>
         <div class="m3-card stat-card primary">
           <span class="stat-label">Expenses</span>
-          <span class="stat-value expense-text"
-            >-₹{{ currentMonthStats().expenses | number: '1.2-2' }}</span
-          >
+          <span class="stat-value expense-text">-₹{{ dateFilteredStats().expenses | number: '1.2-2' }}</span>
         </div>
         <div class="m3-card stat-card info">
           <span class="stat-label">Balance</span>
-          <span class="stat-value">₹{{ currentMonthStats().balance | number: '1.2-2' }}</span>
-        </div>
-      </div>
-
-      <!-- Last 6 Months Trend (Pure CSS Bar Chart) -->
-      <div class="m3-card trend-card">
-        <h3>📊 6-Month Spending Trend</h3>
-        <div class="trend-chart-container">
-          <div class="trend-bar-wrapper" *ngFor="let month of lastSixMonthsTrend()">
-            <div class="trend-amount">₹{{ month.amount | number: '1.0-0' }}</div>
-            <div class="trend-bar-bg">
-              <div class="trend-bar-fill" [style.height.%]="month.percentage"></div>
-            </div>
-            <div class="trend-month-label">{{ month.label }}</div>
-          </div>
+          <span class="stat-value">₹{{ dateFilteredStats().balance | number: '1.2-2' }}</span>
         </div>
       </div>
 
       <!-- Category Spending Breakdown -->
       <div class="m3-card breakdown-card">
-        <h3>🏷️ Category Distribution Breakdown</h3>
-
-        <div *ngIf="summary().categoryBreakdown.length === 0" class="empty-state">
-          <span class="material-symbols-outlined empty-icon">pie_chart</span>
-          <p>No transaction data available yet.</p>
-        </div>
-
-        <div class="breakdown-list">
-          <div *ngFor="let item of summary().categoryBreakdown" class="breakdown-item">
-            <div class="item-header">
-              <span class="cat-name">{{ item.category }}</span>
-              <span class="cat-val"
-                >₹{{ item.amount | number: '1.2-2' }} ({{ item.percentage }}%)</span
-              >
-            </div>
-            <div class="bar-bg">
-              <div
-                class="bar-fill"
-                [style.width.%]="item.percentage"
-                [style.background-color]="item.color"
-              ></div>
+        <h3>🏷️ Category Breakdown</h3>
+        @if (dateFilteredStats().categoryBreakdown.length === 0) {
+          <div class="empty-state">
+            <span class="material-symbols-outlined empty-icon">pie_chart</span>
+            <p>No transactions in selected range.</p>
+          </div>
+        } @else {
+          <div class="breakdown-list">
+            <div *ngFor="let item of dateFilteredStats().categoryBreakdown" class="breakdown-item">
+              <div class="item-header">
+                <span class="cat-name">{{ item.category }}</span>
+                <span class="cat-val">₹{{ item.amount | number: '1.2-2' }} ({{ item.percentage }}%)</span>
+              </div>
+              <div class="bar-bg">
+                <div class="bar-fill" [style.width.%]="item.percentage" [style.background-color]="item.color"></div>
+              </div>
             </div>
           </div>
-        </div>
+        }
       </div>
 
-      <!-- CSV Export Button -->
-      <button class="csv-btn m3-card" (click)="exportCSV()">
-        <span class="material-symbols-outlined">download</span>
-        Export {{ currentMonthLabel() }} to CSV
-      </button>
+      <!-- Inline Transaction List with Direct Edit & Delete -->
+      <div class="m3-card tx-section">
+        <div class="tx-header-row">
+          <h3>📝 Filtered Transactions ({{ dateFilteredStats().items.length }})</h3>
+          <button class="csv-btn" (click)="exportCSV()" matRipple>
+            <span class="material-symbols-outlined">download</span> Export CSV
+          </button>
+        </div>
+
+        @if (dateFilteredStats().items.length === 0) {
+          <div class="empty-state">No transactions recorded for this period.</div>
+        } @else {
+          <div class="tx-list">
+            <div *ngFor="let item of dateFilteredStats().items" class="tx-card" (click)="editExpense(item)" matRipple>
+              <div class="tx-left">
+                <div class="tx-avatar" [class.income-bg]="item.type === 'income'">
+                  {{ item.type === 'income' ? '📈' : '💸' }}
+                </div>
+                <div class="tx-info">
+                  <span class="tx-title">{{ item.title }}</span>
+                  <span class="tx-sub">{{ item.date }} • {{ item.category }} • {{ item.paymentMethod }}</span>
+                </div>
+              </div>
+              <div class="tx-right">
+                <span class="tx-amount" [class.income-text]="item.type === 'income'">
+                  {{ item.type === 'income' ? '+' : '-' }}₹{{ item.amount | number: '1.2-2' }}
+                </span>
+                <button class="delete-btn" (click)="deleteExpense(item.id!, $event)" title="Delete">
+                  <span class="material-symbols-outlined">delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </div>
     </div>
   `,
-  styles: [
-    `
-      .reports-page {
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-      }
-      .page-title-box h1 {
-        margin: 0;
-        font-size: 1.5rem;
-        font-weight: 800;
-        color: #0f172a;
-      }
-      .subtitle {
-        margin: 0.25rem 0 0 0;
-        color: #64748b;
-        font-size: 0.85rem;
-      }
-      .month-selector {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        background: white;
-        padding: 0.5rem 1rem;
-        border-radius: 16px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-        border: 1px solid #e2e8f0;
-      }
-      .nav-btn {
-        background: #f1f5f9;
-        border: none;
-        border-radius: 50%;
-        width: 36px;
-        height: 36px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        color: #475569;
-        transition: all 0.2s;
-      }
-      .nav-btn:hover:not(:disabled) {
-        background: #e2e8f0;
-        color: #0f172a;
-      }
-      .nav-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-      .current-month {
-        font-weight: 700;
-        font-size: 1.1rem;
-        color: #0f172a;
-      }
-      .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-        gap: 0.85rem;
-      }
-      .stat-card {
-        display: flex;
-        flex-direction: column;
-        gap: 0.25rem;
-        padding: 1rem;
-      }
-      .stat-label {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #64748b;
-      }
-      .stat-value {
-        font-size: 1.2rem;
-        font-weight: 800;
-        color: #0f172a;
-      }
-      .income-text {
-        color: #16a34a;
-      }
-      .expense-text {
-        color: #ef4444;
-      }
-
-      .trend-card h3 {
-        margin-top: 0;
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: #0f172a;
-        margin-bottom: 1.5rem;
-      }
-      .trend-chart-container {
-        display: flex;
-        justify-content: space-around;
-        align-items: flex-end;
-        height: 180px;
-        padding-top: 20px;
-      }
-      .trend-bar-wrapper {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        height: 100%;
-        width: 40px;
-      }
-      .trend-amount {
-        font-size: 0.65rem;
-        color: #64748b;
-        margin-bottom: 0.5rem;
-        font-weight: 600;
-        text-align: center;
-      }
-      .trend-bar-bg {
-        flex: 1;
-        width: 12px;
-        background: #f1f5f9;
-        border-radius: 6px;
-        display: flex;
-        align-items: flex-end;
-      }
-      .trend-bar-fill {
-        width: 100%;
-        background: #3b82f6;
-        border-radius: 6px;
-        transition: height 0.4s ease;
-      }
-      .trend-month-label {
-        font-size: 0.75rem;
-        font-weight: 600;
-        color: #475569;
-        margin-top: 0.5rem;
-      }
-
-      .breakdown-card h3 {
-        margin-top: 0;
-        font-size: 1.05rem;
-        font-weight: 700;
-        color: #0f172a;
-        margin-bottom: 1rem;
-      }
-      .breakdown-list {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-      }
-      .item-header {
-        display: flex;
-        justify-content: space-between;
-        font-size: 0.85rem;
-        font-weight: 600;
-        margin-bottom: 0.35rem;
-      }
-      .bar-bg {
-        height: 10px;
-        background: #f1f5f9;
-        border-radius: 5px;
-        overflow: hidden;
-      }
-      .bar-fill {
-        height: 100%;
-        transition: width 0.3s ease;
-      }
-      .empty-state {
-        text-align: center;
-        padding: 2.5rem 1rem;
-        color: #94a3b8;
-      }
-      .empty-icon {
-        font-size: 3rem;
-        margin-bottom: 0.5rem;
-      }
-
-      .csv-btn {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        background: white;
-        border: 1px solid #e2e8f0;
-        color: #0f172a;
-        font-weight: 600;
-        font-size: 1rem;
-        padding: 1rem;
-        cursor: pointer;
-        border-radius: 16px;
-        transition: background 0.2s;
-      }
-      .csv-btn:hover {
-        background: #f8fafc;
-      }
-      .csv-btn .material-symbols-outlined {
-        font-size: 1.25rem;
-      }
-    `,
-  ],
+  styles: [`
+    .reports-page { display: flex; flex-direction: column; gap: 1.25rem; }
+    .page-title-box h1 { margin: 0; font-size: 1.5rem; font-weight: 800; color: #0f172a; }
+    .subtitle { margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.85rem; }
+    .date-filter-card h3, .breakdown-card h3, .tx-section h3 { margin-top: 0; font-size: 1.05rem; font-weight: 700; color: #0f172a; }
+    .date-inputs-row { display: flex; align-items: flex-end; gap: 0.75rem; flex-wrap: wrap; }
+    .date-field { display: flex; flex-direction: column; gap: 0.25rem; flex: 1; min-width: 120px; }
+    .date-field label { font-size: 0.75rem; font-weight: 700; color: #64748b; }
+    .date-input { padding: 0.5rem; border-radius: 10px; border: 1px solid #cbd5e1; outline: none; font-size: 0.88rem; }
+    .reset-date-btn { padding: 0.55rem 1rem; border-radius: 10px; border: 1px solid #cbd5e1; background: #f8fafc; font-weight: 700; cursor: pointer; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 0.85rem; }
+    .stat-card { display: flex; flex-direction: column; gap: 0.25rem; padding: 1rem; }
+    .stat-label { font-size: 0.75rem; font-weight: 600; color: #64748b; }
+    .stat-value { font-size: 1.2rem; font-weight: 800; color: #0f172a; }
+    .income-text { color: #16a34a; }
+    .expense-text { color: #ef4444; }
+    .breakdown-list { display: flex; flex-direction: column; gap: 0.85rem; }
+    .item-header { display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.35rem; }
+    .bar-bg { height: 10px; background: #f1f5f9; border-radius: 5px; overflow: hidden; }
+    .bar-fill { height: 100%; transition: width 0.3s ease; }
+    .tx-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.85rem; }
+    .csv-btn { display: flex; align-items: center; gap: 0.35rem; padding: 0.4rem 0.85rem; border-radius: 10px; border: 1px solid #cbd5e1; background: white; font-weight: 700; font-size: 0.8rem; cursor: pointer; }
+    .tx-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .tx-card { display: flex; justify-content: space-between; align-items: center; padding: 0.65rem 0.85rem; background: #f8fafc; border-radius: 12px; cursor: pointer; }
+    .tx-left { display: flex; align-items: center; gap: 0.75rem; }
+    .tx-avatar { width: 36px; height: 36px; border-radius: 10px; background: #fee2e2; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+    .tx-avatar.income-bg { background: #dcfce7; }
+    .tx-info { display: flex; flex-direction: column; }
+    .tx-title { font-weight: 700; font-size: 0.88rem; color: #0f172a; }
+    .tx-sub { font-size: 0.72rem; color: #64748b; }
+    .tx-right { display: flex; align-items: center; gap: 0.5rem; }
+    .tx-amount { font-weight: 800; font-size: 0.95rem; color: #ef4444; }
+    .delete-btn { background: none; border: none; color: #cbd5e1; cursor: pointer; &:hover { color: #ef4444; } }
+    .empty-state { text-align: center; padding: 1.5rem; color: #94a3b8; font-size: 0.88rem; }
+  `]
 })
 export class ReportsComponent {
   private expenseService = inject(ExpenseService);
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
 
-  public summary = this.expenseService.financialSummary;
   public expenses = this.expenseService.expenses;
 
-  // Month selector state
-  private viewDate = new Date();
+  // Custom date range state (defaults to 30 days ago to Today)
+  public endDate = new Date().toISOString().split('T')[0];
+  public startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
 
-  public currentMonthLabel = computed(() => {
-    return this.viewDate.toLocaleString('default', { month: 'long', year: 'numeric' });
-  });
-
-  public isCurrentMonth(): boolean {
-    const today = new Date();
-    return (
-      this.viewDate.getMonth() === today.getMonth() &&
-      this.viewDate.getFullYear() === today.getFullYear()
-    );
+  resetDateRange(): void {
+    this.endDate = new Date().toISOString().split('T')[0];
+    this.startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
   }
 
-  public prevMonth(): void {
-    this.viewDate = new Date(this.viewDate.getFullYear(), this.viewDate.getMonth() - 1, 1);
-    // Force reactivity update by reassigning
-    this.viewDate = new Date(this.viewDate);
-  }
-
-  public nextMonth(): void {
-    if (!this.isCurrentMonth()) {
-      this.viewDate = new Date(this.viewDate.getFullYear(), this.viewDate.getMonth() + 1, 1);
-      this.viewDate = new Date(this.viewDate);
-    }
-  }
-
-  public currentMonthStats = computed(() => {
-    const year = this.viewDate.getFullYear();
-    const month = this.viewDate.getMonth();
+  public dateFilteredStats = computed(() => {
+    const all = this.expenses();
+    const items = all.filter((e) => e.date >= this.startDate && e.date <= this.endDate);
 
     let income = 0;
     let expenses = 0;
+    const catMap = new Map<string, number>();
 
-    const filtered = this.expenses().filter((e) => {
-      const d = new Date(e.date);
-      return d.getFullYear() === year && d.getMonth() === month;
+    items.forEach((e) => {
+      if (e.type === 'income') {
+        income += Number(e.amount);
+      } else {
+        expenses += Number(e.amount);
+        catMap.set(e.category, (catMap.get(e.category) || 0) + Number(e.amount));
+      }
     });
 
-    filtered.forEach((e) => {
-      if (e.type === 'income') income += e.amount;
-      else expenses += e.amount;
+    const categoryBreakdown = Array.from(catMap.entries())
+      .map(([category, amount]) => ({
+        category,
+        amount,
+        color: '#2563eb',
+        percentage: expenses > 0 ? Math.round((amount / expenses) * 100) : 0,
+      }))
+      .sort((a, b) => b.amount - a.amount);
+
+    return { income, expenses, balance: income - expenses, items, categoryBreakdown };
+  });
+
+  editExpense(expense: Expense): void {
+    const dialogRef = this.dialog.open(AddExpenseDialogComponent, {
+      width: '100%',
+      maxWidth: '480px',
+      data: { expense },
     });
 
-    return {
-      income,
-      expenses,
-      balance: income - expenses,
-      count: filtered.length,
-      items: filtered,
-    };
-  });
+    dialogRef.afterClosed().subscribe(async (result) => {
+      if (result && result.title && result.amount) {
+        await this.expenseService.updateExpense(expense.id!, {
+          title: result.title,
+          amount: Number(result.amount),
+          date: result.date,
+          category: result.category,
+          paymentMethod: result.paymentMethod,
+          notes: result.notes || undefined,
+          type: result.type,
+        });
 
-  public lastSixMonthsTrend = computed(() => {
-    const trend = [];
-    const today = new Date(this.viewDate); // Anchor to viewDate or today? usually today for 6-months trend.
-    // Let's use today as the anchor for the "Last 6 months"
-    const anchor = new Date();
+        this.snackBar.open('Transaction updated! ✨', 'Dismiss', { duration: 3000 });
+      }
+    });
+  }
 
-    let maxAmount = 0;
-    const monthsData = [];
+  async deleteExpense(id: number, event: MouseEvent): Promise<void> {
+    event.stopPropagation();
+    const { ConfirmDialogComponent } = await import('../../shared/components/confirm-dialog/confirm-dialog.component');
+    const confirmRef = this.dialog.open(ConfirmDialogComponent, {
+      width: '320px',
+      data: { message: 'Delete this transaction?' },
+    });
 
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(anchor.getFullYear(), anchor.getMonth() - i, 1);
-      const label = d.toLocaleString('default', { month: 'short' });
+    confirmRef.afterClosed().subscribe(async (confirmed) => {
+      if (confirmed) {
+        await this.expenseService.deleteExpense(id);
+        this.snackBar.open('Transaction deleted', 'Dismiss', { duration: 3000 });
+      }
+    });
+  }
 
-      let amount = 0;
-      this.expenses().forEach((e) => {
-        const ed = new Date(e.date);
-        if (
-          ed.getFullYear() === d.getFullYear() &&
-          ed.getMonth() === d.getMonth() &&
-          e.type !== 'income'
-        ) {
-          amount += e.amount;
-        }
-      });
-
-      if (amount > maxAmount) maxAmount = amount;
-      monthsData.push({ label, amount });
-    }
-
-    // Calculate percentages
-    return monthsData.map((m) => ({
-      label: m.label,
-      amount: m.amount,
-      percentage: maxAmount > 0 ? (m.amount / maxAmount) * 100 : 0,
-    }));
-  });
-
-  public exportCSV(): void {
-    const stats = this.currentMonthStats();
-    if (stats.items.length === 0) {
-      alert('No transactions to export for this month.');
-      return;
-    }
+  exportCSV(): void {
+    const stats = this.dateFilteredStats();
+    if (stats.items.length === 0) return;
 
     const headers = ['Date', 'Title', 'Type', 'Category', 'Amount', 'Payment Method', 'Notes'];
     const rows = stats.items.map((e) => [
@@ -404,15 +248,11 @@ export class ReportsComponent {
     ]);
 
     const csvContent = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
-
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute(
-      'download',
-      `fincz_transactions_${this.viewDate.getFullYear()}_${this.viewDate.getMonth() + 1}.csv`
-    );
+    link.setAttribute('download', `fincz_report_${this.startDate}_to_${this.endDate}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

@@ -17,6 +17,6 @@ export interface BuildInfo {
 export const BUILD_INFO: BuildInfo = {
   appVersion: 'v0.3.1',
   gitBranch: 'dev',
-  commitHash: '0bd3dc0',
-  lastBuildDate: '3 Aug 2026, 05:13 pm',
+  commitHash: '3d8a07d',
+  lastBuildDate: '3 Aug 2026, 05:27 pm',
 };

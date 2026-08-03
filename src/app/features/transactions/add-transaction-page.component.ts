@@ -80,7 +80,8 @@ import { PaymentMethod } from '../../core/models/expense.model';
               [style.--chip-color]="cat.color"
               (click)="selectedCategory = cat.name"
             >
-              <span class="chip-icon">{{ cat.icon }}</span>
+              <span class="chip-icon" *ngIf="isEmoji(cat.icon)">{{ cat.icon }}</span>
+              <span class="material-symbols-outlined chip-mat-icon" *ngIf="!isEmoji(cat.icon) && cat.icon">{{ cat.icon }}</span>
               <span class="chip-label">{{ cat.name }}</span>
             </button>
           </div>
@@ -276,6 +277,11 @@ export class AddTransactionPageComponent {
         this.setType('expense');
       }
     });
+  }
+
+  isEmoji(icon: string | undefined): boolean {
+    if (!icon) return false;
+    return Array.from(icon).some((char) => char.codePointAt(0)! > 255);
   }
 
   setType(type: 'expense' | 'income'): void {

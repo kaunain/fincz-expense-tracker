@@ -68,11 +68,30 @@ import { PaymentMethod } from '../../core/models/expense.model';
   `,
   styles: [
     `
+      :host {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: #0f172a; // Outer background on desktop
+      }
       .main-layout {
         display: flex;
         flex-direction: column;
         height: 100vh;
+        width: 100%;
+        max-width: 480px; // Mobile phone width container on Desktop
+        margin: 0 auto;
         background: var(--bg-color);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        position: relative;
+        overflow: hidden;
+
+        @media (min-width: 768px) {
+          height: 92vh;
+          border-radius: 28px;
+          border: 4px solid #334155;
+        }
       }
       .sidenav-container {
         flex: 1;
@@ -89,16 +108,9 @@ import { PaymentMethod } from '../../core/models/expense.model';
       }
       .content-wrapper {
         padding: 1rem;
-        max-width: 1280px;
         width: 100%;
         margin: 0 auto;
-        /* Leave space for the mobile bottom-nav (64px height) */
-        padding-bottom: 72px;
-
-        @media (min-width: 768px) {
-          padding: 1.5rem 2rem;
-          padding-bottom: 2rem;
-        }
+        padding-bottom: 80px;
       }
     `,
   ],
