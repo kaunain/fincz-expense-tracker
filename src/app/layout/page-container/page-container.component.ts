@@ -43,11 +43,11 @@ import { PaymentMethod } from '../../core/models/expense.model';
       <mat-sidenav-container class="sidenav-container">
         <mat-sidenav
           #drawer
-          [mode]="isMobile ? 'over' : 'side'"
-          [opened]="!isMobile"
+          mode="over"
+          [opened]="false"
           class="sidenav"
         >
-          <app-sidebar (onNavigate)="isMobile && drawer.close()"></app-sidebar>
+          <app-sidebar (onNavigate)="drawer.close()"></app-sidebar>
         </mat-sidenav>
 
         <mat-sidenav-content class="sidenav-content">
