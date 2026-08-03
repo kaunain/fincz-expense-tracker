@@ -22,8 +22,8 @@ import { TransferDialogComponent } from '../../shared/components/transfer-dialog
   template: `
     <div class="accounts-page">
       <div class="page-title-box">
-        <h1>💳 Accounts & Liquidity</h1>
-        <p class="subtitle">Track balances across Cash, Bank, UPI, Credit Cards & Transfers.</p>
+        <h1>💳 Accounts</h1>
+        <p class="subtitle">Track cash, bank & card balances</p>
       </div>
 
       <!-- Total Wealth Header Card -->

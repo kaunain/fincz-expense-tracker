@@ -21,8 +21,8 @@ import { CategoryService } from '../../core/services/category.service';
   template: `
     <div class="categories-page">
       <div class="page-title-box">
-        <h1>🏷️ Categories Manager</h1>
-        <p class="subtitle">Organize transactions with custom tags & color palettes.</p>
+        <h1>🏷️ Categories</h1>
+        <p class="subtitle">Custom expense & income tags</p>
       </div>
 
       <!-- Type Tabs -->

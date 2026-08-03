@@ -15,23 +15,19 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
   template: `
     <div class="reports-page">
       <div class="page-title-box">
-        <h1>📈 Reports & Insights</h1>
-        <p class="subtitle">Custom date filter, category analysis & direct transaction editing.</p>
+        <h1>📈 Reports</h1>
+        <p class="subtitle">Daily analysis & transaction management</p>
       </div>
 
-      <!-- Date Range Filter Section -->
+      <!-- Single Date Selector Section -->
       <div class="m3-card date-filter-card">
-        <h3>📅 Custom Date Range</h3>
+        <h3>📅 Select Date</h3>
         <div class="date-inputs-row">
           <div class="date-field">
-            <label>From</label>
-            <input type="date" [(ngModel)]="startDate" class="date-input" />
+            <label>Date</label>
+            <input type="date" [(ngModel)]="selectedDate" class="date-input" [max]="todayDate" />
           </div>
-          <div class="date-field">
-            <label>To</label>
-            <input type="date" [(ngModel)]="endDate" class="date-input" />
-          </div>
-          <button class="reset-date-btn" (click)="resetDateRange()" matRipple>Reset</button>
+          <button class="reset-date-btn" (click)="resetDate()" matRipple>Today</button>
         </div>
       </div>
 
@@ -154,18 +150,16 @@ export class ReportsComponent {
 
   public expenses = this.expenseService.expenses;
 
-  // Custom date range state (defaults to 30 days ago to Today)
-  public endDate = new Date().toISOString().split('T')[0];
-  public startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  public todayDate = new Date().toISOString().split('T')[0];
+  public selectedDate = this.todayDate;
 
-  resetDateRange(): void {
-    this.endDate = new Date().toISOString().split('T')[0];
-    this.startDate = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+  resetDate(): void {
+    this.selectedDate = this.todayDate;
   }
 
   public dateFilteredStats = computed(() => {
     const all = this.expenses();
-    const items = all.filter((e) => e.date >= this.startDate && e.date <= this.endDate);
+    const items = all.filter((e) => e.date === this.selectedDate);
 
     let income = 0;
     let expenses = 0;
@@ -252,7 +246,7 @@ export class ReportsComponent {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `fincz_report_${this.startDate}_to_${this.endDate}.csv`);
+    link.setAttribute('download', `fincz_report_${this.selectedDate}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
