@@ -160,6 +160,26 @@ export class AppDatabase extends Dexie {
           });
       });
 
+    // Version 7 — remove legacy 'Salary & Income' category or migrate it to type: 'income'
+    this.version(7)
+      .stores({
+        expenses: '++id, title, amount, category, date, paymentMethod, type, createdAt',
+        categories: '++id, &name, isDefault, type',
+        accounts: '++id, &name, type',
+      })
+      .upgrade(async (tx) => {
+        // Delete legacy category named 'Salary & Income' if it exists
+        await tx.table('categories').where('name').equals('Salary & Income').delete();
+        // Also update any expenses using category 'Salary & Income' to 'Salary'
+        await tx
+          .table('expenses')
+          .where('category')
+          .equals('Salary & Income')
+          .modify((exp: any) => {
+            exp.category = 'Salary';
+          });
+      });
+
     this.on('populate', async () => {
       await this.categories.bulkAdd(DEFAULT_CATEGORIES);
       await this.accounts.bulkAdd(DEFAULT_ACCOUNTS);

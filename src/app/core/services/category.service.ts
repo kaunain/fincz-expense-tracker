@@ -35,9 +35,19 @@ export class CategoryService {
         await db.categories.bulkAdd(DEFAULT_CATEGORIES);
         items = await db.categories.toArray();
       } else {
+        let updated = false;
+        // Delete legacy category 'Salary & Income' or 'Salary and Income' if present in existing IndexedDB
+        for (const item of items) {
+          if (item.name === 'Salary & Income' || item.name === 'Salary and Income') {
+            if (item.id) {
+              await db.categories.delete(item.id);
+              updated = true;
+            }
+          }
+        }
+
         // Migration check for existing databases: ensure Salary & Income categories have type: 'income'
         const incomeNames = ['Salary', 'Freelance', 'Business', 'Investment', 'Dividend', 'Bank Interest', 'Gift', 'Rental', 'Pension', 'Income', 'Other'];
-        let updated = false;
         for (const item of items) {
           if (incomeNames.includes(item.name) && item.type !== 'income') {
             item.type = 'income';
