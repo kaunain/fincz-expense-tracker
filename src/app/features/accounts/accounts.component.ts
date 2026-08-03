@@ -198,6 +198,7 @@ import { TransferDialogComponent } from '../../shared/components/transfer-dialog
         display: flex;
         gap: 0.5rem;
         align-items: center;
+        flex-wrap: wrap;
       }
       .input-control {
         padding: 0.65rem 0.85rem;
@@ -207,14 +208,15 @@ import { TransferDialogComponent } from '../../shared/components/transfer-dialog
         font-size: 0.9rem;
       }
       .icon-input {
-        width: 50px;
+        width: 48px;
         text-align: center;
       }
       .name-input {
         flex: 1;
+        min-width: 140px;
       }
       .initial-input {
-        width: 120px;
+        width: 100px;
       }
       .save-btn {
         padding: 0.65rem 1.25rem;

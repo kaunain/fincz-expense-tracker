@@ -166,6 +166,7 @@ import { CategoryService } from '../../core/services/category.service';
         display: flex;
         gap: 0.5rem;
         align-items: center;
+        flex-wrap: wrap;
       }
       .input-control {
         padding: 0.65rem 0.85rem;
@@ -175,12 +176,13 @@ import { CategoryService } from '../../core/services/category.service';
         font-size: 0.9rem;
       }
       .emoji-input {
-        width: 50px;
+        width: 48px;
         text-align: center;
-        padding: 0.65rem 0.5rem;
+        padding: 0.65rem 0.25rem;
       }
       .name-input {
         flex: 1;
+        min-width: 140px;
       }
       .color-picker {
         width: 44px;

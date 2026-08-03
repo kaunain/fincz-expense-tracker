@@ -36,6 +36,23 @@ export const routes: Routes = [
           import('./features/expenses/expenses.component').then((m) => m.ExpensesComponent),
       },
       {
+        path: 'transactions/new',
+        loadComponent: () =>
+          import('./features/transactions/add-transaction-page.component').then(
+            (m) => m.AddTransactionPageComponent
+          ),
+      },
+      {
+        path: 'transfer',
+        loadComponent: () =>
+          import('./features/transfer/transfer-page.component').then((m) => m.TransferPageComponent),
+      },
+      {
+        path: 'about',
+        loadComponent: () =>
+          import('./features/about/about.component').then((m) => m.AboutComponent),
+      },
+      {
         path: 'accounts',
         loadComponent: () =>
           import('./features/accounts/accounts.component').then((m) => m.AccountsComponent),

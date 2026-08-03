@@ -39,11 +39,11 @@ interface NavItem {
           <span class="nav-text">{{ item.label }}</span>
         </a>
 
-        <!-- About dialog trigger item inside navigation menu -->
-        <button class="nav-link about-btn" (click)="openAboutDialog()" matRipple>
+        <!-- About full-page route link -->
+        <a routerLink="/about" class="nav-link about-btn" (click)="onNavigate.emit()" matRipple>
           <span class="material-symbols-outlined nav-icon">info</span>
           <span class="nav-text">About App</span>
-        </button>
+        </a>
       </nav>
     </div>
   `,

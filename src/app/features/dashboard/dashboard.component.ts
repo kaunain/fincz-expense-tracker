@@ -67,18 +67,6 @@ import { PaymentMethod, TransactionType } from '../../core/models/expense.model'
         </div>
       </div>
 
-      <!-- Quick Action Buttons -->
-      <div class="quick-actions">
-        <button class="action-btn expense-btn" (click)="openAdd('expense')" matRipple>
-          <span class="btn-icon">➖</span>
-          <span>Add Expense</span>
-        </button>
-        <button class="action-btn income-btn" (click)="openAdd('income')" matRipple>
-          <span class="btn-icon">➕</span>
-          <span>Add Income</span>
-        </button>
-      </div>
-
       <!-- Spending Donut Chart + Legend -->
       <div class="m3-card chart-card" *ngIf="monthSummary().categoryBreakdown.length > 0">
         <div class="section-title-row">
@@ -108,34 +96,7 @@ import { PaymentMethod, TransactionType } from '../../core/models/expense.model'
       <!-- Empty State for Chart -->
       <div class="m3-card empty-chart" *ngIf="monthSummary().categoryBreakdown.length === 0">
         <span class="empty-emoji">📊</span>
-        <p>No expenses this month. Tap <strong>Add Expense</strong> to start tracking!</p>
-      </div>
-
-      <!-- Recent Transactions -->
-      <div class="m3-card recent-card">
-        <div class="section-title-row">
-          <h3>🕒 Recent Transactions</h3>
-          <a routerLink="/expenses" class="see-all-link">See All ➔</a>
-        </div>
-
-        <div *ngIf="recentMonthTransactions().length === 0" class="empty-state">
-          <p>No transactions this month.</p>
-        </div>
-
-        <div class="tx-list">
-          <div *ngFor="let item of recentMonthTransactions() | slice: 0 : 3" class="tx-item">
-            <div class="tx-avatar" [class.income-avatar]="item.type === 'income'">
-              {{ item.type === 'income' ? '📈' : getCategoryIcon(item.category) }}
-            </div>
-            <div class="tx-info">
-              <span class="tx-title">{{ item.title }}</span>
-              <span class="tx-sub">{{ item.date }} · {{ item.category }}</span>
-            </div>
-            <span class="tx-amount" [class.income-amount]="item.type === 'income'">
-              {{ item.type === 'income' ? '+' : '-' }}₹{{ item.amount | number: '1.0-0' }}
-            </span>
-          </div>
-        </div>
+        <p>No expenses recorded this month.</p>
       </div>
     </div>
   `,

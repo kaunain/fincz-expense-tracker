@@ -52,16 +52,15 @@ import { TransferDialogComponent } from '../../shared/components/transfer-dialog
       </div>
 
       <div class="header-right">
-        <!-- Transfer Button replacing old + button -->
-        <button
-          mat-icon-button
+        <!-- Transfer Button linking to /transfer route -->
+        <a
+          routerLink="/transfer"
           class="header-transfer-btn"
-          (click)="openTransferDialog()"
           aria-label="Transfer between accounts"
           matTooltip="Transfer Money"
         >
           <span class="material-symbols-outlined">swap_horiz</span>
-        </button>
+        </a>
       </div>
     </header>
   `,

@@ -6,35 +6,38 @@
  */
 
 import { Component, EventEmitter, Output } from '@angular/core';
+import { RouterModule } from '@angular/router';
 import { MatRippleModule } from '@angular/material/core';
 
 @Component({
   selector: 'app-bottom-nav',
   standalone: true,
-  imports: [MatRippleModule],
+  imports: [RouterModule, MatRippleModule],
   template: `
     <nav class="bottom-nav" aria-label="Quick actions">
-      <button
+      <a
+        routerLink="/transactions/new"
+        [queryParams]="{ type: 'expense' }"
         class="action-btn expense-btn"
-        (click)="onAddExpense.emit()"
         aria-label="Add new expense"
         matRipple
       >
         <span class="material-symbols-outlined btn-icon">remove_circle</span>
         <span class="btn-label">New Expense</span>
-      </button>
+      </a>
 
       <div class="btn-divider" aria-hidden="true"></div>
 
-      <button
+      <a
+        routerLink="/transactions/new"
+        [queryParams]="{ type: 'income' }"
         class="action-btn income-btn"
-        (click)="onAddIncome.emit()"
         aria-label="Add new income"
         matRipple
       >
         <span class="material-symbols-outlined btn-icon">add_circle</span>
         <span class="btn-label">New Income</span>
-      </button>
+      </a>
     </nav>
   `,
   styles: [`
