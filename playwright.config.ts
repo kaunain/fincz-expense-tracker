@@ -18,6 +18,13 @@ export default defineConfig({
   },
   projects: [
     {
+      name: 'Mobile Chrome',
+      use: {
+        ...devices['Pixel 5'],
+        viewport: { width: 375, height: 812 },
+      },
+    },
+    {
       name: 'Desktop Chrome',
       use: {
         ...devices['Desktop Chrome'],
@@ -31,12 +38,12 @@ export default defineConfig({
         viewport: { width: 768, height: 1024 },
       },
     },
-    {
-      name: 'Mobile Chrome',
-      use: {
-        ...devices['Pixel 5'],
-        viewport: { width: 375, height: 812 },
-      },
-    },
   ],
+  webServer: {
+    command:
+      'pnpm run build && pnpm exec serve dist/fincz-expense-tracker/browser -p 4200 --single',
+    port: 4200,
+    reuseExistingServer: !process.env.CI,
+    timeout: 120 * 1000,
+  },
 });

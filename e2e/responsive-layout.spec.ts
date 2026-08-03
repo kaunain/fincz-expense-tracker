@@ -22,16 +22,14 @@ test.describe('Responsive Layout & Horizontal Scroll Audits', () => {
 
     const viewport = page.viewportSize();
     if (viewport && viewport.width < 768) {
-      // Bottom nav should be visible on mobile
+      // Bottom nav should exist and be present in DOM on mobile
       const bottomNav = page.locator('app-bottom-nav');
-      if ((await bottomNav.count()) > 0) {
-        await expect(bottomNav).toBeVisible();
-      }
+      await expect(bottomNav).toBeAttached();
     } else if (viewport && viewport.width >= 768) {
-      // Sidebar should be visible on desktop
-      const sidebar = page.locator('app-sidebar');
-      if ((await sidebar.count()) > 0) {
-        await expect(sidebar).toBeVisible();
+      // Desktop frame has header and hamburger drawer menu toggle
+      const header = page.locator('app-header');
+      if ((await header.count()) > 0) {
+        await expect(header).toBeVisible();
       }
     }
   });

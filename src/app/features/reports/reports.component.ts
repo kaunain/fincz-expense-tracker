@@ -24,9 +24,11 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
         <h3>📅 Select Date</h3>
         <div class="date-inputs-row">
           <div class="date-field">
-            <label>Date</label>
+            <label for="reports-date-input">Date</label>
             <input
+              id="reports-date-input"
               type="date"
+              aria-label="Select Date"
               [value]="selectedDate()"
               (input)="onDateChange($event)"
               (change)="onDateChange($event)"

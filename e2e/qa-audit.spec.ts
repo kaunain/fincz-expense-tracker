@@ -68,7 +68,7 @@ test.describe('Fincz Expense Tracker - E2E QA Crawl & Audit', () => {
         .first();
       await amountInput.fill('150.50');
 
-      const titleInput = page.locator('input[formcontrolname="title"]').first();
+      const titleInput = page.locator('input[formcontrolname="notes"]').first();
       await titleInput.fill('QA Automated Test Expense');
 
       const saveBtn = page.locator('button.save-btn, button:has-text("Save Transaction")').first();
