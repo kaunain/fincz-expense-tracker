@@ -25,7 +25,14 @@ import { AddExpenseDialogComponent } from '../../shared/components/add-expense-d
         <div class="date-inputs-row">
           <div class="date-field">
             <label>Date</label>
-            <input type="date" [(ngModel)]="selectedDate" class="date-input" [max]="todayDate" />
+            <input
+              type="date"
+              [value]="selectedDate()"
+              (input)="onDateChange($event)"
+              (change)="onDateChange($event)"
+              class="date-input"
+              [max]="todayDate"
+            />
           </div>
         </div>
       </div>
@@ -150,11 +157,23 @@ export class ReportsComponent {
   public expenses = this.expenseService.expenses;
 
   public todayDate = new Date().toISOString().split('T')[0];
-  public selectedDate = this.todayDate;
+  public selectedDate = signal<string>(this.todayDate);
+
+  onDateChange(event: Event): void {
+    const val = (event.target as HTMLInputElement).value;
+    if (val) {
+      this.selectedDate.set(val);
+    }
+  }
 
   public dateFilteredStats = computed(() => {
     const all = this.expenses();
-    const items = all.filter((e) => e.date === this.selectedDate);
+    const dateVal = this.selectedDate();
+    const items = all.filter((e) => {
+      if (!e.date) return false;
+      const cleanItemDate = e.date.includes('T') ? e.date.split('T')[0] : e.date;
+      return cleanItemDate === dateVal;
+    });
 
     let income = 0;
     let expenses = 0;
@@ -241,7 +260,7 @@ export class ReportsComponent {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', `fincz_report_${this.selectedDate}.csv`);
+    link.setAttribute('download', `fincz_report_${this.selectedDate()}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
