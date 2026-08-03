@@ -84,7 +84,7 @@ import { TransferDialogComponent } from '../../shared/components/transfer-dialog
               >
               <span class="acc-name">{{ acc.name }}</span>
             </div>
-            <button class="delete-btn" (click)="deleteAccount(acc.id!)" title="Delete Account">
+            <button class="delete-btn" (click)="deleteAccount(acc.id!, acc.name)" title="Delete Account">
               <span class="material-symbols-outlined">delete</span>
             </button>
           </div>
@@ -398,16 +398,16 @@ export class AccountsComponent {
     this.newAccInitial = null;
   }
 
-  async deleteAccount(id: number): Promise<void> {
+  async deleteAccount(id: number, name: string): Promise<void> {
     const { ConfirmDialogComponent } =
       await import('../../shared/components/confirm-dialog/confirm-dialog.component');
     const ref = this.dialog.open(ConfirmDialogComponent, {
       width: '320px',
-      data: { message: 'Delete this account?' },
+      data: { message: `Delete account "${name}"? Transactions will be reassigned.` },
     });
     ref.afterClosed().subscribe(async (confirmed) => {
       if (confirmed) {
-        await this.accountService.deleteAccount(id);
+        await this.accountService.deleteAccount(id, name);
         this.snackBar.open('Account deleted', 'Dismiss', { duration: 3000 });
       }
     });

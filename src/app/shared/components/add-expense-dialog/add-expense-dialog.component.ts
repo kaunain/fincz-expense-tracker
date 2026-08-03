@@ -35,6 +35,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { CategoryService } from '../../../core/services/category.service';
 import { ExpenseService } from '../../../core/services/expense.service';
+import { AccountService } from '../../../core/services/account.service';
 import { Expense, PaymentMethod } from '../../../core/models/expense.model';
 
 export interface ExpenseDialogData {
@@ -167,11 +168,9 @@ export interface ExpenseDialogData {
           <mat-form-field appearance="outline" class="half-width">
             <mat-label>Payment Method</mat-label>
             <mat-select formControlName="paymentMethod">
-              <mat-option value="UPI">📱 UPI / GPay</mat-option>
-              <mat-option value="Cash">💵 Cash</mat-option>
-              <mat-option value="Credit Card">💳 Credit Card</mat-option>
-              <mat-option value="Debit Card">💳 Debit Card</mat-option>
-              <mat-option value="Bank Transfer">🏦 Bank Transfer</mat-option>
+              <mat-option *ngFor="let acc of accounts()" [value]="acc.name">
+                {{ isEmoji(acc.icon) ? acc.icon : '💳' }} {{ acc.name }}
+              </mat-option>
             </mat-select>
           </mat-form-field>
 
@@ -424,10 +423,12 @@ export class AddExpenseDialogComponent implements AfterViewInit {
 
   private categoryService = inject(CategoryService);
   private expenseService = inject(ExpenseService);
+  private accountService = inject(AccountService);
   private fb = inject(FormBuilder);
   public dialogRef = inject(MatDialogRef<AddExpenseDialogComponent>);
 
   public categories = this.categoryService.categories;
+  public accounts = this.accountService.accounts;
   public pastExpenses = this.expenseService.expenses;
   public isEdit = false;
   public selectedType = signal<'expense' | 'income'>('expense');
@@ -463,7 +464,12 @@ export class AddExpenseDialogComponent implements AfterViewInit {
     if (!this.isEdit) {
       const type = this.selectedType();
       const defaultCategoryName = type === 'income' ? 'Salary' : 'Food';
-      this.expenseForm.patchValue({ category: defaultCategoryName });
+      const availableAccounts = this.accounts();
+      const defaultPaymentMethod = availableAccounts.length > 0 ? availableAccounts[0].name : 'Cash';
+      this.expenseForm.patchValue({
+        category: defaultCategoryName,
+        paymentMethod: defaultPaymentMethod as any
+      });
     }
   }
 

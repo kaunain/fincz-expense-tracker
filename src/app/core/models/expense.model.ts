@@ -3,8 +3,7 @@
  * @description Expense entity definition, filter criteria, and summary statistics models.
  */
 
-export type PaymentMethod =
-  'Cash' | 'Credit Card' | 'Debit Card' | 'UPI' | 'Bank Transfer' | 'Other';
+export type PaymentMethod = string;
 export type TransactionType = 'expense' | 'income';
 
 export interface Expense {

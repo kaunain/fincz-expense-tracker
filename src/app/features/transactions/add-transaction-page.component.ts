@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CategoryService } from '../../core/services/category.service';
 import { ExpenseService } from '../../core/services/expense.service';
+import { AccountService } from '../../core/services/account.service';
 import { PaymentMethod } from '../../core/models/expense.model';
 
 @Component({
@@ -91,11 +92,9 @@ import { PaymentMethod } from '../../core/models/expense.model';
           <div class="field-group half">
             <label>Payment Method</label>
             <select [(ngModel)]="paymentMethod" name="paymentMethod" class="select-control">
-              <option value="UPI">📱 UPI / GPay</option>
-              <option value="Cash">💵 Cash</option>
-              <option value="Credit Card">💳 Credit Card</option>
-              <option value="Debit Card">💳 Debit Card</option>
-              <option value="Bank Transfer">🏦 Bank Transfer</option>
+              <option *ngFor="let acc of accounts()" [value]="acc.name">
+                {{ isEmoji(acc.icon) ? acc.icon : '💳' }} {{ acc.name }}
+              </option>
             </select>
           </div>
 
@@ -251,6 +250,7 @@ import { PaymentMethod } from '../../core/models/expense.model';
 export class AddTransactionPageComponent {
   private categoryService = inject(CategoryService);
   private expenseService = inject(ExpenseService);
+  private accountService = inject(AccountService);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
@@ -259,11 +259,12 @@ export class AddTransactionPageComponent {
   public amount: number | null = null;
   public notes = '';
   public selectedCategory = '';
-  public paymentMethod: PaymentMethod = 'UPI';
+  public paymentMethod: string = 'Cash';
   public todayStr = new Date().toISOString().split('T')[0];
   public dateStr = this.todayStr;
 
   public categories = this.categoryService.categories;
+  public accounts = this.accountService.accounts;
 
   public filteredCategories = computed(() =>
     this.categories().filter((c) => c.type === this.selectedType())
@@ -277,6 +278,11 @@ export class AddTransactionPageComponent {
         this.setType('expense');
       }
     });
+
+    const currentAccounts = this.accounts();
+    if (currentAccounts.length > 0) {
+      this.paymentMethod = currentAccounts[0].name;
+    }
   }
 
   isEmoji(icon: string | undefined): boolean {

@@ -16,6 +16,7 @@ import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ExpenseService } from '../../../core/services/expense.service';
+import { AccountService } from '../../../core/services/account.service';
 
 const PAYMENT_METHODS = ['Cash', 'UPI', 'Bank Transfer', 'Credit Card', 'Debit Card'] as const;
 
@@ -38,7 +39,9 @@ const PAYMENT_METHODS = ['Cash', 'UPI', 'Bank Transfer', 'Credit Card', 'Debit C
           <div class="form-group half-width">
             <label class="form-label" for="transferFrom">From Account</label>
             <select id="transferFrom" class="select-input" [(ngModel)]="transfer.from" name="from">
-              <option *ngFor="let m of paymentMethods" [value]="m">{{ m }}</option>
+              <option *ngFor="let acc of accounts()" [value]="acc.name">
+                {{ isEmoji(acc.icon) ? acc.icon : '💳' }} {{ acc.name }}
+              </option>
             </select>
           </div>
 
@@ -56,7 +59,9 @@ const PAYMENT_METHODS = ['Cash', 'UPI', 'Bank Transfer', 'Credit Card', 'Debit C
           <div class="form-group half-width">
             <label class="form-label" for="transferTo">To Account</label>
             <select id="transferTo" class="select-input" [(ngModel)]="transfer.to" name="to">
-              <option *ngFor="let m of paymentMethods" [value]="m">{{ m }}</option>
+              <option *ngFor="let acc of accounts()" [value]="acc.name">
+                {{ isEmoji(acc.icon) ? acc.icon : '💳' }} {{ acc.name }}
+              </option>
             </select>
           </div>
         </div>
@@ -247,19 +252,33 @@ const PAYMENT_METHODS = ['Cash', 'UPI', 'Bank Transfer', 'Credit Card', 'Debit C
 })
 export class TransferDialogComponent {
   private expenseService = inject(ExpenseService);
+  private accountService = inject(AccountService);
   private snackBar = inject(MatSnackBar);
   public dialogRef = inject(MatDialogRef<TransferDialogComponent>);
 
-  public paymentMethods = PAYMENT_METHODS;
+  public accounts = this.accountService.accounts;
   public maxDateStr = new Date().toISOString().slice(0, 10);
 
   public transfer = {
-    from: 'Cash' as string,
-    to: 'Bank Transfer' as string,
+    from: '',
+    to: '',
     amount: null as number | null,
     date: new Date().toISOString().slice(0, 10),
     note: ''
   };
+
+  constructor() {
+    const list = this.accounts();
+    if (list.length > 0) {
+      this.transfer.from = list[0].name;
+      this.transfer.to = list.length > 1 ? list[1].name : list[0].name;
+    }
+  }
+
+  isEmoji(icon: string | undefined): boolean {
+    if (!icon) return false;
+    return Array.from(icon).some((char) => char.codePointAt(0)! > 255);
+  }
 
   /** Swaps/Interchanges From Account and To Account */
   swapAccounts(): void {
